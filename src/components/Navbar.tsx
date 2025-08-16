@@ -1,0 +1,92 @@
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "How It Works", href: "/how-it-works" },
+    { name: "Rewards", href: "/rewards" },
+    { name: "Contact", href: "/contact" },
+  ];
+
+  const isActive = (href: string) => location.pathname === href;
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <img 
+              src={vapeFiLogo} 
+              alt="VapeFi Logo" 
+              className="h-8 w-auto"
+            />
+            <span className="text-xl font-bold text-hero-text">VapeFi</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className={`text-hero-text hover:text-hero-text/80 transition-colors ${
+                  isActive(link.href) ? "font-semibold" : ""
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+            <Button variant="hero-primary" size="sm" className="ml-4">
+              Start Earning
+            </Button>
+          </div>
+
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-hero-text">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] bg-hero-bg border-hero-text/20">
+                <div className="flex flex-col space-y-6 mt-8">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`text-hero-text hover:text-hero-text/80 transition-colors text-lg ${
+                        isActive(link.href) ? "font-semibold" : ""
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                  <Button 
+                    variant="hero-primary" 
+                    className="w-full mt-6"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Start Earning
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

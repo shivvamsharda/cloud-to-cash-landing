@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
 const HeroSection = () => {
-  return <section className="h-[70vh] bg-hero-bg flex flex-col items-center justify-center px-6 py-8">
+  return <section className="h-[70vh] bg-hero-bg flex flex-col items-center justify-center px-6 py-8 pt-24">
       <div className="text-center max-w-4xl flex flex-col items-center">
         {/* Logo */}
         <img src={vapeFiLogo} alt="VapeFi Logo - Turn Clouds Into Coins" className="block mx-auto w-[480px] md:w-[640px] h-auto object-contain -mb-24 md:-mb-28 lg:-mb-32" />
