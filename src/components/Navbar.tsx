@@ -29,7 +29,7 @@ const Navbar = () => {
               alt="VapeFi Logo" 
               className="h-8 w-auto"
             />
-            <span className="text-xl font-bold text-hero-text">VapeFi</span>
+            <span className="text-xl font-bold text-black">VapeFi</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -38,7 +38,7 @@ const Navbar = () => {
               <Link
                 key={link.name}
                 to={link.href}
-                className={`text-hero-text hover:text-hero-text/80 transition-colors ${
+                className={`text-black hover:text-black/70 transition-colors ${
                   isActive(link.href) ? "font-semibold" : ""
                 }`}
               >
@@ -54,7 +54,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-hero-text">
+                <Button variant="ghost" size="icon" className="text-black">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
@@ -65,7 +65,7 @@ const Navbar = () => {
                       key={link.name}
                       to={link.href}
                       onClick={() => setIsOpen(false)}
-                      className={`text-hero-text hover:text-hero-text/80 transition-colors text-lg ${
+                      className={`text-black hover:text-black/70 transition-colors text-lg ${
                         isActive(link.href) ? "font-semibold" : ""
                       }`}
                     >
