@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import vapeFiLogo from "@/assets/vapefi-logo.png";
+import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
 
 const HeroSection = () => {
   return (
