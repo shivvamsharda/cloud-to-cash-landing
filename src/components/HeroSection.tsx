@@ -7,7 +7,7 @@ const HeroSection = () => {
         <img src={vapeFiLogo} alt="VapeFi Logo - Turn Clouds Into Coins" className="block mx-auto w-[480px] md:w-[640px] h-auto object-contain -mb-24 md:-mb-28 lg:-mb-32" />
         
         {/* Brand Name - positioned immediately below image */}
-        <h1 className="text-6xl md:text-8xl font-bold text-hero-text tracking-tight leading-none mt-0 mb-2">
+        <h1 className="text-6xl md:text-8xl font-bold text-hero-text tracking-tight leading-none mt-0 mb-2.5">
           VapeFi
         </h1>
         
