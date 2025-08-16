@@ -4,21 +4,23 @@ import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
 const HeroSection = () => {
   return (
     <section className="min-h-screen bg-hero-bg flex flex-col items-center justify-center px-6 py-12">
-      <div className="text-center max-w-4xl flex flex-col items-center space-y-3 md:space-y-4">
+      <div className="text-center max-w-4xl">
         {/* Logo */}
-        <img 
-          src={vapeFiLogo} 
-          alt="VapeFi Logo - Turn Clouds Into Coins" 
-          className="block mx-auto w-[480px] md:w-[640px] h-auto object-contain"
-        />
+        <div className="mb-8 flex justify-center">
+          <img 
+            src={vapeFiLogo} 
+            alt="VapeFi Logo - Turn Clouds Into Coins" 
+            className="w-[480px] h-[480px] md:w-[640px] md:h-[640px] object-contain"
+          />
+        </div>
         
         {/* Brand Name */}
-        <h1 className="text-6xl md:text-8xl font-bold text-hero-text tracking-tight leading-none">
+        <h1 className="text-6xl md:text-8xl font-bold text-hero-text mb-4 tracking-tight">
           VapeFi
         </h1>
         
         {/* Tagline */}
-        <p className="text-xl md:text-2xl font-semibold text-hero-text tracking-wide">
+        <p className="text-xl md:text-2xl font-semibold text-hero-text mb-12 tracking-wide">
           TURN CLOUDS INTO COINS
         </p>
         
