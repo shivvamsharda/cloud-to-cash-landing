@@ -4,8 +4,10 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 const Index = () => {
   return (
     <main className="min-h-screen">
-      <HeroSection />
-      <HowItWorksSection />
+      <div className="min-h-screen">
+        <HeroSection />
+        <HowItWorksSection />
+      </div>
     </main>
   );
 };

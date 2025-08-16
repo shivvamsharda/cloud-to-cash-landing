@@ -22,7 +22,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section className="bg-background py-20 px-6">
+    <section className="bg-background py-16 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Section Title */}
         <h2 className="text-4xl md:text-5xl font-bold text-center text-section-text mb-16 tracking-tight">
