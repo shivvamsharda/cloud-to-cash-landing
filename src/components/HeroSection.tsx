@@ -10,7 +10,7 @@ const HeroSection = () => {
           <img 
             src={vapeFiLogo} 
             alt="VapeFi Logo - Turn Clouds Into Coins" 
-            className="w-48 h-48 md:w-64 md:h-64 object-contain"
+            className="w-[480px] h-[480px] md:w-[640px] md:h-[640px] object-contain"
           />
         </div>
         
