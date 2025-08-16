@@ -24,6 +24,16 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				/* VapeFi Brand Colors */
+				'hero-bg': 'hsl(var(--hero-bg))',
+				'brand-purple': 'hsl(var(--brand-purple))',
+				'brand-purple-dark': 'hsl(var(--brand-purple-dark))',
+				'brand-yellow': 'hsl(var(--brand-yellow))',
+				'hero-text': 'hsl(var(--hero-text))',
+				'section-text': 'hsl(var(--section-text))',
+				'muted-text': 'hsl(var(--muted-text))',
+				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
