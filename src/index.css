@@ -119,3 +119,8 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Overrides for Solana Wallet Adapter button to match pill shape */
+.wallet-adapter-button {
+  border-radius: 9999px !important;
+}
