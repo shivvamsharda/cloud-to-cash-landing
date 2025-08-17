@@ -54,8 +54,7 @@ const LeaderboardSection = () => {
         </h2>
         
         {/* Leaderboard Table */}
-        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-          <ScrollArea className="w-full">
+        <ScrollArea className="w-full">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
@@ -98,8 +97,7 @@ const LeaderboardSection = () => {
                 ))}
               </TableBody>
             </Table>
-          </ScrollArea>
-        </div>
+        </ScrollArea>
         
         {/* Footer Note */}
         <p className="text-center text-muted-text text-sm mt-6">
