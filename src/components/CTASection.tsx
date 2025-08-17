@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import SolanaWalletAuth from "@/components/SolanaWalletAuth";
 
 const CTASection = () => {
   const stats = [
@@ -22,9 +23,9 @@ const CTASection = () => {
         
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-          <Button variant="hero-outline" size="lg" className="px-8 py-3 text-lg font-semibold min-w-[180px] bg-white text-brand-purple border-white hover:bg-white/90">
+          <SolanaWalletAuth className="px-8 py-3 text-lg font-semibold min-w-[180px] bg-white text-brand-purple border-white hover:bg-white/90">
             Start Earning Now
-          </Button>
+          </SolanaWalletAuth>
           <Button variant="hero-outline" size="lg" className="px-8 py-3 text-lg font-semibold min-w-[180px] border-white text-white bg-transparent hover:bg-white/10">
             View Rewards
           </Button>

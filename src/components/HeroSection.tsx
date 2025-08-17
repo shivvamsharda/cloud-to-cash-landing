@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import SolanaWalletAuth from "@/components/SolanaWalletAuth";
 import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
 const HeroSection = () => {
   return <section className="h-screen bg-hero-bg flex flex-col items-center justify-center px-6 py-8 pt-24">
@@ -18,9 +19,9 @@ const HeroSection = () => {
         
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <Button variant="hero-primary" size="lg" className="px-8 py-3 text-lg font-semibold min-w-[180px]">
+          <SolanaWalletAuth className="px-8 py-3 text-lg font-semibold min-w-[180px]">
             Start Earning
-          </Button>
+          </SolanaWalletAuth>
           <Button variant="hero-outline" size="lg" className="px-8 py-3 text-lg font-semibold min-w-[180px]">
             Learn More
           </Button>
