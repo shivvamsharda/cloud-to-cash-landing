@@ -100,7 +100,7 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
           {loading ? "Authenticating..." : children || "Sign In & Start Earning"}
         </Button>
       ) : (
-        <WalletMultiButton className={`wallet-adapter-button ${className}`}>
+        <WalletMultiButton className={`wallet-adapter-button rounded-full ${className}`}>
           {children || "Connect Wallet"}
         </WalletMultiButton>
       )}
