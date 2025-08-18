@@ -237,7 +237,7 @@ const Track = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center">
-                <div className="text-4xl font-bold text-brand-purple mb-2">
+                <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
                   {isTracking ? displayedPuffs : currentSession.puffs}
                 </div>
                 <div className="text-muted-foreground">
@@ -294,7 +294,7 @@ const Track = () => {
               </div>
 
               <div className="text-center">
-                <div className="text-4xl font-bold text-brand-purple mb-2">
+                <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
                   {profile?.total_puffs || 0}
                 </div>
                 <div className="text-muted-foreground">Total Puffs</div>
