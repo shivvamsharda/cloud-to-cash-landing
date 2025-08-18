@@ -231,8 +231,8 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
     
     confidence += sequenceScore;
     
-    // Apply strict detection threshold (75%)
-    const threshold = 75;
+    // Apply strict detection threshold (90%)
+    const threshold = 90;
     const isPuff = confidence >= threshold;
     
     return {
@@ -541,7 +541,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
                       <Badge variant="default">🔒 High Precision Mode</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Detection is locked to strict mode (75% threshold) to prevent false positives and ensure accuracy.
+                      Detection is locked to strict mode (90% threshold) to prevent false positives and ensure accuracy.
                     </p>
                   </div>
                 </div>
