@@ -8,17 +8,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Play, Pause, Square } from 'lucide-react';
 import SmartPuffTracker from '@/components/detection/SmartPuffTracker';
+import { useScoreUpdater } from '@/hooks/useScoreUpdater';
 
 const Track = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  // Initialize 3-minute score updater
+  useScoreUpdater();
+  
   const [isTracking, setIsTracking] = useState(false);
   const [currentSession, setCurrentSession] = useState({
     puffs: 0,
     duration: 0,
-    rewards: 0,
   });
   const [profile, setProfile] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -30,10 +33,14 @@ const Track = () => {
     }
   }, [user, loading, navigate]);
 
-  // Load user profile
+  // Load user profile initially and refresh every 30 seconds
   useEffect(() => {
     if (user) {
       loadProfile();
+      
+      // Refresh profile data every 30 seconds to show updated scores
+      const interval = setInterval(loadProfile, 30000);
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -75,7 +82,7 @@ const Track = () => {
 
       setSessionId(data.id);
       setIsTracking(true);
-      setCurrentSession({ puffs: 0, duration: 0, rewards: 0 });
+      setCurrentSession({ puffs: 0, duration: 0 });
 
       toast({
         title: "Tracking started!",
@@ -95,14 +102,13 @@ const Track = () => {
     if (!sessionId || !isTracking) return;
 
     const newPuffs = currentSession.puffs + 1;
-    const newRewards = newPuffs * 0.1; // 0.1 token per puff
 
     try {
       const { error } = await supabase
         .from('puff_sessions')
         .update({
           puffs_count: newPuffs,
-          rewards_earned: newRewards,
+          rewards_earned: 0, // No rewards calculated until 3-minute update
         })
         .eq('id', sessionId);
 
@@ -111,13 +117,9 @@ const Track = () => {
       setCurrentSession(prev => ({
         ...prev,
         puffs: newPuffs,
-        rewards: newRewards,
       }));
 
-      toast({
-        title: "Puff recorded!",
-        description: `+0.1 VapeFi tokens earned`,
-      });
+      // No toast notification to prevent gaming the system
     } catch (error) {
       console.error('Error recording puff:', error);
     }
@@ -137,26 +139,14 @@ const Track = () => {
 
       if (error) throw error;
 
-      // Update profile totals
-      if (profile) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            total_puffs: (profile.total_puffs || 0) + currentSession.puffs,
-            total_rewards: (profile.total_rewards || 0) + currentSession.rewards,
-          })
-          .eq('id', user?.id);
-
-        if (profileError) throw profileError;
-      }
-
+      // Profile totals will be updated by the 3-minute scoring system
       setIsTracking(false);
       setSessionId(null);
-      loadProfile(); // Reload updated profile
+      loadProfile(); // Reload profile
 
       toast({
         title: "Session completed!",
-        description: `Earned ${currentSession.rewards} VapeFi tokens total`,
+        description: "Scores will update within 3 minutes",
       });
     } catch (error) {
       console.error('Error stopping session:', error);
@@ -227,14 +217,7 @@ const Track = () => {
                 <div className="text-4xl font-bold text-brand-purple mb-2">
                   {currentSession.puffs}
                 </div>
-                <div className="text-muted-foreground">Puffs</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="text-2xl font-semibold text-brand-yellow mb-2">
-                  {currentSession.rewards.toFixed(1)}
-                </div>
-                <div className="text-muted-foreground">VapeFi Tokens</div>
+                <div className="text-muted-foreground">Puffs This Session</div>
               </div>
               
               <div className="text-center">
@@ -258,7 +241,7 @@ const Track = () => {
                       className="w-full" 
                       size="lg"
                     >
-                      Record Puff (+0.1 Token)
+                      Record Puff
                     </Button>
                     <Button 
                       onClick={stopTracking} 
@@ -280,6 +263,16 @@ const Track = () => {
               <CardTitle className="text-center">Your Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="bg-muted/50 p-3 rounded-lg text-center mb-4">
+                <div className="text-sm text-muted-foreground">
+                  ⏱️ Scores update every 3 minutes
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Last updated: {profile?.last_score_update ? 
+                    new Date(profile.last_score_update).toLocaleTimeString() : 'Never'}
+                </div>
+              </div>
+
               <div className="text-center">
                 <div className="text-4xl font-bold text-brand-purple mb-2">
                   {profile?.total_puffs || 0}
