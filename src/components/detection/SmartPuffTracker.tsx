@@ -49,8 +49,6 @@ interface SmartPuffTrackerProps {
   isTracking: boolean;
 }
 
-type DetectionMode = 'strict' | 'normal' | 'lenient';
-
 const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({ 
   onPuffDetected, 
   isTracking 
@@ -70,7 +68,6 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
   const [cameraActive, setCameraActive] = useState(false);
   const [mediaPipeReady, setMediaPipeReady] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
-  const [detectionMode, setDetectionMode] = useState<DetectionMode>('normal');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [error, setError] = useState('');
   const [mouthMetrics, setMouthMetrics] = useState({
@@ -234,14 +231,8 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
     
     confidence += sequenceScore;
     
-    // Apply detection mode thresholds
-    const thresholds = {
-      strict: 75,
-      normal: 55,
-      lenient: 40
-    };
-    
-    const threshold = thresholds[detectionMode];
+    // Apply strict detection threshold (75%)
+    const threshold = 75;
     const isPuff = confidence >= threshold;
     
     return {
@@ -259,7 +250,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
         sequenceScore
       }
     };
-  }, [detectionMode]);
+  }, []);
 
   // Detection loop
   useEffect(() => {
@@ -545,17 +536,14 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-3 pt-3">
                 <div className="space-y-2">
-                  <Label htmlFor="detection-mode">Detection Sensitivity</Label>
-                  <Select value={detectionMode} onValueChange={(value: DetectionMode) => setDetectionMode(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="strict">🔒 Strict (75% threshold)</SelectItem>
-                      <SelectItem value="normal">⚖️ Normal (55% threshold)</SelectItem>
-                      <SelectItem value="lenient">🟢 Lenient (40% threshold)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="bg-muted p-3 rounded-md">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="default">🔒 High Precision Mode</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Detection is locked to strict mode (75% threshold) to prevent false positives and ensure accuracy.
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
