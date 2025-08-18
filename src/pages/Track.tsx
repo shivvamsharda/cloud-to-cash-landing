@@ -23,6 +23,8 @@ const Track = () => {
     puffs: 0,
     duration: 0,
   });
+  const [displayedPuffs, setDisplayedPuffs] = useState(0); // Delayed display puffs
+  const [pendingPuffs, setPendingPuffs] = useState(0); // Actual puffs count
   const [profile, setProfile] = useState<any>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
@@ -83,10 +85,12 @@ const Track = () => {
       setSessionId(data.id);
       setIsTracking(true);
       setCurrentSession({ puffs: 0, duration: 0 });
+      setDisplayedPuffs(0);
+      setPendingPuffs(0);
 
       toast({
         title: "Tracking started!",
-        description: "Start vaping to earn rewards",
+        description: "AI detection only - no manual input",
       });
     } catch (error) {
       console.error('Error starting session:', error);
@@ -101,38 +105,25 @@ const Track = () => {
   const addPuff = async () => {
     if (!sessionId || !isTracking) return;
 
-    const newPuffs = currentSession.puffs + 1;
+    // Only update local state - batch database updates every 60 seconds
+    setPendingPuffs(prev => prev + 1);
+    setCurrentSession(prev => ({
+      ...prev,
+      puffs: prev.puffs + 1,
+    }));
 
-    try {
-      const { error } = await supabase
-        .from('puff_sessions')
-        .update({
-          puffs_count: newPuffs,
-          rewards_earned: 0, // No rewards calculated until 3-minute update
-        })
-        .eq('id', sessionId);
-
-      if (error) throw error;
-
-      setCurrentSession(prev => ({
-        ...prev,
-        puffs: newPuffs,
-      }));
-
-      // No toast notification to prevent gaming the system
-    } catch (error) {
-      console.error('Error recording puff:', error);
-    }
+    // No toast notification to prevent gaming the system
   };
 
   const stopTracking = async () => {
     if (!sessionId) return;
 
     try {
-      // Update the session with final duration
+      // Update the session with final puff count and duration
       const { error } = await supabase
         .from('puff_sessions')
         .update({
+          puffs_count: currentSession.puffs,
           session_duration: currentSession.duration,
         })
         .eq('id', sessionId);
@@ -142,7 +133,9 @@ const Track = () => {
       // Profile totals will be updated by the 3-minute scoring system
       setIsTracking(false);
       setSessionId(null);
-      loadProfile(); // Reload profile
+      setDisplayedPuffs(0);
+      setPendingPuffs(0);
+      loadProfile(); // Reload profile immediately
 
       toast({
         title: "Session completed!",
@@ -153,23 +146,53 @@ const Track = () => {
     }
   };
 
-  // Session timer
+  // Session timer and 60-second update intervals
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let timerInterval: NodeJS.Timeout;
+    let displayInterval: NodeJS.Timeout;
+    let dbUpdateInterval: NodeJS.Timeout;
     
     if (isTracking) {
-      interval = setInterval(() => {
+      // 1-second timer for session duration
+      timerInterval = setInterval(() => {
         setCurrentSession(prev => ({
           ...prev,
           duration: prev.duration + 1,
         }));
       }, 1000);
+
+      // 60-second interval to update displayed puffs (anti-cheating)
+      displayInterval = setInterval(() => {
+        setPendingPuffs(current => {
+          setDisplayedPuffs(current);
+          return current;
+        });
+      }, 60000);
+
+      // 60-second interval to batch database updates
+      dbUpdateInterval = setInterval(async () => {
+        if (sessionId && pendingPuffs > 0) {
+          try {
+            await supabase
+              .from('puff_sessions')
+              .update({
+                puffs_count: pendingPuffs,
+                rewards_earned: 0,
+              })
+              .eq('id', sessionId);
+          } catch (error) {
+            console.error('Error batch updating puffs:', error);
+          }
+        }
+      }, 60000);
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (timerInterval) clearInterval(timerInterval);
+      if (displayInterval) clearInterval(displayInterval);
+      if (dbUpdateInterval) clearInterval(dbUpdateInterval);
     };
-  }, [isTracking]);
+  }, [isTracking, sessionId, pendingPuffs]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -215,9 +238,16 @@ const Track = () => {
             <CardContent className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl font-bold text-brand-purple mb-2">
-                  {currentSession.puffs}
+                  {isTracking ? displayedPuffs : currentSession.puffs}
                 </div>
-                <div className="text-muted-foreground">Puffs This Session</div>
+                <div className="text-muted-foreground">
+                  {isTracking ? "Puffs (Updates every 60s)" : "Puffs This Session"}
+                </div>
+                {isTracking && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    🤖 AI Detection Active - No Manual Input
+                  </div>
+                )}
               </div>
               
               <div className="text-center">
@@ -234,24 +264,14 @@ const Track = () => {
                     Start Tracking
                   </Button>
                 ) : (
-                  <>
-                    <Button 
-                      onClick={addPuff} 
-                      variant="hero-primary" 
-                      className="w-full" 
-                      size="lg"
-                    >
-                      Record Puff
-                    </Button>
-                    <Button 
-                      onClick={stopTracking} 
-                      variant="destructive" 
-                      className="w-full"
-                    >
-                      <Square className="w-4 h-4 mr-2" />
-                      Stop Session
-                    </Button>
-                  </>
+                  <Button 
+                    onClick={stopTracking} 
+                    variant="destructive" 
+                    className="w-full"
+                  >
+                    <Square className="w-4 h-4 mr-2" />
+                    Stop Session
+                  </Button>
                 )}
               </div>
             </CardContent>
