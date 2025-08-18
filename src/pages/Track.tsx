@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Play, Pause, Square } from 'lucide-react';
+import SmartPuffTracker from '@/components/detection/SmartPuffTracker';
 
 const Track = () => {
   const { user, loading } = useAuth();
@@ -208,6 +209,11 @@ const Track = () => {
           <p className="text-xl text-muted-foreground">
             Track your puffs and earn VapeFi tokens
           </p>
+        </div>
+
+        {/* Smart AI Detection */}
+        <div className="mb-8">
+          <SmartPuffTracker onPuffDetected={addPuff} isTracking={isTracking} />
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
