@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import SolanaWalletAuth from "@/components/SolanaWalletAuth";
 import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
 
 const Navbar = () => {
@@ -45,9 +46,9 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Button variant="hero-primary" size="sm" className="ml-4">
+            <SolanaWalletAuth className="ml-4 px-4 py-2 text-sm font-semibold">
               Start Earning
-            </Button>
+            </SolanaWalletAuth>
           </div>
 
           {/* Mobile Menu */}
@@ -72,13 +73,12 @@ const Navbar = () => {
                       {link.name}
                     </Link>
                   ))}
-                  <Button 
-                    variant="hero-primary" 
-                    className="w-full mt-6"
-                    onClick={() => setIsOpen(false)}
+                  <SolanaWalletAuth 
+                    className="w-full mt-6 px-4 py-2 text-sm font-semibold"
+                    onSuccess={() => setIsOpen(false)}
                   >
                     Start Earning
-                  </Button>
+                  </SolanaWalletAuth>
                 </div>
               </SheetContent>
             </Sheet>
