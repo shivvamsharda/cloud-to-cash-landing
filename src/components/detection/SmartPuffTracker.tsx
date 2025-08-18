@@ -491,7 +491,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
         {smartDetectionEnabled && (
           <>
             {/* Camera Preview */}
-            <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '4/3' }}>
+            <div className="relative bg-black overflow-hidden" style={{ aspectRatio: '4/3' }}>
               <video
                 ref={videoRef}
                 autoPlay
