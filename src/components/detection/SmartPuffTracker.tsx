@@ -474,7 +474,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
       
       <CardContent className="space-y-4">
         {error && (
-          <div className="bg-destructive/15 text-destructive px-3 py-2 rounded-md text-sm">
+          <div className="bg-destructive/15 text-destructive px-3 py-2 rounded-none text-sm">
             {error}
           </div>
         )}
@@ -482,7 +482,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
         {smartDetectionEnabled && (
           <>
             {/* Camera Preview */}
-            <div className="relative bg-black overflow-hidden" style={{ aspectRatio: '4/3' }}>
+            <div className="relative bg-black overflow-hidden rounded-none" style={{ aspectRatio: '4/3' }}>
               <video
                 ref={videoRef}
                 autoPlay

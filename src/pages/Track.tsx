@@ -283,7 +283,7 @@ const Track = () => {
               <CardTitle className="text-center">Your Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-muted/50 p-3 rounded-lg text-center mb-4">
+              <div className="bg-muted/50 p-3 rounded-none text-center mb-4">
                 <div className="text-sm text-muted-foreground">
                   ⏱️ Scores update every 3 minutes
                 </div>
@@ -310,7 +310,7 @@ const Track = () => {
               {profile?.wallet_address && (
                 <div className="text-center">
                   <div className="text-sm text-muted-foreground mb-1">Wallet</div>
-                  <div className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                  <div className="font-mono text-xs bg-muted px-2 py-1 rounded-none">
                     {profile.wallet_address.slice(0, 8)}...{profile.wallet_address.slice(-8)}
                   </div>
                 </div>
