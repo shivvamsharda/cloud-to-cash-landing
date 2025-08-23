@@ -19,30 +19,36 @@ export type Database = {
           created_at: string | null
           id: string
           last_score_update: string | null
+          name: string | null
           total_puffs: number | null
           total_rewards: number | null
+          twitter_username: string | null
           updated_at: string | null
-          username: string | null
+          username: string
           wallet_address: string | null
         }
         Insert: {
           created_at?: string | null
           id: string
           last_score_update?: string | null
+          name?: string | null
           total_puffs?: number | null
           total_rewards?: number | null
+          twitter_username?: string | null
           updated_at?: string | null
-          username?: string | null
+          username: string
           wallet_address?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           last_score_update?: string | null
+          name?: string | null
           total_puffs?: number | null
           total_rewards?: number | null
+          twitter_username?: string | null
           updated_at?: string | null
-          username?: string | null
+          username?: string
           wallet_address?: string | null
         }
         Relationships: []

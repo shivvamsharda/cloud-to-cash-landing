@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/WalletContext';
 import { useNavigate } from 'react-router-dom';
+import ProfileCreationModal from './ProfileCreationModal';
 
 interface SolanaWalletAuthProps {
   onSuccess?: () => void;
@@ -19,10 +20,11 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
   children 
 }) => {
   const wallet = useWallet();
-  const { user } = useAuth();
+  const { user, profile, profileLoading, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleSignIn = async () => {
     if (!wallet.connected || !wallet.publicKey || !wallet.signMessage) {
@@ -58,8 +60,11 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
         description: "Welcome to VapeFi - start earning rewards!",
       });
 
-      // Navigate to tracking page
-      navigate('/track');
+      // Wait a moment for profile to load, then check if complete
+      setTimeout(() => {
+        checkProfileAndProceed();
+      }, 1000);
+      
       onSuccess?.();
     } catch (error) {
       console.error('Wallet authentication error:', error);
@@ -72,6 +77,34 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
       setLoading(false);
     }
   };
+
+  const checkProfileAndProceed = async () => {
+    if (!user) return;
+    
+    // Refresh profile to get latest data
+    await refreshProfile();
+    
+    // Check if profile is complete (has name and twitter_username)
+    if (!profile || !profile.name || !profile.twitter_username) {
+      setShowProfileModal(true);
+    } else {
+      navigate('/track');
+    }
+  };
+
+  const handleProfileCreated = async () => {
+    await refreshProfile();
+    navigate('/track');
+  };
+
+  // Check profile completeness when user/profile changes
+  useEffect(() => {
+    if (user && profile !== null && !profileLoading) {
+      if (!profile || !profile.name || !profile.twitter_username) {
+        setShowProfileModal(true);
+      }
+    }
+  }, [user, profile, profileLoading]);
 
   // If user is already authenticated, show different content
   if (user) {
@@ -88,23 +121,31 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {wallet.connected ? (
-        <Button
-          onClick={handleSignIn}
-          disabled={loading}
-          className={className}
-          variant="hero-primary"
-          size="lg"
-        >
-          {loading ? "Authenticating..." : children || "Sign In & Start Earning"}
-        </Button>
-      ) : (
-        <WalletMultiButton className={`wallet-adapter-button rounded-full ${className}`}>
-          {children || "Connect Wallet"}
-        </WalletMultiButton>
-      )}
-    </div>
+    <>
+      <div className="flex flex-col gap-4">
+        {wallet.connected ? (
+          <Button
+            onClick={handleSignIn}
+            disabled={loading}
+            className={className}
+            variant="hero-primary"
+            size="lg"
+          >
+            {loading ? "Authenticating..." : children || "Sign In & Start Earning"}
+          </Button>
+        ) : (
+          <WalletMultiButton className={`wallet-adapter-button rounded-full ${className}`}>
+            {children || "Connect Wallet"}
+          </WalletMultiButton>
+        )}
+      </div>
+      
+      <ProfileCreationModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onProfileCreated={handleProfileCreated}
+      />
+    </>
   );
 };
 
