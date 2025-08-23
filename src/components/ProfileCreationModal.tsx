@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
   onProfileCreated,
 }) => {
   const { user } = useAuth();
+  const { publicKey, connected } = useWallet();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
@@ -139,6 +141,15 @@ const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
       });
       return;
     }
+
+    if (!connected || !publicKey) {
+      toast({
+        title: "Wallet Error",
+        description: "Please connect your wallet first",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!validateForm()) return;
     
@@ -152,6 +163,8 @@ const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
     setLoading(true);
     
     try {
+      const walletAddress = publicKey.toString();
+      
       const { error } = await supabase
         .from('profiles')
         .upsert({
@@ -159,7 +172,7 @@ const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
           name: formData.name.trim(),
           username: formData.username,
           twitter_username: formData.twitter_username,
-          wallet_address: user.user_metadata?.wallet_address,
+          wallet_address: walletAddress,
         });
       
       if (error) {

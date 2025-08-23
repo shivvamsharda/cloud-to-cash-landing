@@ -39,10 +39,17 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
     setLoading(true);
     
     try {
+      const walletAddress = wallet.publicKey.toString();
+      
       const { error } = await supabase.auth.signInWithWeb3({
         chain: 'solana',
         statement: 'I accept the VapeFi Terms of Service',
         wallet: wallet as any,
+        options: {
+          data: {
+            wallet_address: walletAddress,
+          },
+        },
       });
 
       if (error) {
@@ -84,8 +91,8 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
     // Refresh profile to get latest data
     await refreshProfile();
     
-    // Check if profile is complete (has name and twitter_username)
-    if (!profile || !profile.name || !profile.twitter_username) {
+    // Check if profile is complete (has name, twitter_username, and wallet_address)
+    if (!profile || !profile.name || !profile.twitter_username || !profile.wallet_address) {
       setShowProfileModal(true);
     } else {
       navigate('/track');
@@ -100,7 +107,7 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
   // Check profile completeness when user/profile changes
   useEffect(() => {
     if (user && profile !== null && !profileLoading) {
-      if (!profile || !profile.name || !profile.twitter_username) {
+      if (!profile || !profile.name || !profile.twitter_username || !profile.wallet_address) {
         setShowProfileModal(true);
       }
     }
