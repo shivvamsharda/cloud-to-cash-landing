@@ -45,11 +45,6 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
         chain: 'solana',
         statement: 'I accept the VapeFi Terms of Service',
         wallet: wallet as any,
-        options: {
-          data: {
-            wallet_address: walletAddress,
-          },
-        },
       });
 
       if (error) {
