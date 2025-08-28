@@ -1,7 +1,23 @@
 import vapeIcon from "@/assets/vape-icon.png";
 import coinIcon from "@/assets/coin-icon.png";
 import cashIcon from "@/assets/cash-icon.png";
-import CloudPuffs from "@/components/CloudPuffs";
+
+const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud.png";
+
+const CloudCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`relative w-[280px] h-[200px] md:w-[320px] md:h-[240px] ${className}`}>
+    <img
+      src={CLOUD_SRC}
+      alt="Cloud backdrop"
+      loading="lazy"
+      decoding="async"
+      className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.15)] pointer-events-none select-none"
+    />
+    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 pt-10 text-black">
+      {children}
+    </div>
+  </div>
+);
 
 const HowItWorksSection = () => {
   const steps = [
@@ -65,24 +81,23 @@ const HowItWorksSection = () => {
                   </div>
                 </div>
                 
-                {/* Organic Cloud Puff Shapes */}
-                <CloudPuffs variant={index % 3} className="w-[320px] h-[240px] transition-transform duration-500 group-hover:scale-105">
-                  {/* Content Container */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-8 pt-12">
-                    {/* Icon Container */}
-                    <div className="mb-6">
-                      <div className="w-16 h-16 bg-[hsl(var(--pure-black))]/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-[hsl(var(--pure-black))]/30">
-                        <img src={step.icon} alt={`${step.title} icon`} loading="lazy" className="w-10 h-10 object-contain filter brightness-0" />
-                      </div>
-                    </div>
-                    
-                    {/* Text Content */}
-                    <div className="text-center space-y-3">
-                      <h3 className="text-xl font-bold text-[hsl(var(--pure-black))] tracking-tight">{step.title}</h3>
-                      <p className="text-[hsl(var(--pure-black))]/80 text-sm leading-relaxed px-4">{step.description}</p>
+                {/* Cloud with black text overlay */}
+                <CloudCard className="transition-transform duration-300 group-hover:scale-[1.02]">
+                  <div className="mb-4">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center border border-black/10 bg-white/60 backdrop-blur-sm">
+                      <img
+                        src={step.icon}
+                        alt={`${step.title} icon`}
+                        loading="lazy"
+                        className="w-8 h-8 object-contain filter brightness-0"
+                      />
                     </div>
                   </div>
-                </CloudPuffs>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-bold tracking-tight text-black">{step.title}</h3>
+                    <p className="text-black/80 text-sm leading-relaxed px-4">{step.description}</p>
+                  </div>
+                </CloudCard>
               </div>
             );
           })}
