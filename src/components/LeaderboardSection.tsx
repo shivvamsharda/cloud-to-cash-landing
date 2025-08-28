@@ -1,108 +1,161 @@
+import { Crown, Trophy, Medal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Trophy, Crown, Medal } from "lucide-react";
 
 const LeaderboardSection = () => {
   const leaderboardData = [
-    { rank: 1, username: "VapeKing420", puffs: 50247, points: 125618, status: "Premium", isTop: true },
-    { rank: 2, username: "CloudMaster", puffs: 48390, points: 120975, status: "Premium", isTop: true },
-    { rank: 3, username: "MistWizard", puffs: 45821, points: 114553, status: "Active", isTop: true },
-    { rank: 4, username: "VaporChamp", puffs: 42156, points: 105390, status: "Active", isTop: false },
-    { rank: 5, username: "PuffLegend", puffs: 39847, points: 99618, status: "Premium", isTop: false },
-    { rank: 6, username: "CloudChaser", puffs: 37294, points: 93235, status: "Active", isTop: false },
-    { rank: 7, username: "MistMaster", puffs: 35678, points: 89195, status: "Active", isTop: false },
-    { rank: 8, username: "VapeNinja", puffs: 33521, points: 83803, status: "Premium", isTop: false },
-    { rank: 9, username: "SmokeSignal", puffs: 31847, points: 79618, status: "Active", isTop: false },
-    { rank: 10, username: "CloudSurfer", puffs: 29653, points: 74133, status: "New Player", isTop: false },
-    { rank: 11, username: "VaporTrail", puffs: 27891, points: 69728, status: "Active", isTop: false },
-    { rank: 12, username: "MistRunner", puffs: 25437, points: 63593, status: "Active", isTop: false },
+    { rank: 1, username: "CloudMaster", puffs: 15234, points: 45702, status: "Premium", isTopPlayer: true },
+    { rank: 2, username: "VapeKing", puffs: 12890, points: 38670, status: "Premium", isTopPlayer: true },
+    { rank: 3, username: "PuffQueen", puffs: 11456, points: 34368, status: "Active", isTopPlayer: true },
+    { rank: 4, username: "SmokeWave", puffs: 9876, points: 29628, status: "Active", isTopPlayer: false },
+    { rank: 5, username: "CloudNinja", puffs: 8765, points: 26295, status: "Premium", isTopPlayer: false },
+    { rank: 6, username: "VapeLord", puffs: 7654, points: 22962, status: "New Player", isTopPlayer: false },
+    { rank: 7, username: "PuffMaster", puffs: 6543, points: 19629, status: "Active", isTopPlayer: false },
+    { rank: 8, username: "CloudChaser", puffs: 5432, points: 16296, status: "Active", isTopPlayer: false },
   ];
 
   const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Crown className="w-5 h-5 text-yellow-500" />;
-      case 2:
-        return <Trophy className="w-5 h-5 text-gray-400" />;
-      case 3:
-        return <Medal className="w-5 h-5 text-amber-600" />;
-      default:
-        return null;
-    }
+    if (rank === 1) return <Crown className="w-6 h-6 text-[hsl(var(--button-green))]" />;
+    if (rank === 2) return <Trophy className="w-6 h-6 text-gray-300" />;
+    if (rank === 3) return <Medal className="w-6 h-6 text-amber-500" />;
+    return null;
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Premium":
-        return <Badge variant="default" className="bg-primary text-primary-foreground">{status}</Badge>;
-      case "Active":
-        return <Badge variant="secondary">{status}</Badge>;
-      case "New Player":
-        return <Badge variant="outline">{status}</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+    const variants: Record<string, { className: string; text: string }> = {
+      "Premium": { 
+        className: "bg-[hsl(var(--button-green))]/20 text-[hsl(var(--button-green))] border-[hsl(var(--button-green))]/30", 
+        text: "PREMIUM" 
+      },
+      "Active": { 
+        className: "bg-blue-500/20 text-blue-300 border-blue-500/30", 
+        text: "ACTIVE" 
+      },
+      "New Player": { 
+        className: "bg-purple-500/20 text-purple-300 border-purple-500/30", 
+        text: "ROOKIE" 
+      }
+    };
+    
+    const variant = variants[status] || variants["Active"];
+    return (
+      <Badge className={`${variant.className} text-xs font-semibold px-2 py-1 rounded-full border`}>
+        {variant.text}
+      </Badge>
+    );
+  };
+
+  const getRankDisplay = (rank: number) => {
+    if (rank <= 3) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-bold text-[hsl(var(--button-green))]">#{rank}</span>
+          {getRankIcon(rank)}
+        </div>
+      );
     }
+    return <span className="text-xl font-semibold text-white/80">#{rank}</span>;
   };
 
   return (
-    <section className="bg-[hsl(var(--pure-black))] py-16 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+      {/* Neon Grid Background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-[linear-gradient(hsl(var(--button-green))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--button-green))_1px,transparent_1px)] bg-[size:60px_60px]" />
+      </div>
+      
+      {/* Glowing Orbs */}
+      <div className="absolute top-20 left-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
+      <div className="absolute bottom-20 right-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
+      
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16 tracking-tight">
-          LEADERBOARD
-        </h2>
+        <div className="text-center mb-16">
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+            <span className="text-[hsl(var(--button-green))]">LEADERBOARD</span>
+          </h2>
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
+            Compete with vapers worldwide and climb to the top
+          </p>
+        </div>
         
-        {/* Leaderboard Table */}
-        <ScrollArea className="w-full">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-20 text-center font-bold">Rank</TableHead>
-                  <TableHead className="font-bold">Player</TableHead>
-                  <TableHead className="text-center font-bold">Total Puffs</TableHead>
-                  <TableHead className="text-center font-bold">Points</TableHead>
-                  <TableHead className="text-center font-bold">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaderboardData.map((player) => (
-                  <TableRow 
-                    key={player.rank}
-                    className={`${player.isTop ? 'bg-primary/5 border-primary/20' : 'hover:bg-muted/30'} transition-colors`}
-                  >
-                    <TableCell className="text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {getRankIcon(player.rank)}
-                        <span className={`font-bold ${player.isTop ? 'text-primary' : 'text-muted-foreground'}`}>
-                          #{player.rank}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`font-semibold ${player.isTop ? 'text-section-text' : 'text-foreground'}`}>
-                        {player.username}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center font-medium">
+        {/* Leaderboard Container */}
+        <div className="bg-gradient-to-br from-[hsl(var(--card-bg))] to-[hsl(var(--pure-black))] border border-[hsl(var(--card-border))] rounded-2xl p-8 backdrop-blur-sm">
+          {/* Header */}
+          <div className="grid grid-cols-12 gap-4 pb-6 mb-6 border-b border-[hsl(var(--button-green))]/20">
+            <div className="col-span-1 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider">Rank</div>
+            <div className="col-span-4 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider">Player</div>
+            <div className="col-span-2 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider text-center">Puffs</div>
+            <div className="col-span-3 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider text-center">Points</div>
+            <div className="col-span-2 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider text-center">Status</div>
+          </div>
+          
+          {/* Leaderboard Entries */}
+          <div className="space-y-4">
+            {leaderboardData.map((player) => (
+              <div 
+                key={player.rank} 
+                className={`grid grid-cols-12 gap-4 py-4 px-4 rounded-xl transition-all duration-300 hover:bg-[hsl(var(--button-green))]/5 group ${
+                  player.isTopPlayer 
+                    ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20 shadow-[0_0_20px_hsl(var(--button-green)/0.1)]' 
+                    : 'hover:border-[hsl(var(--card-border))] hover:shadow-lg'
+                }`}
+              >
+                {/* Rank */}
+                <div className="col-span-1 flex items-center">
+                  {getRankDisplay(player.rank)}
+                </div>
+                
+                {/* Username */}
+                <div className="col-span-4 flex items-center">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
+                      player.isTopPlayer 
+                        ? 'from-[hsl(var(--button-green))]/30 to-[hsl(var(--button-green))]/10 border-2 border-[hsl(var(--button-green))]/30' 
+                        : 'from-white/10 to-white/5 border border-white/20'
+                    } flex items-center justify-center font-bold text-sm`}>
+                      {player.username.charAt(0)}
+                    </div>
+                    <span className={`font-semibold ${player.isTopPlayer ? 'text-white' : 'text-white/90'} group-hover:text-[hsl(var(--button-green))] transition-colors`}>
+                      {player.username}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Puffs */}
+                <div className="col-span-2 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
                       {player.puffs.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center font-medium text-primary">
+                    </div>
+                    <div className="text-xs text-white/60 uppercase tracking-wider">Puffs</div>
+                  </div>
+                </div>
+                
+                {/* Points */}
+                <div className="col-span-3 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
                       {player.points.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {getStatusBadge(player.status)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-        </ScrollArea>
-        
-        {/* Footer Note */}
-        <p className="text-center text-white/70 text-sm mt-6">
-          Rankings update every 24 hours. Keep puffing to climb the leaderboard!
-        </p>
+                    </div>
+                    <div className="text-xs text-white/60 uppercase tracking-wider">Points</div>
+                  </div>
+                </div>
+                
+                {/* Status */}
+                <div className="col-span-2 flex items-center justify-center">
+                  {getStatusBadge(player.status)}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-[hsl(var(--card-border))] text-center">
+            <p className="text-white/60 text-sm">
+              Rankings update every hour • Join the competition and earn your spot!
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
