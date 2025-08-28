@@ -1,7 +1,7 @@
 const HeroSection = () => {
   return (
     <section 
-      className="h-screen relative overflow-hidden bg-cover bg-center bg-no-repeat"
+      className="min-h-screen pt-16 relative overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Hero2.png)'
       }}
