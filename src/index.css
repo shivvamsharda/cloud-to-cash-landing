@@ -31,7 +31,7 @@ All colors MUST be HSL.
     --pure-black: 0 0% 0%;
     
     /* Custom Button Color */
-    --button-green: 76 97% 51%;
+    --button-green: 72 98% 50%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -126,7 +126,17 @@ All colors MUST be HSL.
   }
 }
 
-/* Overrides for Solana Wallet Adapter button to match pill shape */
+/* Overrides for Solana Wallet Adapter button to match pill shape and brand color */
 .wallet-adapter-button {
   border-radius: 9999px !important;
+  background-color: hsl(var(--button-green)) !important;
+  color: hsl(var(--hero-text)) !important;
+  border: none !important;
+}
+.wallet-adapter-button:hover {
+  background-color: hsl(var(--button-green) / 0.9) !important;
+}
+.wallet-adapter-button:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px hsl(var(--button-green) / 0.6) !important;
 }

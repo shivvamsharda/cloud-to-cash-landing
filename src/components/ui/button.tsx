@@ -20,7 +20,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         
         // VapeFi Custom Variants
-        "hero-primary": "bg-[hsl(var(--button-green))] text-foreground hover:bg-[hsl(var(--button-green))]/90 rounded-full",
+        "hero-primary": "bg-[hsl(var(--button-green))] text-hero-text hover:bg-[hsl(var(--button-green))]/90 rounded-full",
         "hero-outline": "border-2 border-hero-text text-hero-text bg-transparent hover:bg-hero-text hover:text-hero-bg rounded-full",
       },
       size: {
