@@ -1,6 +1,11 @@
 const HeroSection = () => {
   return (
-    <section className="h-screen bg-black relative overflow-hidden">
+    <section 
+      className="h-screen relative overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/vape1.png')`
+      }}
+    >
       <div 
         className="absolute inset-0 opacity-20"
         style={{
