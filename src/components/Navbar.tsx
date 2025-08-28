@@ -21,7 +21,7 @@ const Navbar = () => {
     href: "/contact"
   }];
   const isActive = (href: string) => location.pathname === href;
-  return <nav className="fixed top-0 left-0 right-0 z-50 bg-foreground">
+  return <nav className="fixed top-0 left-0 right-0 z-50 bg-[hsl(var(--pure-black))]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -48,7 +48,7 @@ const Navbar = () => {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-foreground border-background/20">
+              <SheetContent side="right" className="w-[300px] bg-[hsl(var(--pure-black))] border-background/20">
                 <div className="flex flex-col space-y-6 mt-8">
                   {navLinks.map(link => <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`text-background hover:text-background/70 transition-colors text-lg ${isActive(link.href) ? "font-semibold" : ""}`}>
                       {link.name}
