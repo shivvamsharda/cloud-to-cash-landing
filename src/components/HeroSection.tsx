@@ -14,7 +14,7 @@ const HeroSection = () => {
         }}
       />
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
         style={{
           backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Hero_Trans.png)'
         }}
