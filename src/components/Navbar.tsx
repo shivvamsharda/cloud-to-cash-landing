@@ -21,7 +21,7 @@ const Navbar = () => {
     href: "/contact"
   }];
   const isActive = (href: string) => location.pathname === href;
-  return <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-sm">
+  return <nav className="fixed top-0 left-0 right-0 z-50 bg-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -32,7 +32,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map(link => <Link key={link.name} to={link.href} className={`text-black hover:text-black/70 transition-colors ${isActive(link.href) ? "font-semibold" : ""}`}>
+            {navLinks.map(link => <Link key={link.name} to={link.href} className={`text-background hover:text-background/70 transition-colors ${isActive(link.href) ? "font-semibold" : ""}`}>
                 {link.name}
               </Link>)}
             <SolanaWalletAuth className="ml-4 px-4 py-2 text-sm font-semibold">
@@ -44,13 +44,13 @@ const Navbar = () => {
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-black">
+                <Button variant="ghost" size="icon" className="text-background">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] bg-hero-bg border-hero-text/20">
+              <SheetContent side="right" className="w-[300px] bg-foreground border-background/20">
                 <div className="flex flex-col space-y-6 mt-8">
-                  {navLinks.map(link => <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`text-black hover:text-black/70 transition-colors text-lg ${isActive(link.href) ? "font-semibold" : ""}`}>
+                  {navLinks.map(link => <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`text-background hover:text-background/70 transition-colors text-lg ${isActive(link.href) ? "font-semibold" : ""}`}>
                       {link.name}
                     </Link>)}
                   <SolanaWalletAuth className="w-full mt-6 px-4 py-2 text-sm font-semibold" onSuccess={() => setIsOpen(false)}>
