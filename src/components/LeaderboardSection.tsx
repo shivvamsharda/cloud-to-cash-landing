@@ -46,10 +46,20 @@ const LeaderboardSection = () => {
   };
 
   return (
-    <section className="bg-background py-16 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section className="bg-[hsl(var(--pure-black))] py-16 px-6 relative">
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }}
+      />
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-section-text mb-16 tracking-tight">
+        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16 tracking-tight">
           LEADERBOARD
         </h2>
         
@@ -100,7 +110,7 @@ const LeaderboardSection = () => {
         </ScrollArea>
         
         {/* Footer Note */}
-        <p className="text-center text-muted-text text-sm mt-6">
+        <p className="text-center text-white/70 text-sm mt-6">
           Rankings update every 24 hours. Keep puffing to climb the leaderboard!
         </p>
       </div>

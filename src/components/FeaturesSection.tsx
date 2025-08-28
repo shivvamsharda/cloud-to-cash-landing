@@ -35,10 +35,20 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="bg-background py-16 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section className="bg-[hsl(var(--pure-black))] py-16 px-6 relative">
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }}
+      />
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-section-text mb-16 tracking-tight">
+        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16 tracking-tight">
           WHY CHOOSE VAPEFI
         </h2>
         
@@ -48,18 +58,18 @@ const FeaturesSection = () => {
             <div key={index} className="text-center">
               {/* Icon */}
               <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                  <feature.icon className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/10 flex items-center justify-center">
+                  <feature.icon className="w-10 h-10 md:w-12 md:h-12 text-white" />
                 </div>
               </div>
               
               {/* Title */}
-              <h3 className="text-xl md:text-2xl font-bold text-section-text mb-4">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-4">
                 {feature.title}
               </h3>
               
               {/* Description */}
-              <p className="text-muted-text text-lg leading-relaxed max-w-xs mx-auto">
+              <p className="text-white/80 text-lg leading-relaxed max-w-xs mx-auto">
                 {feature.description}
               </p>
             </div>

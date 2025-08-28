@@ -22,10 +22,20 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section className="bg-background py-16 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section className="bg-[hsl(var(--pure-black))] py-16 px-6 relative">
+      <div 
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }}
+      />
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
-        <h2 className="text-4xl md:text-5xl font-bold text-center text-section-text mb-16 tracking-tight">
+        <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16 tracking-tight">
           HOW IT WORKS
         </h2>
         
@@ -43,12 +53,12 @@ const HowItWorksSection = () => {
               </div>
               
               {/* Title */}
-              <h3 className="text-xl md:text-2xl font-bold text-section-text mb-4">
+              <h3 className="text-xl md:text-2xl font-bold text-white mb-4">
                 {step.title}
               </h3>
               
               {/* Description */}
-              <p className="text-muted-text text-lg leading-relaxed max-w-xs mx-auto">
+              <p className="text-white/80 text-lg leading-relaxed max-w-xs mx-auto">
                 {step.description}
               </p>
             </div>
