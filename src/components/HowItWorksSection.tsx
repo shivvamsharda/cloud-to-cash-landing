@@ -1,6 +1,7 @@
 import vapeIcon from "@/assets/vape-icon.png";
 import coinIcon from "@/assets/coin-icon.png";
 import cashIcon from "@/assets/cash-icon.png";
+import CloudPuffs from "@/components/CloudPuffs";
 
 const HowItWorksSection = () => {
   const steps = [
@@ -55,27 +56,6 @@ const HowItWorksSection = () => {
           </div>
           
           {steps.map((step, index) => {
-            // Different cloud shapes for variety
-            const getCloudStyle = (index: number) => {
-              const cloudVariations = [
-                // Cloud 1 - Fluffy with multiple bumps
-                {
-                  clipPath: "polygon(20% 80%, 5% 70%, 0% 50%, 10% 35%, 25% 25%, 45% 30%, 60% 15%, 80% 20%, 95% 35%, 100% 50%, 90% 70%, 85% 85%, 70% 90%, 50% 85%, 30% 90%)"
-                },
-                // Cloud 2 - Rounded with smooth curves
-                {
-                  clipPath: "polygon(15% 85%, 3% 65%, 8% 40%, 20% 25%, 40% 20%, 65% 25%, 85% 30%, 95% 45%, 92% 65%, 80% 80%, 60% 88%, 35% 85%)"
-                },
-                // Cloud 3 - Irregular with more character
-                {
-                  clipPath: "polygon(25% 85%, 8% 75%, 2% 55%, 12% 30%, 30% 18%, 50% 22%, 70% 12%, 88% 25%, 96% 45%, 85% 68%, 75% 82%, 45% 90%, 20% 88%)"
-                }
-              ];
-              return cloudVariations[index % 3];
-            };
-
-            const cloudStyle = getCloudStyle(index);
-
             return (
               <div key={index} className="relative group flex flex-col items-center">
                 {/* Step Number Badge */}
@@ -85,44 +65,24 @@ const HowItWorksSection = () => {
                   </div>
                 </div>
                 
-                {/* Organic Cloud Shape Container */}
-                <div className="relative">
-                  {/* Main Cloud Body */}
-                  <div 
-                    className="w-[320px] h-[240px] bg-[hsl(var(--button-green))] hover:bg-[hsl(var(--button-green))]/90 transition-all duration-500 group-hover:scale-105 shadow-[0_0_40px_hsl(var(--button-green)/0.4)] hover:shadow-[0_0_60px_hsl(var(--button-green)/0.6)] relative"
-                    style={cloudStyle}
-                  >
-                    {/* Content Container */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 pt-12">
-                      {/* Icon Container */}
-                      <div className="mb-6">
-                        <div className="w-16 h-16 bg-[hsl(var(--pure-black))]/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-[hsl(var(--pure-black))]/30">
-                          <img 
-                            src={step.icon} 
-                            alt={`${step.title} icon`}
-                            className="w-10 h-10 object-contain filter brightness-0"
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Text Content */}
-                      <div className="text-center space-y-3">
-                        <h3 className="text-xl font-bold text-[hsl(var(--pure-black))] tracking-tight">
-                          {step.title}
-                        </h3>
-                        <p className="text-[hsl(var(--pure-black))]/80 text-sm leading-relaxed px-4">
-                          {step.description}
-                        </p>
+                {/* Organic Cloud Puff Shapes */}
+                <CloudPuffs variant={index % 3} className="w-[320px] h-[240px] transition-transform duration-500 group-hover:scale-105">
+                  {/* Content Container */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-8 pt-12">
+                    {/* Icon Container */}
+                    <div className="mb-6">
+                      <div className="w-16 h-16 bg-[hsl(var(--pure-black))]/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-[hsl(var(--pure-black))]/30">
+                        <img src={step.icon} alt={`${step.title} icon`} loading="lazy" className="w-10 h-10 object-contain filter brightness-0" />
                       </div>
                     </div>
                     
-                    {/* Inner Glow Effect */}
-                    <div 
-                      className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={cloudStyle}
-                    />
+                    {/* Text Content */}
+                    <div className="text-center space-y-3">
+                      <h3 className="text-xl font-bold text-[hsl(var(--pure-black))] tracking-tight">{step.title}</h3>
+                      <p className="text-[hsl(var(--pure-black))]/80 text-sm leading-relaxed px-4">{step.description}</p>
+                    </div>
                   </div>
-                </div>
+                </CloudPuffs>
               </div>
             );
           })}
