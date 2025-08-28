@@ -13,6 +13,12 @@ const HeroSection = () => {
           backgroundSize: '50px 50px'
         }}
       />
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Hero_Trans.png)'
+        }}
+      />
     </section>
   );
 };
