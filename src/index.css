@@ -130,7 +130,7 @@ All colors MUST be HSL.
 .wallet-adapter-button {
   border-radius: 9999px !important;
   background-color: hsl(var(--button-green)) !important;
-  color: hsl(var(--hero-text)) !important;
+  color: hsl(var(--pure-black)) !important;
   border: none !important;
 }
 .wallet-adapter-button:hover {
