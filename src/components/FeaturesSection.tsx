@@ -35,18 +35,8 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="bg-[hsl(var(--pure-black))] py-16 px-6 relative">
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px'
-        }}
-      />
-      <div className="max-w-6xl mx-auto relative z-10">
+    <section className="bg-[hsl(var(--pure-black))] py-16 px-6">
+      <div className="max-w-6xl mx-auto">
         {/* Section Title */}
         <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16 tracking-tight">
           WHY CHOOSE VAPEFI
