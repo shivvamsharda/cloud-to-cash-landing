@@ -4,18 +4,21 @@ import cashIcon from "@/assets/cash-icon.png";
 
 const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud.png";
 
-const CloudCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`relative w-[280px] h-[200px] md:w-[320px] md:h-[240px] ${className}`}>
-    <img
-      src={CLOUD_SRC}
-      alt="Cloud backdrop"
-      loading="lazy"
-      decoding="async"
-      className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.15)] pointer-events-none select-none"
-    />
-    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 pt-10 text-black">
-      {children}
-    </div>
+const CloudMaskCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div 
+    className={`w-[280px] h-[200px] md:w-[320px] md:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-6 pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] ${className}`}
+    style={{
+      maskImage: `url(${CLOUD_SRC})`,
+      WebkitMaskImage: `url(${CLOUD_SRC})`,
+      maskSize: 'contain',
+      WebkitMaskSize: 'contain',
+      maskRepeat: 'no-repeat',
+      WebkitMaskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      WebkitMaskPosition: 'center'
+    }}
+  >
+    {children}
   </div>
 );
 
@@ -81,10 +84,10 @@ const HowItWorksSection = () => {
                   </div>
                 </div>
                 
-                {/* Cloud with black text overlay */}
-                <CloudCard className="transition-transform duration-300 group-hover:scale-[1.02]">
+                {/* Green cloud with black text constrained within cloud shape */}
+                <CloudMaskCard>
                   <div className="mb-4">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center border border-black/10 bg-white/60 backdrop-blur-sm">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center border border-black/10 bg-black/10 backdrop-blur-sm">
                       <img
                         src={step.icon}
                         alt={`${step.title} icon`}
@@ -97,7 +100,7 @@ const HowItWorksSection = () => {
                     <h3 className="text-xl font-bold tracking-tight text-black">{step.title}</h3>
                     <p className="text-black/80 text-sm leading-relaxed px-4">{step.description}</p>
                   </div>
-                </CloudCard>
+                </CloudMaskCard>
               </div>
             );
           })}
