@@ -2,7 +2,7 @@ import vapeIcon from "@/assets/vape-icon.png";
 import coinIcon from "@/assets/coin-icon.png";
 import cashIcon from "@/assets/cash-icon.png";
 
-const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud.png";
+const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud3.png";
 
 const CloudMaskCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div 
