@@ -179,7 +179,7 @@ const Track = () => {
 
               <Progress 
                 value={Math.min((demoStats.totalPuffs) / 100 * 100, 100)} 
-                className="w-full"
+                className="w-full [&>div]:bg-[hsl(var(--button-green))]"
               />
               <div className="text-center text-sm text-white/70">
                 Progress to next reward level
@@ -191,7 +191,7 @@ const Track = () => {
         <div className="text-center">
           <Button 
             onClick={() => navigate('/')}
-            className="rounded-full border-gray-600 text-white hover:bg-gray-800"
+            className="rounded-full bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] hover:bg-[hsl(var(--button-green))]/90"
             size="lg"
           >
             Back to Home

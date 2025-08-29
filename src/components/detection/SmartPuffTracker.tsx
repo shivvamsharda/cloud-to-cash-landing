@@ -529,7 +529,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
             {/* Detection Settings */}
             <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
               <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full">
+                <Button size="sm" className="w-full bg-brand-yellow text-[hsl(var(--pure-black))] hover:bg-brand-yellow/90">
                   <Settings className="h-4 w-4 mr-2" />
                   {showAdvanced ? 'Hide' : 'Show'} Detection Settings
                 </Button>
@@ -575,7 +575,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
               {!cameraActive ? (
                 <Button 
                   onClick={startCamera} 
-                  className="flex-1"
+                  className="flex-1 bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] hover:bg-[hsl(var(--button-green))]/90"
                   disabled={!mediaPipeReady}
                 >
                   <Video className="h-4 w-4 mr-2" />
@@ -593,8 +593,8 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
               )}
               
               <Button 
-                variant="outline" 
                 size="icon"
+                className="bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] hover:bg-[hsl(var(--button-green))]"
                 onClick={() => setShowAdvanced(!showAdvanced)}
               >
                 <Settings className="h-4 w-4" />
