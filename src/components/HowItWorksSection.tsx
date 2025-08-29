@@ -81,8 +81,8 @@ const HowItWorksSection = () => {
                     
                   </div>
                   <div className="text-center space-y-2">
-                    <h3 className="text-xl font-bold tracking-tight text-black">{step.title}</h3>
-                    <p className="text-black/80 text-sm leading-relaxed px-4">{step.description}</p>
+                    <h3 className="text-xl font-orbitron font-bold tracking-tight text-black">{step.title}</h3>
+                    <p className="text-black/80 text-sm font-orbitron leading-relaxed px-4">{step.description}</p>
                   </div>
                 </CloudMaskCard>
               </div>;
