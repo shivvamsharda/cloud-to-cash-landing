@@ -33,6 +33,11 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
 
   const handleSignIn = async () => {
     if (!wallet.connected || !wallet.publicKey || !wallet.signMessage) {
+      console.error('Wallet not properly connected:', { 
+        connected: wallet.connected, 
+        publicKey: !!wallet.publicKey, 
+        signMessage: !!wallet.signMessage 
+      });
       toast({
         title: "Wallet not connected",
         description: "Please connect your wallet first",
@@ -42,15 +47,16 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
     }
 
     setLoading(true);
+    console.log('Starting authentication with wallet:', wallet.publicKey.toString());
     
     try {
-      const walletAddress = wallet.publicKey.toString();
-      
-      const { error } = await supabase.auth.signInWithWeb3({
+      const { error, data } = await supabase.auth.signInWithWeb3({
         chain: 'solana',
         statement: 'I accept the VapeFi Terms of Service',
         wallet: wallet as any,
       });
+
+      console.log('Supabase auth response:', { error, data });
 
       if (error) {
         console.error('Supabase auth error:', error);
@@ -62,6 +68,7 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
         return;
       }
 
+      console.log('Authentication successful');
       toast({
         title: "Successfully connected!",
         description: "Welcome to VapeFi - start earning rewards!",
@@ -84,6 +91,14 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
       setLoading(false);
     }
   };
+
+  // Auto-sign in when wallet connects
+  useEffect(() => {
+    if (wallet.connected && wallet.publicKey && !user && !loading) {
+      console.log('Wallet connected, auto-signing in...');
+      handleSignIn();
+    }
+  }, [wallet.connected, wallet.publicKey, user, loading]);
 
   const checkProfileAndProceed = async () => {
     if (!user) return;
