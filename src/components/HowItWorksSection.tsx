@@ -27,7 +27,6 @@ const HowItWorksSection = () => {
     <section id="how-it-works" className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[hsl(var(--button-green))] rounded-full mix-blend-screen filter blur-xl opacity-10 animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[hsl(var(--effect-purple))] rounded-full mix-blend-screen filter blur-xl opacity-10 animate-pulse animation-delay-2000"></div>
       </div>
 
