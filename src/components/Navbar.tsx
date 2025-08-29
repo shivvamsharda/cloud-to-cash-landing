@@ -12,7 +12,7 @@ const Navbar = () => {
     href: "/"
   }, {
     name: "How It Works",
-    href: "/how-it-works"
+    href: "/#how-it-works"
   }, {
     name: "Rewards",
     href: "/rewards"
@@ -20,6 +20,20 @@ const Navbar = () => {
     name: "Contact",
     href: "/contact"
   }];
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === "/#how-it-works") {
+      e.preventDefault();
+      if (location.pathname === "/") {
+        // Already on home page, just scroll
+        const element = document.getElementById("how-it-works");
+        element?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // Navigate to home page first, then scroll after navigation
+        window.location.href = "/#how-it-works";
+      }
+    }
+  };
   const isActive = (href: string) => location.pathname === href;
   return <nav className="fixed top-0 left-0 right-0 z-50 bg-[hsl(var(--pure-black))]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,9 +46,22 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map(link => <Link key={link.name} to={link.href} className={`text-background hover:text-background/70 transition-colors ${isActive(link.href) ? "font-semibold" : ""}`}>
-                {link.name}
-              </Link>)}
+            {navLinks.map(link => (
+              link.href === "/#how-it-works" ? (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  onClick={(e) => handleSmoothScroll(e, link.href)}
+                  className="text-background hover:text-background/70 transition-colors"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link key={link.name} to={link.href} className={`text-background hover:text-background/70 transition-colors ${isActive(link.href) ? "font-semibold" : ""}`}>
+                  {link.name}
+                </Link>
+              )
+            ))}
             <Link to="/track">
               <Button variant="hero-primary" className="ml-4 px-4 py-2 text-sm font-semibold">
                 Start Earning
@@ -52,9 +79,25 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] bg-[hsl(var(--pure-black))] border-background/20">
                 <div className="flex flex-col space-y-6 mt-8">
-                  {navLinks.map(link => <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`text-background hover:text-background/70 transition-colors text-lg ${isActive(link.href) ? "font-semibold" : ""}`}>
-                      {link.name}
-                    </Link>)}
+                  {navLinks.map(link => (
+                    link.href === "/#how-it-works" ? (
+                      <a 
+                        key={link.name} 
+                        href={link.href} 
+                        onClick={(e) => {
+                          handleSmoothScroll(e, link.href);
+                          setIsOpen(false);
+                        }}
+                        className="text-background hover:text-background/70 transition-colors text-lg"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`text-background hover:text-background/70 transition-colors text-lg ${isActive(link.href) ? "font-semibold" : ""}`}>
+                        {link.name}
+                      </Link>
+                    )
+                  ))}
                   <Link to="/track" onClick={() => setIsOpen(false)}>
                     <Button variant="hero-primary" className="w-full mt-6 px-4 py-2 text-sm font-semibold">
                       Start Earning

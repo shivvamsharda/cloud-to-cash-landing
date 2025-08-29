@@ -1,94 +1,101 @@
-import vapeIcon from "@/assets/vape-icon.png";
-import coinIcon from "@/assets/coin-icon.png";
-import cashIcon from "@/assets/cash-icon.png";
-const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud3.png";
-const CloudMaskCard = ({
-  children,
-  className = ""
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => <div className={`w-[280px] h-[200px] md:w-[320px] md:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-6 pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] ${className}`} style={{
-  maskImage: `url(${CLOUD_SRC})`,
-  WebkitMaskImage: `url(${CLOUD_SRC})`,
-  maskSize: 'contain',
-  WebkitMaskSize: 'contain',
-  maskRepeat: 'no-repeat',
-  WebkitMaskRepeat: 'no-repeat',
-  maskPosition: 'center',
-  WebkitMaskPosition: 'center'
-}}>
-    {children}
-  </div>;
+import { Camera, Gift, Trophy } from "lucide-react";
+import { Link } from "react-router-dom";
+
 const HowItWorksSection = () => {
-  const steps = [{
-    icon: vapeIcon,
-    title: "Vape & Record",
-    description: "Take puffs, tracked in real-time with precision technology.",
-    number: "01"
-  }, {
-    icon: coinIcon,
-    title: "Earn Points",
-    description: "Every puff converts into crypto rewards automatically.",
-    number: "02"
-  }, {
-    icon: cashIcon,
-    title: "Cash Out",
-    description: "Convert your clouds into tokens & prizes instantly.",
-    number: "03"
-  }];
-  return <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
-      {/* Ambient Glow Effects */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
-        <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
+  const steps = [
+    {
+      icon: Camera,
+      title: "Connect & Track",
+      description: "Link your wallet and start tracking your puff sessions with our AI-powered detection system.",
+      number: "01"
+    },
+    {
+      icon: Trophy,
+      title: "Earn Rewards",
+      description: "Get VapeFi tokens for every verified puff. The more you vape, the more you earn.",
+      number: "02"  
+    },
+    {
+      icon: Gift,
+      title: "Redeem Benefits",
+      description: "Use your earned tokens for exclusive rewards, discounts, and premium features.",
+      number: "03"
+    }
+  ];
+
+  return (
+    <section id="how-it-works" className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[hsl(var(--button-green))] rounded-full mix-blend-screen filter blur-xl opacity-10 animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[hsl(var(--effect-purple))] rounded-full mix-blend-screen filter blur-xl opacity-10 animate-pulse animation-delay-2000"></div>
       </div>
-      
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Section Title */}
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-            HOW IT WORKS
+
+      <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-bold text-white mb-6">
+            How VapeFi <span className="text-[hsl(var(--button-green))]">Works</span>
           </h2>
-          <div className="w-24 h-1 bg-[hsl(var(--button-green))] mx-auto rounded-full" />
+          <p className="text-white/70 text-xl max-w-2xl mx-auto">
+            Transform your vaping sessions into earning opportunities with our revolutionary AI-powered tracking system.
+          </p>
         </div>
-        
+
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative">
-          {/* Floating Cloud Connector Elements */}
-          <div className="hidden lg:block absolute top-1/2 left-1/4 right-1/4 h-2 opacity-20 pointer-events-none">
-            <div className="w-full h-full flex items-center justify-between">
-              <div className="w-8 h-8 bg-[hsl(var(--button-green))] rounded-full animate-pulse"></div>
-              <div className="w-6 h-6 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-100"></div>
-              <div className="w-4 h-4 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-200"></div>
-              <div className="w-6 h-6 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-300"></div>
-              <div className="w-8 h-8 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-500"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          {steps.map((step, index) => (
+            <div key={index} className="group relative">
+              {/* Connection Line */}
+              {index < steps.length - 1 && (
+                <div className="hidden md:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-[hsl(var(--button-green))] to-transparent opacity-30 z-0"></div>
+              )}
+              
+              {/* Step Card */}
+              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--button-green))]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[hsl(var(--button-green))]/20">
+                {/* Number Badge */}
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-[hsl(var(--button-green))] text-black font-bold text-lg rounded-full flex items-center justify-center shadow-lg shadow-[hsl(var(--button-green))]/50">
+                  {step.number}
+                </div>
+
+                {/* Icon */}
+                <div className="w-16 h-16 bg-[hsl(var(--button-green))]/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[hsl(var(--button-green))]/30 transition-colors duration-300">
+                  <step.icon className="w-8 h-8 text-[hsl(var(--button-green))]" />
+                </div>
+
+                {/* Content */}
+                <h3 className="text-2xl font-bold text-white mb-4">{step.title}</h3>
+                <p className="text-white/70 leading-relaxed">{step.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Additional Info */}
+        <div className="bg-gradient-to-r from-[hsl(var(--effect-purple))]/20 to-[hsl(var(--button-green))]/20 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Earning?</h2>
+            <p className="text-white/70 text-lg mb-6">
+              Join thousands of vapers who are already earning rewards with VapeFi's innovative platform.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                to="/track" 
+                className="bg-[hsl(var(--button-green))] text-black px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/90 transition-colors duration-300"
+              >
+                Start Tracking
+              </Link>
+              <Link 
+                to="/rewards" 
+                className="border border-[hsl(var(--button-green))] text-[hsl(var(--button-green))] px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/10 transition-colors duration-300"
+              >
+                View Rewards
+              </Link>
             </div>
           </div>
-          
-          {steps.map((step, index) => {
-          return <div key={index} className="relative group flex flex-col items-center">
-                {/* Step Number Badge */}
-                <div className="absolute -top-6 z-30">
-                  <div className="w-12 h-12 bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-[hsl(var(--pure-black))]">
-                    {step.number}
-                  </div>
-                </div>
-                
-                {/* Green cloud with black text constrained within cloud shape */}
-                <CloudMaskCard>
-                  <div className="mb-4">
-                    
-                  </div>
-                  <div className="text-center space-y-2">
-                    <h3 className="text-xl font-archivo-black font-bold tracking-tight text-black">{step.title}</h3>
-                    <p className="text-black/80 text-sm font-archivo-black leading-relaxed px-4">{step.description}</p>
-                  </div>
-                </CloudMaskCard>
-              </div>;
-        })}
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 export default HowItWorksSection;
