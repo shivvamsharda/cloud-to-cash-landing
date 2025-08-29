@@ -7,19 +7,19 @@ const CTASection = () => {
       <div 
         className="absolute inset-0 z-10 bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Footer.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center bottom'
+          backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/CTA.png')",
+          backgroundSize: 'contain',
+          backgroundPosition: 'center center'
         }}
       />
       <div className="max-w-4xl mx-auto relative z-20 w-full py-8 sm:py-12">
         {/* CTA Content */}
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Start Earning?
+            Turn Your Clouds Into Coins
           </h2>
           <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto">
-            Join thousands of users already earning rewards with VapeFi
+            Start earning rewards for every puff with VapeFi
           </p>
         </div>
         
