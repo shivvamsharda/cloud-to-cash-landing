@@ -5,7 +5,7 @@ export function Features() {
         <section className="py-12 md:py-20 bg-[hsl(var(--pure-black))]">
             <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
                 <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
-                    <h2 className="text-balance text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight">
+                    <h2 className="text-balance text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
                         WHY CHOOSE
                         <span className="block text-[hsl(var(--button-green))] mt-2">VAPEFI</span>
                     </h2>
