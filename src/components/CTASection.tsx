@@ -3,9 +3,9 @@ import SolanaWalletAuth from "@/components/SolanaWalletAuth";
 
 const CTASection = () => {
   return (
-    <section className="bg-black relative overflow-hidden min-h-[700px] px-6 flex items-end">
+    <section className="bg-black relative overflow-hidden min-h-[900px] px-6 flex items-end">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
+        className="absolute inset-0 bg-contain bg-center bg-no-repeat z-10"
         style={{
           backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Footer.png')"
         }}
