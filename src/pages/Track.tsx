@@ -94,9 +94,9 @@ const Track = () => {
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* Current Session */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="!bg-neutral-900 !border-neutral-800 text-white">
             <CardHeader>
-              <CardTitle className="text-center">Current Session</CardTitle>
+              <CardTitle className="text-center text-white">Current Session</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center">
@@ -145,9 +145,9 @@ const Track = () => {
           </Card>
 
           {/* Demo Stats */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="!bg-neutral-900 !border-neutral-800 text-white">
             <CardHeader>
-              <CardTitle className="text-center">Demo Stats</CardTitle>
+              <CardTitle className="text-center text-white">Demo Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="bg-muted/50 p-3 rounded-none text-center mb-4">

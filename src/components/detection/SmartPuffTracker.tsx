@@ -451,9 +451,9 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card className="!bg-neutral-900 !border-neutral-800 text-white">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
             <Video className="h-5 w-5" />
             Smart Puff Detection
