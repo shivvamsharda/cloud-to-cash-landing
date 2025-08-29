@@ -3,12 +3,13 @@ import SolanaWalletAuth from "@/components/SolanaWalletAuth";
 
 const CTASection = () => {
   return (
-    <section 
-      className="bg-black py-20 px-6 relative bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Footer.png')"
-      }}
-    >
+    <section className="bg-black py-20 px-6 relative min-h-[600px] overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+        style={{
+          backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Footer.png')"
+        }}
+      />
       <div className="max-w-4xl mx-auto text-center relative z-10">
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
