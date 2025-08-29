@@ -20,6 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'orbitron': ['Orbitron', 'monospace'],
+				'archivo-black': ['Archivo Black', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
