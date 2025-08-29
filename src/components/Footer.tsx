@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Mail, MapPin } from "lucide-react";
-import vapeFiLogo from "@/assets/vapefi-logo-transparent.png";
 
 const Footer = () => {
   const navLinks = [
@@ -31,7 +30,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <div className="flex items-center mb-4">
               <img 
-                src={vapeFiLogo} 
+                src="https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Trans.png" 
                 alt="VapeFi Logo" 
                 className="w-12 h-12 object-contain mr-3"
               />
@@ -46,7 +45,7 @@ const Footer = () => {
                   key={index}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+                  className="w-10 h-10 bg-[hsl(var(--button-green))]/10 rounded-full flex items-center justify-center text-[hsl(var(--button-green))] hover:bg-[hsl(var(--button-green))] hover:text-white transition-colors"
                 >
                   <social.icon className="w-5 h-5" />
                 </a>
@@ -62,7 +61,7 @@ const Footer = () => {
                 <li key={index}>
                   <Link
                     to={link.href}
-                    className="text-white/70 hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-[hsl(var(--button-green))] transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -79,7 +78,7 @@ const Footer = () => {
                 <li key={index}>
                   <Link
                     to={link.href}
-                    className="text-white/70 hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-[hsl(var(--button-green))] transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -93,11 +92,11 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-white mb-4">Get In Touch</h3>
             <div className="space-y-3 mb-6">
               <div className="flex items-start space-x-3">
-                <Mail className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <Mail className="w-5 h-5 text-[hsl(var(--button-green))] mt-0.5 flex-shrink-0" />
                 <span className="text-white/70">support@vapefi.com</span>
               </div>
               <div className="flex items-start space-x-3">
-                <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <MapPin className="w-5 h-5 text-[hsl(var(--button-green))] mt-0.5 flex-shrink-0" />
                 <span className="text-white/70">Global Community Platform</span>
               </div>
             </div>
@@ -107,9 +106,9 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 px-3 py-2 bg-white/5 border border-white/20 rounded-l-md text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="flex-1 px-3 py-2 bg-white/5 border border-white/20 rounded-l-md text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--button-green))] focus:border-transparent"
                 />
-                <button className="px-4 py-2 bg-primary text-white rounded-r-md hover:bg-primary/90 transition-colors text-sm font-medium">
+                <button className="px-4 py-2 bg-[hsl(var(--button-green))] text-black rounded-r-md hover:bg-[hsl(var(--button-green))]/90 transition-colors text-sm font-medium">
                   Subscribe
                 </button>
               </div>
@@ -124,13 +123,13 @@ const Footer = () => {
               © 2024 VapeFi. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
-              <Link to="/privacy" className="text-white/70 hover:text-primary transition-colors">
+              <Link to="/privacy" className="text-white/70 hover:text-[hsl(var(--button-green))] transition-colors">
                 Privacy
               </Link>
-              <Link to="/terms" className="text-white/70 hover:text-primary transition-colors">
+              <Link to="/terms" className="text-white/70 hover:text-[hsl(var(--button-green))] transition-colors">
                 Terms
               </Link>
-              <Link to="/cookies" className="text-white/70 hover:text-primary transition-colors">
+              <Link to="/cookies" className="text-white/70 hover:text-[hsl(var(--button-green))] transition-colors">
                 Cookies
               </Link>
             </div>
