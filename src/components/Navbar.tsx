@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import SolanaWalletAuth from "@/components/SolanaWalletAuth";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -35,9 +35,11 @@ const Navbar = () => {
             {navLinks.map(link => <Link key={link.name} to={link.href} className={`text-background hover:text-background/70 transition-colors ${isActive(link.href) ? "font-semibold" : ""}`}>
                 {link.name}
               </Link>)}
-            <SolanaWalletAuth className="ml-4 px-4 py-2 text-sm font-semibold">
-              Start Earning
-            </SolanaWalletAuth>
+            <Link to="/track">
+              <Button className="ml-4 px-4 py-2 text-sm font-semibold">
+                Start Earning
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -53,9 +55,11 @@ const Navbar = () => {
                   {navLinks.map(link => <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`text-background hover:text-background/70 transition-colors text-lg ${isActive(link.href) ? "font-semibold" : ""}`}>
                       {link.name}
                     </Link>)}
-                  <SolanaWalletAuth className="w-full mt-6 px-4 py-2 text-sm font-semibold" onSuccess={() => setIsOpen(false)}>
-                    Start Earning
-                  </SolanaWalletAuth>
+                  <Link to="/track" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full mt-6 px-4 py-2 text-sm font-semibold">
+                      Start Earning
+                    </Button>
+                  </Link>
                 </div>
               </SheetContent>
             </Sheet>
