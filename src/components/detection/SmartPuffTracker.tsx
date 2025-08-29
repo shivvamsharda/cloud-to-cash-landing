@@ -433,7 +433,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
 
   if (!mediaPipeReady && smartDetectionEnabled) {
     return (
-      <Card>
+      <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Video className="h-5 w-5" />
@@ -451,7 +451,7 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
   }
 
   return (
-    <Card>
+    <Card className="bg-gray-900 border-gray-800">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">

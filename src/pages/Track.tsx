@@ -94,7 +94,7 @@ const Track = () => {
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* Current Session */}
-          <Card>
+          <Card className="bg-gray-900 border-gray-800">
             <CardHeader>
               <CardTitle className="text-center">Current Session</CardTitle>
             </CardHeader>
@@ -122,7 +122,11 @@ const Track = () => {
 
               <div className="flex flex-col gap-3">
                 {!isTracking ? (
-                  <Button onClick={startTracking} className="w-full" size="lg">
+                  <Button 
+                    onClick={startTracking} 
+                    className="w-full rounded-full bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] hover:bg-[hsl(var(--button-green))]/90" 
+                    size="lg"
+                  >
                     <Play className="w-4 h-4 mr-2" />
                     Start Tracking
                   </Button>
@@ -141,7 +145,7 @@ const Track = () => {
           </Card>
 
           {/* Demo Stats */}
-          <Card>
+          <Card className="bg-gray-900 border-gray-800">
             <CardHeader>
               <CardTitle className="text-center">Demo Stats</CardTitle>
             </CardHeader>
@@ -187,7 +191,7 @@ const Track = () => {
         <div className="text-center">
           <Button 
             onClick={() => navigate('/')}
-            variant="outline"
+            className="rounded-full border-gray-600 text-white hover:bg-gray-800"
             size="lg"
           >
             Back to Home
