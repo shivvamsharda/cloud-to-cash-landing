@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import SolanaWalletAuth from "@/components/SolanaWalletAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const HeroSection = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <section 
       className="min-h-screen sm:min-h-[calc(100vh-4rem)] mt-0 sm:mt-16 relative overflow-hidden bg-[hsl(var(--pure-black))] w-full flex items-center justify-center"
@@ -22,8 +25,10 @@ const HeroSection = () => {
       <div 
         className="absolute inset-0 z-10 bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Hero_Trans.png)',
-          backgroundSize: 'contain',
+          backgroundImage: isMobile 
+            ? 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Hero_Mobile.png)'
+            : 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Hero_Trans.png)',
+          backgroundSize: isMobile ? 'cover' : 'contain',
           backgroundPosition: 'center center'
         }}
       />
