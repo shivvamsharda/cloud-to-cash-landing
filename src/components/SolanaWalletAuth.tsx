@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -20,11 +20,16 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
   children 
 }) => {
   const wallet = useWallet();
+  const { setVisible } = useWalletModal();
   const { user, profile, profileLoading, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const handleConnectWallet = () => {
+    setVisible(true);
+  };
 
   const handleSignIn = async () => {
     if (!wallet.connected || !wallet.publicKey || !wallet.signMessage) {
@@ -136,9 +141,14 @@ const SolanaWalletAuth: React.FC<SolanaWalletAuthProps> = ({
             {loading ? "Authenticating..." : children || "Sign In & Start Earning"}
           </Button>
         ) : (
-          <WalletMultiButton className={`wallet-adapter-button rounded-full ${className}`}>
-            {children || "Connect Wallet"}
-          </WalletMultiButton>
+          <Button
+            onClick={handleConnectWallet}
+            className={className}
+            variant="hero-primary"
+            size="lg"
+          >
+            {children || "Start Earning Now"}
+          </Button>
         )}
       </div>
       
