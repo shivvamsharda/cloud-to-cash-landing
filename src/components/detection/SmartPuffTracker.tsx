@@ -536,11 +536,11 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-3 pt-3">
                 <div className="space-y-2">
-                  <div className="bg-muted p-3 rounded-md">
+                  <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="default">🔒 High Precision Mode</Badge>
+                      <Badge className="bg-transparent text-white border-none">🔒 High Precision Mode</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white">
                       Detection is locked to strict mode (90% threshold) to prevent false positives and ensure accuracy.
                     </p>
                   </div>
@@ -548,8 +548,8 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <Badge variant="outline" className="mb-1">Detection Features</Badge>
-                    <div className="space-y-1 text-xs text-muted-foreground">
+                    <Badge className="mb-1 bg-transparent text-white border-none">Detection Features</Badge>
+                    <div className="space-y-1 text-xs text-white">
                       <div>✅ Mouth opening (inhale)</div>
                       <div>✅ Lip pursing (O-shape)</div>
                       <div>✅ Cheek puffing (exhale)</div>
@@ -558,8 +558,8 @@ const SmartPuffTracker: React.FC<SmartPuffTrackerProps> = ({
                   </div>
                   
                   <div>
-                    <Badge variant="outline" className="mb-1">Tips for Better Detection</Badge>
-                    <div className="space-y-1 text-xs text-muted-foreground">
+                    <Badge className="mb-1 bg-transparent text-white border-none">Tips for Better Detection</Badge>
+                    <div className="space-y-1 text-xs text-white">
                       <div>👄 Face camera directly</div>
                       <div>💡 Ensure good lighting</div>
                       <div>📏 Stay 1-3 feet away</div>
