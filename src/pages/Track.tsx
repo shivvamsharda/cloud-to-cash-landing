@@ -103,11 +103,11 @@ const Track = () => {
                 <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
                   {currentSession.puffs}
                 </div>
-                <div className="text-muted-foreground">
+                <div className="text-white/70">
                   Puffs This Session
                 </div>
                 {isTracking && (
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className="text-xs text-white/70 mt-1">
                     🤖 AI Detection Active - No Manual Input
                   </div>
                 )}
@@ -117,7 +117,7 @@ const Track = () => {
                 <div className="text-xl font-medium mb-2">
                   {formatTime(currentSession.duration)}
                 </div>
-                <div className="text-muted-foreground">Session Time</div>
+                <div className="text-white/70">Session Time</div>
               </div>
 
               <div className="flex flex-col gap-3">
@@ -150,8 +150,8 @@ const Track = () => {
               <CardTitle className="text-center text-white">Demo Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-muted/50 p-3 rounded-none text-center mb-4">
-                <div className="text-sm text-muted-foreground">
+              <div className="text-center mb-4">
+                <div className="text-sm text-white/70">
                   📊 Demo data for preview purposes
                 </div>
               </div>
@@ -160,19 +160,19 @@ const Track = () => {
                 <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
                   {demoStats.totalPuffs}
                 </div>
-                <div className="text-muted-foreground">Total Puffs</div>
+                <div className="text-white/70">Total Puffs</div>
               </div>
               
               <div className="text-center">
                 <div className="text-2xl font-semibold text-brand-yellow mb-2">
                   {demoStats.totalTokens}
                 </div>
-                <div className="text-muted-foreground">Total VapeFi Tokens</div>
+                <div className="text-white/70">Total VapeFi Tokens</div>
               </div>
 
               <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-1">Status</div>
-                <div className="font-mono text-xs bg-muted px-2 py-1 rounded-none">
+                <div className="text-sm text-white/70 mb-1">Status</div>
+                <div className="font-mono text-xs text-white">
                   {demoStats.walletAddress}
                 </div>
               </div>
@@ -181,7 +181,7 @@ const Track = () => {
                 value={Math.min((demoStats.totalPuffs) / 100 * 100, 100)} 
                 className="w-full"
               />
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-sm text-white/70">
                 Progress to next reward level
               </div>
             </CardContent>
