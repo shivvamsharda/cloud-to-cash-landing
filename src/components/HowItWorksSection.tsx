@@ -11,8 +11,8 @@ const CloudMaskCard = ({
 }) => <div className={`w-[280px] h-[200px] md:w-[320px] md:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-6 pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] ${className}`} style={{
   maskImage: `url(${CLOUD_SRC})`,
   WebkitMaskImage: `url(${CLOUD_SRC})`,
-  maskSize: '115% 115%',
-  WebkitMaskSize: '115% 115%',
+  maskSize: 'contain',
+  WebkitMaskSize: 'contain',
   maskRepeat: 'no-repeat',
   WebkitMaskRepeat: 'no-repeat',
   maskPosition: 'center',
@@ -38,6 +38,12 @@ const HowItWorksSection = () => {
     number: "03"
   }];
   return <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+      {/* Ambient Glow Effects */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
+        <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
+      </div>
+      
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Title */}
         <div className="text-center mb-20">
