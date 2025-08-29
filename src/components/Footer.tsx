@@ -23,7 +23,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-muted py-12 px-6">
+    <footer className="bg-[hsl(var(--pure-black))] py-12 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
@@ -35,9 +35,9 @@ const Footer = () => {
                 alt="VapeFi Logo" 
                 className="w-12 h-12 object-contain mr-3"
               />
-              <span className="text-2xl font-bold text-section-text">VapeFi</span>
+              <span className="text-2xl font-bold text-white">VapeFi</span>
             </div>
-            <p className="text-muted-text mb-6 leading-relaxed">
+            <p className="text-white/70 mb-6 leading-relaxed">
               Turn your clouds into coins. The revolutionary platform that rewards vapers for their activity.
             </p>
             <div className="flex space-x-4">
@@ -56,13 +56,13 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold text-section-text mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-3">
               {navLinks.map((link, index) => (
                 <li key={index}>
                   <Link
                     to={link.href}
-                    className="text-muted-text hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -73,13 +73,13 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="text-lg font-semibold text-section-text mb-4">Legal</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Legal</h3>
             <ul className="space-y-3">
               {legalLinks.map((link, index) => (
                 <li key={index}>
                   <Link
                     to={link.href}
-                    className="text-muted-text hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -90,24 +90,24 @@ const Footer = () => {
 
           {/* Contact & Newsletter */}
           <div>
-            <h3 className="text-lg font-semibold text-section-text mb-4">Get In Touch</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Get In Touch</h3>
             <div className="space-y-3 mb-6">
               <div className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-muted-text">support@vapefi.com</span>
+                <span className="text-white/70">support@vapefi.com</span>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-muted-text">Global Community Platform</span>
+                <span className="text-white/70">Global Community Platform</span>
               </div>
             </div>
             <div>
-              <p className="text-sm text-muted-text mb-3">Stay updated with our newsletter</p>
+              <p className="text-sm text-white/70 mb-3">Stay updated with our newsletter</p>
               <div className="flex">
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 px-3 py-2 bg-background border border-border rounded-l-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="flex-1 px-3 py-2 bg-white/5 border border-white/20 rounded-l-md text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
                 <button className="px-4 py-2 bg-primary text-white rounded-r-md hover:bg-primary/90 transition-colors text-sm font-medium">
                   Subscribe
@@ -120,17 +120,17 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-muted-text text-sm">
+            <p className="text-white/70 text-sm">
               © 2024 VapeFi. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
-              <Link to="/privacy" className="text-muted-text hover:text-primary transition-colors">
+              <Link to="/privacy" className="text-white/70 hover:text-primary transition-colors">
                 Privacy
               </Link>
-              <Link to="/terms" className="text-muted-text hover:text-primary transition-colors">
+              <Link to="/terms" className="text-white/70 hover:text-primary transition-colors">
                 Terms
               </Link>
-              <Link to="/cookies" className="text-muted-text hover:text-primary transition-colors">
+              <Link to="/cookies" className="text-white/70 hover:text-primary transition-colors">
                 Cookies
               </Link>
             </div>
