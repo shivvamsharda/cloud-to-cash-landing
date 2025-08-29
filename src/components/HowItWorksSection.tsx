@@ -2,24 +2,23 @@ import vapeIcon from "@/assets/vape-icon.png";
 import coinIcon from "@/assets/coin-icon.png";
 import cashIcon from "@/assets/cash-icon.png";
 const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud3.png";
-const CloudMaskCard = ({
-  children,
-  className = ""
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => <div className={`w-[280px] h-[200px] md:w-[320px] md:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-6 pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] ${className}`} style={{
-  maskImage: `url(${CLOUD_SRC})`,
-  WebkitMaskImage: `url(${CLOUD_SRC})`,
-  maskSize: 'contain',
-  WebkitMaskSize: 'contain',
-  maskRepeat: 'no-repeat',
-  WebkitMaskRepeat: 'no-repeat',
-  maskPosition: 'center',
-  WebkitMaskPosition: 'center'
-}}>
+const CloudMaskCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div 
+    className={`w-full max-w-[280px] h-[200px] sm:max-w-[320px] sm:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-4 sm:p-6 pt-6 sm:pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] mx-auto ${className}`}
+    style={{
+      maskImage: `url(${CLOUD_SRC})`,
+      WebkitMaskImage: `url(${CLOUD_SRC})`,
+      maskSize: 'contain',
+      WebkitMaskSize: 'contain',
+      maskRepeat: 'no-repeat',
+      WebkitMaskRepeat: 'no-repeat',
+      maskPosition: 'center',
+      WebkitMaskPosition: 'center'
+    }}
+  >
     {children}
-  </div>;
+  </div>
+);
 const HowItWorksSection = () => {
   const steps = [{
     icon: vapeIcon,
@@ -37,25 +36,26 @@ const HowItWorksSection = () => {
     description: "Convert your clouds into tokens & prizes instantly.",
     number: "03"
   }];
-  return <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+  return (
+    <section className="bg-[hsl(var(--pure-black))] py-12 sm:py-24 px-4 sm:px-6 relative overflow-hidden">
       {/* Ambient Glow Effects */}
       <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
-        <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
+        <div className="absolute top-20 left-1/4 w-48 h-48 sm:w-96 sm:h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
+        <div className="absolute bottom-20 right-1/4 w-48 h-48 sm:w-96 sm:h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
       </div>
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Title */}
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+        <div className="text-center mb-12 sm:mb-20">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
             HOW IT WORKS
           </h2>
           <div className="w-24 h-1 bg-[hsl(var(--button-green))] mx-auto rounded-full" />
         </div>
         
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative">
-          {/* Floating Cloud Connector Elements */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12 relative">
+          {/* Floating Cloud Connector Elements - Hidden on mobile */}
           <div className="hidden lg:block absolute top-1/2 left-1/4 right-1/4 h-2 opacity-20 pointer-events-none">
             <div className="w-full h-full flex items-center justify-between">
               <div className="w-8 h-8 bg-[hsl(var(--button-green))] rounded-full animate-pulse"></div>
@@ -66,29 +66,30 @@ const HowItWorksSection = () => {
             </div>
           </div>
           
-          {steps.map((step, index) => {
-          return <div key={index} className="relative group flex flex-col items-center">
-                {/* Step Number Badge */}
-                <div className="absolute -top-6 z-30">
-                  <div className="w-12 h-12 bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-[hsl(var(--pure-black))]">
-                    {step.number}
-                  </div>
+          {steps.map((step, index) => (
+            <div key={index} className="relative group flex flex-col items-center">
+              {/* Step Number Badge */}
+              <div className="absolute -top-4 sm:-top-6 z-30">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] rounded-full flex items-center justify-center font-bold text-base sm:text-lg shadow-lg border-2 border-[hsl(var(--pure-black))]">
+                  {step.number}
                 </div>
-                
-                {/* Green cloud with black text constrained within cloud shape */}
-                <CloudMaskCard>
-                  <div className="mb-4">
-                    
-                  </div>
-                  <div className="text-center space-y-2">
-                    <h3 className="text-xl font-archivo-black font-bold tracking-tight text-black">{step.title}</h3>
-                    <p className="text-black/80 text-sm font-archivo-black leading-relaxed px-4">{step.description}</p>
-                  </div>
-                </CloudMaskCard>
-              </div>;
-        })}
+              </div>
+              
+              {/* Green cloud with black text constrained within cloud shape */}
+              <CloudMaskCard>
+                <div className="mb-3 sm:mb-4">
+                  <img src={step.icon} alt={step.title} className="w-8 h-8 sm:w-10 sm:h-10 mx-auto" />
+                </div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg sm:text-xl font-archivo-black font-bold tracking-tight text-black">{step.title}</h3>
+                  <p className="text-black/80 text-xs sm:text-sm font-archivo-black leading-relaxed px-2 sm:px-4">{step.description}</p>
+                </div>
+              </CloudMaskCard>
+            </div>
+          ))}
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 export default HowItWorksSection;
