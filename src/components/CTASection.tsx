@@ -10,7 +10,7 @@ const CTASection = () => {
           backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Footer.png')"
         }}
       />
-      <div className="max-w-4xl mx-auto relative z-20 w-full pb-6 sm:pb-10 lg:pb-14">
+      <div className="max-w-4xl mx-auto relative z-20 w-full pb-24 sm:pb-28 lg:pb-32">
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <SolanaWalletAuth className="px-8 py-3 text-lg font-semibold min-w-[180px] bg-white text-brand-purple border-white hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]">
