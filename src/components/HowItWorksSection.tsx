@@ -1,51 +1,43 @@
 import vapeIcon from "@/assets/vape-icon.png";
 import coinIcon from "@/assets/coin-icon.png";
 import cashIcon from "@/assets/cash-icon.png";
-
 const CLOUD_SRC = "https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/cloud3.png";
-
-const CloudMaskCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div 
-    className={`w-[280px] h-[200px] md:w-[320px] md:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-6 pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] ${className}`}
-    style={{
-      maskImage: `url(${CLOUD_SRC})`,
-      WebkitMaskImage: `url(${CLOUD_SRC})`,
-      maskSize: 'contain',
-      WebkitMaskSize: 'contain',
-      maskRepeat: 'no-repeat',
-      WebkitMaskRepeat: 'no-repeat',
-      maskPosition: 'center',
-      WebkitMaskPosition: 'center'
-    }}
-  >
+const CloudMaskCard = ({
+  children,
+  className = ""
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => <div className={`w-[280px] h-[200px] md:w-[320px] md:h-[240px] bg-[hsl(var(--button-green))] flex flex-col items-center justify-center p-6 pt-10 transition-transform duration-300 hover:scale-[1.02] drop-shadow-[0_15px_35px_rgba(0,0,0,0.25)] ${className}`} style={{
+  maskImage: `url(${CLOUD_SRC})`,
+  WebkitMaskImage: `url(${CLOUD_SRC})`,
+  maskSize: 'contain',
+  WebkitMaskSize: 'contain',
+  maskRepeat: 'no-repeat',
+  WebkitMaskRepeat: 'no-repeat',
+  maskPosition: 'center',
+  WebkitMaskPosition: 'center'
+}}>
     {children}
-  </div>
-);
-
+  </div>;
 const HowItWorksSection = () => {
-  const steps = [
-    {
-      icon: vapeIcon,
-      title: "Vape & Record",
-      description: "Take puffs, tracked in real-time with precision technology.",
-      number: "01"
-    },
-    {
-      icon: coinIcon,
-      title: "Earn Points",
-      description: "Every puff converts into crypto rewards automatically.",
-      number: "02"
-    },
-    {
-      icon: cashIcon,
-      title: "Cash Out",
-      description: "Convert your clouds into tokens & prizes instantly.",
-      number: "03"
-    },
-  ];
-
-  return (
-    <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+  const steps = [{
+    icon: vapeIcon,
+    title: "Vape & Record",
+    description: "Take puffs, tracked in real-time with precision technology.",
+    number: "01"
+  }, {
+    icon: coinIcon,
+    title: "Earn Points",
+    description: "Every puff converts into crypto rewards automatically.",
+    number: "02"
+  }, {
+    icon: cashIcon,
+    title: "Cash Out",
+    description: "Convert your clouds into tokens & prizes instantly.",
+    number: "03"
+  }];
+  return <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
       {/* Ambient Glow Effects */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-[hsl(var(--button-green))] rounded-full blur-[100px] opacity-20" />
@@ -75,8 +67,7 @@ const HowItWorksSection = () => {
           </div>
           
           {steps.map((step, index) => {
-            return (
-              <div key={index} className="relative group flex flex-col items-center">
+          return <div key={index} className="relative group flex flex-col items-center">
                 {/* Step Number Badge */}
                 <div className="absolute -top-6 z-30">
                   <div className="w-12 h-12 bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-[hsl(var(--pure-black))]">
@@ -87,27 +78,17 @@ const HowItWorksSection = () => {
                 {/* Green cloud with black text constrained within cloud shape */}
                 <CloudMaskCard>
                   <div className="mb-4">
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center border border-black/10 bg-black/10 backdrop-blur-sm">
-                      <img
-                        src={step.icon}
-                        alt={`${step.title} icon`}
-                        loading="lazy"
-                        className="w-8 h-8 object-contain filter brightness-0"
-                      />
-                    </div>
+                    
                   </div>
                   <div className="text-center space-y-2">
                     <h3 className="text-xl font-bold tracking-tight text-black">{step.title}</h3>
                     <p className="text-black/80 text-sm leading-relaxed px-4">{step.description}</p>
                   </div>
                 </CloudMaskCard>
-              </div>
-            );
-          })}
+              </div>;
+        })}
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HowItWorksSection;
