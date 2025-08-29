@@ -55,16 +55,6 @@ const HowItWorksSection = () => {
         
         {/* Steps Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative">
-          {/* Floating Cloud Connector Elements */}
-          <div className="hidden lg:block absolute top-1/2 left-1/4 right-1/4 h-2 opacity-20 pointer-events-none">
-            <div className="w-full h-full flex items-center justify-between">
-              <div className="w-8 h-8 bg-[hsl(var(--button-green))] rounded-full animate-pulse"></div>
-              <div className="w-6 h-6 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-100"></div>
-              <div className="w-4 h-4 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-200"></div>
-              <div className="w-6 h-6 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-300"></div>
-              <div className="w-8 h-8 bg-[hsl(var(--button-green))] rounded-full animate-pulse delay-500"></div>
-            </div>
-          </div>
           
           {steps.map((step, index) => {
           return <div key={index} className="relative group flex flex-col items-center">
