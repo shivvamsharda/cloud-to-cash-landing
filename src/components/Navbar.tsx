@@ -36,7 +36,7 @@ const Navbar = () => {
                 {link.name}
               </Link>)}
             <Link to="/track">
-              <Button className="ml-4 px-4 py-2 text-sm font-semibold">
+              <Button variant="hero-primary" className="ml-4 px-4 py-2 text-sm font-semibold">
                 Start Earning
               </Button>
             </Link>
@@ -56,7 +56,7 @@ const Navbar = () => {
                       {link.name}
                     </Link>)}
                   <Link to="/track" onClick={() => setIsOpen(false)}>
-                    <Button className="w-full mt-6 px-4 py-2 text-sm font-semibold">
+                    <Button variant="hero-primary" className="w-full mt-6 px-4 py-2 text-sm font-semibold">
                       Start Earning
                     </Button>
                   </Link>

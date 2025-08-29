@@ -14,7 +14,7 @@ const CTASection = () => {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
           <Link to="/track">
-            <Button className="px-8 py-3 text-lg font-semibold min-w-[180px] bg-white text-brand-purple border-white hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]">
+            <Button variant="hero-primary" className="px-8 py-3 text-lg font-semibold min-w-[180px]">
               Start Earning Now
             </Button>
           </Link>
