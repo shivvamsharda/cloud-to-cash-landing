@@ -43,7 +43,7 @@ const HowItWorksSection = () => {
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((step, index) => (
             <div key={index} className="group relative">
               {/* Connection Line */}
@@ -69,30 +69,6 @@ const HowItWorksSection = () => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Additional Info */}
-        <div className="bg-gradient-to-r from-[hsl(var(--effect-purple))]/20 to-[hsl(var(--button-green))]/20 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Earning?</h2>
-            <p className="text-white/70 text-lg mb-6">
-              Join thousands of vapers who are already earning rewards with VapeFi's innovative platform.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/track" 
-                className="bg-[hsl(var(--button-green))] text-black px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/90 transition-colors duration-300"
-              >
-                Start Tracking
-              </Link>
-              <Link 
-                to="/rewards" 
-                className="border border-[hsl(var(--button-green))] text-[hsl(var(--button-green))] px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/10 transition-colors duration-300"
-              >
-                View Rewards
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </section>
