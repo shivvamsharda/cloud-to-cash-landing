@@ -6,8 +6,7 @@ export function Features() {
             <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
                 <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
                     <h2 className="text-balance text-4xl md:text-5xl lg:text-7xl font-bold text-white tracking-tight">
-                        WHY CHOOSE
-                        <span className="block text-[hsl(var(--button-green))] mt-2">VAPEFI</span>
+                        WHY CHOOSE <span className="text-[hsl(var(--button-green))]">VAPEFI</span>
                     </h2>
                     <p className="text-xl text-white/70 leading-relaxed">Experience the future of vaping with cutting-edge technology and instant rewards</p>
                 </div>
