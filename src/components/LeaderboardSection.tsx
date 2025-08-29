@@ -57,69 +57,24 @@ const LeaderboardSection = () => {
   };
 
   return (
-    <section className="bg-[hsl(var(--pure-black))] py-12 sm:py-24 px-4 sm:px-6 relative overflow-hidden">
+    <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
       {/* Glowing Orbs */}
-      <div className="absolute top-20 left-10 w-32 h-32 sm:w-40 sm:h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
-      <div className="absolute bottom-20 right-10 w-32 h-32 sm:w-40 sm:h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
+      <div className="absolute top-20 left-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
+      <div className="absolute bottom-20 right-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
       
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
+        <div className="text-center mb-16">
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
             <span className="text-[hsl(var(--button-green))]">LEADERBOARD</span>
           </h2>
-          <p className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto px-4">
+          <p className="text-xl text-white/70 max-w-2xl mx-auto">
             Compete with vapers worldwide and climb to the top
           </p>
         </div>
         
-        {/* Mobile Card Layout */}
-        <div className="lg:hidden space-y-4">
-          {leaderboardData.map((player) => (
-            <div 
-              key={player.rank} 
-              className={`bg-gradient-to-br from-[hsl(var(--card-bg))] to-[hsl(var(--pure-black))] border border-[hsl(var(--card-border))] rounded-2xl p-4 backdrop-blur-sm ${
-                player.isTopPlayer 
-                  ? 'border-[hsl(var(--button-green))]/30 shadow-[0_0_20px_hsl(var(--button-green)/0.1)]' 
-                  : ''
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  {getRankDisplay(player.rank)}
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${
-                    player.isTopPlayer 
-                      ? 'bg-gradient-to-br from-[hsl(var(--button-green))]/30 to-[hsl(var(--button-green))]/10 border-2 border-[hsl(var(--button-green))]/30 text-white' 
-                      : 'bg-white/10 border border-white/20 text-white/90'
-                  }`}>
-                    {player.username.charAt(0)}
-                  </div>
-                  <div className={`font-semibold ${player.isTopPlayer ? 'text-white' : 'text-white/90'}`}>
-                    {player.username}
-                  </div>
-                </div>
-                {getStatusBadge(player.status)}
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="text-center">
-                  <div className="text-xs text-white/60 uppercase tracking-wider mb-1">Puffs</div>
-                  <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
-                    {player.puffs.toLocaleString()}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-white/60 uppercase tracking-wider mb-1">Points</div>
-                  <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
-                    {player.points.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop Table Layout */}
-        <div className="hidden lg:block bg-gradient-to-br from-[hsl(var(--card-bg))] to-[hsl(var(--pure-black))] border border-[hsl(var(--card-border))] rounded-2xl p-8 backdrop-blur-sm">
+        {/* Leaderboard Container */}
+        <div className="bg-gradient-to-br from-[hsl(var(--card-bg))] to-[hsl(var(--pure-black))] border border-[hsl(var(--card-border))] rounded-2xl p-8 backdrop-blur-sm">
           {/* Header */}
           <div className="grid grid-cols-12 gap-4 pb-6 mb-6 border-b border-[hsl(var(--button-green))]/20">
             <div className="col-span-1 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider">Rank</div>
