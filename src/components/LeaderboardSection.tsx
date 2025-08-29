@@ -58,11 +58,6 @@ const LeaderboardSection = () => {
 
   return (
     <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
-      {/* Neon Grid Background */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0 bg-[linear-gradient(hsl(var(--button-green))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--button-green))_1px,transparent_1px)] bg-[size:60px_60px]" />
-      </div>
-      
       {/* Glowing Orbs */}
       <div className="absolute top-20 left-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
       <div className="absolute bottom-20 right-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
