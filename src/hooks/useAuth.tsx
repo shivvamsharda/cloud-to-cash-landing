@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         // Create or update user profile when user signs in
-        if (session?.user && event === 'SIGNED_IN') {
+        if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
           setTimeout(async () => {
             try {
               const { data: existingProfile } = await supabase

@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { WalletContextProvider } from "@/components/WalletProvider";
 import { AuthProvider } from "@/hooks/useAuth";
+import ProfileGate from "@/components/ProfileGate";
 
 const queryClient = new QueryClient();
 
@@ -22,17 +23,18 @@ const App = () => (
         <AuthProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/rewards" element={<Rewards />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/track" element={<Track />} />
-              <Route path="/profile" element={<Profile />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <BrowserRouter>
+              <Navbar />
+              <ProfileGate />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/rewards" element={<Rewards />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/track" element={<Track />} />
+                <Route path="/profile" element={<Profile />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
           </BrowserRouter>
         </AuthProvider>
       </WalletContextProvider>

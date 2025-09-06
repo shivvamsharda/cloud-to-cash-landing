@@ -10,12 +10,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { usePuffSessions } from '@/hooks/usePuffSessions';
 import { WalletConnectionModal } from '@/components/WalletConnectionModal';
-import { ProfileCreationModal } from '@/components/ProfileCreationModal';
+
 
 const Track = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, isNewUser, completeProfile } = useAuth();
+  const { user } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const { createSession, loading: sessionLoading } = usePuffSessions();
   
@@ -246,13 +246,6 @@ const Track = () => {
         onClose={() => {}}
       />
 
-      {user && isNewUser && profile?.wallet_address && (
-        <ProfileCreationModal
-          isOpen={isNewUser}
-          walletAddress={profile.wallet_address}
-          userId={user.id}
-        />
-      )}
     </div>
   );
 };

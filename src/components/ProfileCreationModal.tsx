@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload, Check, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useUserProfile } from '@/hooks/useUserProfile';
+
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -22,7 +22,7 @@ export const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
   walletAddress, 
   userId 
 }) => {
-  const { updateProfile } = useUserProfile();
+  
   const { completeProfile } = useAuth();
   const [formData, setFormData] = useState({
     displayName: '',
@@ -124,14 +124,22 @@ export const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
       // Upload profile picture
       const profilePictureUrl = await uploadProfilePicture(profilePicture);
 
-      // Update profile
-      await updateProfile({
-        name: formData.displayName,
-        username: formData.username,
-        twitter_username: formData.twitterHandle || null,
-        wallet_address: walletAddress,
-        profile_picture_url: profilePictureUrl,
-      });
+      // Create or update profile row
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            id: userId,
+            name: formData.displayName,
+            username: formData.username,
+            twitter_username: formData.twitterHandle || null,
+            wallet_address: walletAddress,
+            profile_picture_url: profilePictureUrl,
+          },
+          { onConflict: 'id' }
+        );
+
+      if (upsertError) throw upsertError;
 
       completeProfile();
       toast.success('Profile created successfully!');
