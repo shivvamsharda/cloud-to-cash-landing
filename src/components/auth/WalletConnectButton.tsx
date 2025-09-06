@@ -26,33 +26,37 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
   const { isAuthenticated, profileComplete, signInWithWallet, isAuthenticating } = useAuth();
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
-  const hasAutoSignedRef = useRef(false);
+  const clickGuardRef = useRef(false);
   
   // Use auth navigation hook for automatic redirects
   useAuthNavigation();
 
   const handleClick = async () => {
+    // If fully authenticated, go to tracking
     if (isAuthenticated && profileComplete) {
-      // Fully authenticated with complete profile, go to tracking
       navigate(redirectTo);
       return;
     }
 
+    // If authenticated but profile incomplete, go to setup
     if (isAuthenticated && profileComplete === false) {
-      // Authenticated but incomplete profile, go to setup
       navigate('/setup-profile');
       return;
     }
 
+    // If not connected, open wallet modal
     if (!connected) {
-      // Show wallet selection modal
       setIsConnecting(true);
       setVisible(true);
       return;
     }
 
-    // Connected but not authenticated, sign in with Web3
+    // Guard against duplicate sign-ins
+    if (isAuthenticating || clickGuardRef.current) return;
+    clickGuardRef.current = true;
+
     try {
+      if (visible) setVisible(false);
       const success = await signInWithWallet();
       if (success) {
         if (profileComplete) {
@@ -63,41 +67,20 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
       }
     } catch (error) {
       console.error('Sign in error:', error);
+    } finally {
+      clickGuardRef.current = false;
     }
   };
 
   // Only navigate after explicit button click authentication
   // Remove automatic navigation to prevent interference with other navigation
 
-  // After wallet connects, auto sign-in once
+  // Reset connecting state when wallet connects (no auto sign-in)
   useEffect(() => {
-    if (connected) {
+    if (connected && isConnecting) {
       setIsConnecting(false);
-      if (!isAuthenticated && !isAuthenticating && !hasAutoSignedRef.current) {
-        hasAutoSignedRef.current = true;
-        (async () => {
-          try {
-            // Ensure modal is closed
-            if (visible) setVisible(false);
-            const success = await signInWithWallet();
-            if (success) {
-              if (profileComplete) {
-                navigate(redirectTo);
-              } else {
-                navigate('/setup-profile');
-              }
-            }
-          } catch (e) {
-            console.error('Auto sign-in error:', e);
-            hasAutoSignedRef.current = false;
-          }
-        })();
-      }
-    } else {
-      // Reset guard when disconnected
-      hasAutoSignedRef.current = false;
     }
-  }, [connected, isAuthenticated, isAuthenticating, profileComplete, navigate, redirectTo, signInWithWallet, visible, setVisible]);
+  }, [connected, isConnecting]);
 
   // Reset connecting if modal closes without a connection
   useEffect(() => {
