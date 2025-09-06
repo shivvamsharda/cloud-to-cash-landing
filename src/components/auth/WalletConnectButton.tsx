@@ -47,20 +47,25 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
     }
   };
 
-  // Reset connecting state and auto-authenticate when wallet connects
+  // Reset connecting state when wallet connects (but don't auto-authenticate)
   useEffect(() => {
     if (connected && isConnecting) {
       setIsConnecting(false);
-      // Auto-authenticate when wallet connects
-      signInWithWallet().then((success) => {
-        if (success) {
-          navigate(redirectTo);
-        }
-      });
     }
-  }, [connected, isConnecting, signInWithWallet, navigate, redirectTo]);
+  }, [connected, isConnecting]);
 
   const isLoading = isAuthenticating || isConnecting;
+
+  // Determine button text based on state
+  const getButtonText = () => {
+    if (isLoading) {
+      if (isAuthenticating) return 'Signing...';
+      if (isConnecting) return 'Connecting...';
+    }
+    if (isAuthenticated) return children;
+    if (connected) return 'Sign Message';
+    return 'Connect Wallet';
+  };
 
   return (
     <Button 
@@ -70,7 +75,7 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
       onClick={handleClick}
       disabled={isLoading}
     >
-      {isLoading ? 'Connecting...' : children}
+      {getButtonText()}
     </Button>
   );
 };
