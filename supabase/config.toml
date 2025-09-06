@@ -1,7 +1,7 @@
 project_id = "paugtcnvqdbjcrrmjxma"
 
 [auth.web3.solana]
-enabled = false
+enabled = true
 
 [functions.score-updater]
 verify_jwt = false

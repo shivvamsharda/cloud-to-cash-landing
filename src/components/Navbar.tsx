@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { WalletConnectButton } from "@/components/auth/WalletConnectButton";
+import { WalletStatus } from "@/components/auth/WalletStatus";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,11 +64,10 @@ const Navbar = () => {
                 </Link>
               )
             ))}
-            <Link to="/track">
-              <Button variant="hero-primary" className="ml-4 px-4 py-2 text-sm font-semibold">
-                Start Earning
-              </Button>
-            </Link>
+            <WalletConnectButton variant="hero-primary" className="ml-4 px-4 py-2 text-sm font-semibold">
+              Start Earning
+            </WalletConnectButton>
+            <WalletStatus />
           </div>
 
           {/* Mobile Menu */}
@@ -98,11 +99,9 @@ const Navbar = () => {
                       </Link>
                     )
                   ))}
-                  <Link to="/track" onClick={() => setIsOpen(false)}>
-                    <Button variant="hero-primary" className="w-full mt-6 px-4 py-2 text-sm font-semibold">
-                      Start Earning
-                    </Button>
-                  </Link>
+                  <WalletConnectButton variant="hero-primary" className="w-full mt-6 px-4 py-2 text-sm font-semibold">
+                    Start Earning
+                  </WalletConnectButton>
                 </div>
               </SheetContent>
             </Sheet>
