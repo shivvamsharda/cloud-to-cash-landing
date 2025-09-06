@@ -57,7 +57,7 @@ const LeaderboardSection = () => {
   };
 
   return (
-    <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+    <section id="leaderboard" className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
       {/* Grid Background */}
       <div 
         className="absolute inset-0"
