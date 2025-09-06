@@ -8,7 +8,7 @@ const CTASection = () => {
       <div 
         className="absolute inset-0 bg-contain bg-center bg-no-repeat z-10 block md:hidden"
         style={{
-          backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mobile_Footer1.png')"
+          backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mobile_Footer2.png')"
         }}
       />
       {/* Desktop background image */}
