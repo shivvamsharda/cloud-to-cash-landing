@@ -158,7 +158,7 @@ export const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="w-full max-w-lg rounded-lg" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="w-full max-w-lg rounded-none" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Complete Your Profile</DialogTitle>
         </DialogHeader>
@@ -176,7 +176,7 @@ export const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
               </Avatar>
               <div 
                 {...getRootProps()} 
-                className="flex-1 border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 cursor-pointer hover:border-muted-foreground/50 transition-colors"
+                className="flex-1 border-2 border-dashed border-muted-foreground/25 rounded-none p-4 cursor-pointer hover:border-muted-foreground/50 transition-colors"
               >
                 <input {...getInputProps()} />
                 <div className="text-center text-sm">
