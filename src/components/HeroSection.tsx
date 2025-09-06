@@ -46,7 +46,7 @@ const HeroSection = () => {
       />
       
       {/* Content Overlay */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center px-6">
+      <div className="absolute inset-0 z-20 flex items-center justify-center px-6 translate-y-8">
         <div className="text-center max-w-4xl mx-auto">
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
