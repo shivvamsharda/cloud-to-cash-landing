@@ -63,7 +63,7 @@ const LeaderboardSection = () => {
         className="absolute inset-0"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 1px 1px, hsl(var(--button-green) / 0.08) 1px, transparent 0)
+            radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.08) 1px, transparent 0)
           `,
           backgroundSize: '30px 30px'
         }}

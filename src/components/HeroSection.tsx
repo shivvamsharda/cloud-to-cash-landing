@@ -8,8 +8,8 @@ const HeroSection = () => {
         className="absolute inset-0 z-5"
         style={{
           backgroundImage: `
-            linear-gradient(hsl(var(--button-green) / 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, hsl(var(--button-green) / 0.1) 1px, transparent 1px)
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px'
         }}
