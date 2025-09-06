@@ -6,18 +6,29 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Square } from 'lucide-react';
 import SmartPuffTracker from '@/components/detection/SmartPuffTracker';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { usePuffSessions } from '@/hooks/usePuffSessions';
 
 const Track = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useUserProfile();
+  const { createSession, loading: sessionLoading } = usePuffSessions();
   
   const [isTracking, setIsTracking] = useState(false);
   const [currentSession, setCurrentSession] = useState({
     puffs: 0,
     duration: 0,
   });
-  const [totalPuffs, setTotalPuffs] = useState(0);
-  const [totalTokens, setTotalTokens] = useState(0);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
 
   const startTracking = () => {
     setIsTracking(true);
@@ -33,19 +44,27 @@ const Track = () => {
     }));
   };
 
-  const stopTracking = () => {
+  const stopTracking = async () => {
     setIsTracking(false);
     
-    // Save session data to local state
+    // Save session to database
     if (currentSession.puffs > 0) {
-      const tokensEarned = currentSession.puffs * 0.1;
-      setTotalPuffs(prev => prev + currentSession.puffs);
-      setTotalTokens(prev => prev + tokensEarned);
-      
-      toast({
-        title: "Session saved!",
-        description: `Earned ${tokensEarned.toFixed(1)} VapeFi tokens from ${currentSession.puffs} puffs.`,
-      });
+      try {
+        await createSession(currentSession.puffs, currentSession.duration);
+        const tokensEarned = currentSession.puffs * 0.1;
+        
+        toast({
+          title: "Session saved!",
+          description: `Earned ${tokensEarned.toFixed(1)} VapeFi tokens from ${currentSession.puffs} puffs.`,
+        });
+      } catch (error) {
+        console.error('Error saving session:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save session. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -72,6 +91,30 @@ const Track = () => {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Show loading screen while checking auth
+  if (authLoading || profileLoading) {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--pure-black))] pt-24 px-6 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show auth required message if not logged in
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--pure-black))] pt-24 px-6 flex items-center justify-center">
+        <div className="text-center text-white">
+          <h2 className="text-2xl mb-4">Authentication Required</h2>
+          <p className="mb-6">Please connect your wallet to start tracking.</p>
+          <Button onClick={() => navigate('/')} variant="hero-primary">
+            Go to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[hsl(var(--pure-black))] pt-24 px-6 relative">
@@ -156,20 +199,20 @@ const Track = () => {
             <CardContent className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
-                  {totalPuffs}
+                  {profile?.total_puffs || 0}
                 </div>
                 <div className="text-white/70">Total Puffs</div>
               </div>
               
               <div className="text-center">
                 <div className="text-2xl font-semibold text-[hsl(var(--button-green))] mb-2">
-                  {totalTokens.toFixed(1)}
+                  {profile?.total_rewards?.toFixed(1) || '0.0'}
                 </div>
                 <div className="text-white/70">Total VapeFi Tokens</div>
               </div>
 
               <Progress 
-                value={Math.min(totalPuffs / 100 * 100, 100)} 
+                value={Math.min((profile?.total_puffs || 0) / 100 * 100, 100)} 
                 className="w-full [&>div]:bg-[hsl(var(--button-green))]"
               />
               <div className="text-center text-sm text-white/70">

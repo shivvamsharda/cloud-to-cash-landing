@@ -3,11 +3,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { WalletAuth } from "@/components/WalletAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -80,11 +83,14 @@ const Navbar = () => {
 
           {/* User Actions - Right aligned */}
           <div className="hidden md:flex items-center justify-end space-x-4">
-            <Link to="/track">
-              <Button variant="hero-primary" className="px-4 py-2 text-sm font-semibold">
-                Get Started
-              </Button>
-            </Link>
+            <WalletAuth />
+            {user && (
+              <Link to="/track">
+                <Button variant="hero-primary" className="px-4 py-2 text-sm font-semibold">
+                  Track Now
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -123,11 +129,16 @@ const Navbar = () => {
                       </Link>
                     )
                   ))}
-                  <Link to="/track">
-                    <Button variant="hero-primary" className="w-full mt-6 px-4 py-2 text-sm font-semibold">
-                      Get Started
-                    </Button>
-                  </Link>
+                  <div className="pt-4">
+                    <WalletAuth />
+                  </div>
+                  {user && (
+                    <Link to="/track" onClick={() => setIsOpen(false)}>
+                      <Button variant="hero-primary" className="w-full mt-4 px-4 py-2 text-sm font-semibold">
+                        Track Now
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
