@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Square } from 'lucide-react';
 import SmartPuffTracker from '@/components/detection/SmartPuffTracker';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,6 +14,7 @@ const Track = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileComplete, user, publicKey } = useAuth();
   const { toast } = useToast();
+  useAuthNavigation(); // Handle auth-based navigation
   
   const [isTracking, setIsTracking] = useState(false);
   const [currentSession, setCurrentSession] = useState({

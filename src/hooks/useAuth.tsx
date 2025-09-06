@@ -21,8 +21,8 @@ export const useAuth = () => {
         
         // Check profile completeness when auth state changes
         if (session?.user) {
-          setTimeout(() => {
-            checkProfileComplete(session.user.id);
+          setTimeout(async () => {
+            await checkProfileComplete(session.user.id);
           }, 0);
         } else {
           setProfileComplete(null);
@@ -111,11 +111,6 @@ export const useAuth = () => {
         title: "Successfully authenticated!",
         description: "Welcome to VapeFi.",
       });
-      
-      // Check profile completeness after successful authentication
-      if (user) {
-        await checkProfileComplete(user.id);
-      }
       
       return true;
     } catch (error) {

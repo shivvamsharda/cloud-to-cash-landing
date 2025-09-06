@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -11,8 +12,9 @@ import { ArrowLeft, User, Twitter, Zap } from 'lucide-react';
 
 const SetupProfile = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, publicKey } = useAuth();
+  const { isAuthenticated, user, publicKey, checkProfileComplete } = useAuth();
   const { toast } = useToast();
+  useAuthNavigation(); // Handle auth-based navigation
   
   const [formData, setFormData] = useState({
     name: '',
@@ -119,6 +121,11 @@ const SetupProfile = () => {
         description: "Welcome to VapeFi. You can now start tracking your puffs.",
       });
 
+      // Force update profile completeness check before navigation
+      if (user) {
+        await checkProfileComplete(user.id);
+      }
+      
       navigate('/track');
     } catch (error) {
       console.error('Error in profile setup:', error);

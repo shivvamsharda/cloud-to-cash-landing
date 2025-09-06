@@ -47,24 +47,16 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
     }
 
     // Connected but not authenticated, sign in with Web3
-    const success = await signInWithWallet();
-    if (success) {
-      // After successful authentication, check profile status
-      // The useAuth hook will update profileComplete state
-      // We'll let useEffect handle the navigation
+    try {
+      const success = await signInWithWallet();
+      // Let the auth hook handle navigation based on profile status
+    } catch (error) {
+      console.error('Sign in error:', error);
     }
   };
 
-  // Handle navigation after authentication based on profile completeness
-  useEffect(() => {
-    if (isAuthenticated && profileComplete !== null) {
-      if (profileComplete) {
-        navigate(redirectTo);
-      } else {
-        navigate('/setup-profile');
-      }
-    }
-  }, [isAuthenticated, profileComplete, navigate, redirectTo]);
+  // Only navigate after explicit button click authentication
+  // Remove automatic navigation to prevent interference with other navigation
 
   // Reset connecting state when wallet connects (but don't auto-authenticate)
   useEffect(() => {
