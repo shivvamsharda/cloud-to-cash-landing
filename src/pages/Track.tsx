@@ -3,67 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Play, Pause, Square } from 'lucide-react';
+import { Play, Square } from 'lucide-react';
 import SmartPuffTracker from '@/components/detection/SmartPuffTracker';
-import { useAuth } from '@/hooks/useAuth';
-import { useAuthNavigation } from '@/hooks/useAuthNavigation';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Track = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, profileComplete, user, publicKey } = useAuth();
   const { toast } = useToast();
-  useAuthNavigation(); // Handle auth-based navigation
   
   const [isTracking, setIsTracking] = useState(false);
   const [currentSession, setCurrentSession] = useState({
     puffs: 0,
     duration: 0,
   });
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Redirect if not authenticated or profile incomplete
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/');
-      return;
-    }
-    
-    if (profileComplete === false) {
-      navigate('/setup-profile');
-      return;
-    }
-  }, [isAuthenticated, profileComplete, navigate]);
-
-  // Fetch user profile (only if profile is complete)
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user || profileComplete !== true) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-          return;
-        }
-
-        setUserProfile(data);
-      } catch (error) {
-        console.error('Error handling profile:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, [user, profileComplete]);
+  const [totalPuffs, setTotalPuffs] = useState(0);
+  const [totalTokens, setTotalTokens] = useState(0);
 
   const startTracking = () => {
     setIsTracking(true);
@@ -79,48 +33,19 @@ const Track = () => {
     }));
   };
 
-  const stopTracking = async () => {
+  const stopTracking = () => {
     setIsTracking(false);
     
-    // Save session to database
-    if (currentSession.puffs > 0 && user) {
-      try {
-        const { error } = await supabase
-          .from('puff_sessions')
-          .insert({
-            user_id: user.id,
-            puffs_count: currentSession.puffs,
-            session_duration: currentSession.duration,
-            rewards_earned: currentSession.puffs * 0.1, // 0.1 tokens per puff
-          });
-
-        if (error) {
-          console.error('Error saving session:', error);
-          toast({
-            title: "Error saving session",
-            description: "Your session couldn't be saved to the database.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Session saved!",
-            description: `Earned ${(currentSession.puffs * 0.1).toFixed(1)} VapeFi tokens from ${currentSession.puffs} puffs.`,
-          });
-          
-          // Refresh user profile to get updated totals
-          const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-          
-          if (data) {
-            setUserProfile(data);
-          }
-        }
-      } catch (error) {
-        console.error('Error in stopTracking:', error);
-      }
+    // Save session data to local state
+    if (currentSession.puffs > 0) {
+      const tokensEarned = currentSession.puffs * 0.1;
+      setTotalPuffs(prev => prev + currentSession.puffs);
+      setTotalTokens(prev => prev + tokensEarned);
+      
+      toast({
+        title: "Session saved!",
+        description: `Earned ${tokensEarned.toFixed(1)} VapeFi tokens from ${currentSession.puffs} puffs.`,
+      });
     }
   };
 
@@ -164,13 +89,6 @@ const Track = () => {
           <p className="text-xl text-white/70">
             Track your puffs and earn VapeFi tokens
           </p>
-          {publicKey && (
-            <div className="mt-4 p-3 bg-[hsl(var(--button-green))]/20 border border-[hsl(var(--button-green))]/30 rounded-lg">
-              <p className="text-[hsl(var(--button-green))] text-sm">
-                🔗 Connected: {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Smart AI Detection */}
@@ -236,40 +154,27 @@ const Track = () => {
               <CardTitle className="text-center text-white">Your Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {isLoading ? (
-                <div className="text-center text-white/70">Loading your stats...</div>
-              ) : (
-                <>
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
-                      {userProfile?.total_puffs || 0}
-                    </div>
-                    <div className="text-white/70">Total Puffs</div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="text-2xl font-semibold text-[hsl(var(--button-green))] mb-2">
-                      {userProfile?.total_rewards?.toFixed(1) || '0.0'}
-                    </div>
-                    <div className="text-white/70">Total VapeFi Tokens</div>
-                  </div>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-[hsl(195,100%,50%)] mb-2">
+                  {totalPuffs}
+                </div>
+                <div className="text-white/70">Total Puffs</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-2xl font-semibold text-[hsl(var(--button-green))] mb-2">
+                  {totalTokens.toFixed(1)}
+                </div>
+                <div className="text-white/70">Total VapeFi Tokens</div>
+              </div>
 
-                  <div className="text-center">
-                    <div className="text-sm text-white/70 mb-1">Wallet</div>
-                    <div className="font-mono text-xs text-white">
-                      {publicKey ? `${publicKey.toBase58().slice(0, 8)}...${publicKey.toBase58().slice(-8)}` : 'Not connected'}
-                    </div>
-                  </div>
-
-                  <Progress 
-                    value={Math.min((userProfile?.total_puffs || 0) / 100 * 100, 100)} 
-                    className="w-full [&>div]:bg-[hsl(var(--button-green))]"
-                  />
-                  <div className="text-center text-sm text-white/70">
-                    Progress to Bronze Vaper (100 puffs)
-                  </div>
-                </>
-              )}
+              <Progress 
+                value={Math.min(totalPuffs / 100 * 100, 100)} 
+                className="w-full [&>div]:bg-[hsl(var(--button-green))]"
+              />
+              <div className="text-center text-sm text-white/70">
+                Progress to Bronze Vaper (100 puffs)
+              </div>
             </CardContent>
           </Card>
         </div>

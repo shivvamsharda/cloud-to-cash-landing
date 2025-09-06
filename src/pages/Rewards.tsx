@@ -1,5 +1,6 @@
 import { Crown, Gift, Star, Zap, Trophy, Coins } from "lucide-react";
-import { WalletConnectButton } from "@/components/auth/WalletConnectButton";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Rewards = () => {
   const rewardTiers = [
@@ -142,9 +143,11 @@ const Rewards = () => {
           <p className="text-white/70 text-lg mb-6">
             Join the VapeFi community and turn every puff into valuable rewards.
           </p>
-          <WalletConnectButton className="bg-[hsl(var(--button-green))] text-black px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/90 transition-colors duration-300 inline-block">
-            Start Tracking Puffs
-          </WalletConnectButton>
+          <Link to="/track">
+            <Button className="bg-[hsl(var(--button-green))] text-black px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/90 transition-colors duration-300">
+              Start Tracking Puffs
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
