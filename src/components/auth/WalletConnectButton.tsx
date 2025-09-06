@@ -4,6 +4,7 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 
 interface WalletConnectButtonProps {
   children: React.ReactNode;
@@ -25,6 +26,9 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
   const { isAuthenticated, profileComplete, signInWithWallet, isAuthenticating } = useAuth();
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
+  
+  // Use auth navigation hook for automatic redirects
+  useAuthNavigation();
 
   const handleClick = async () => {
     if (isAuthenticated && profileComplete) {
@@ -49,7 +53,7 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
     // Connected but not authenticated, sign in with Web3
     try {
       const success = await signInWithWallet();
-      // Let the auth hook handle navigation based on profile status
+      // useAuthNavigation hook will handle automatic redirection
     } catch (error) {
       console.error('Sign in error:', error);
     }

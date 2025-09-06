@@ -15,7 +15,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, profileComplete } = useAuth();
   const [userProfile, setUserProfile] = useState<any>(null);
-  const navLinks = [{
+  // Base navigation links for all users
+  const baseNavLinks = [{
     name: "Home",
     href: "/"
   }, {
@@ -28,6 +29,15 @@ const Navbar = () => {
     name: "Contact",
     href: "/contact"
   }];
+
+  // Add Track link for authenticated users with complete profiles
+  const navLinks = isAuthenticated && profileComplete 
+    ? [
+        ...baseNavLinks.slice(0, 2), // Home and How It Works
+        { name: "Track", href: "/track" },
+        ...baseNavLinks.slice(2) // Rewards and Contact
+      ]
+    : baseNavLinks;
 
   // Fetch user profile when authenticated
   useEffect(() => {
