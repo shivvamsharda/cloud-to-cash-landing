@@ -5,7 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
 export const useAuth = () => {
-  const { connected, wallet, publicKey, disconnect } = useWallet();
+  const { connected, wallet, publicKey, disconnect, signMessage } = useWallet();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -29,10 +29,19 @@ export const useAuth = () => {
   }, []);
 
   const signInWithWallet = useCallback(async () => {
-    if (!connected || !wallet || !publicKey) {
+    if (!connected || !publicKey) {
       toast({
         title: "Wallet not connected",
         description: "Please connect your wallet first.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!signMessage) {
+      toast({
+        title: "Wallet cannot sign messages",
+        description: "Your wallet doesn't support signMessage. Try Phantom or enable message signing.",
         variant: "destructive",
       });
       return false;
@@ -43,7 +52,12 @@ export const useAuth = () => {
       const { error } = await supabase.auth.signInWithWeb3({
         chain: 'solana',
         statement: 'Sign in to VapeFi to start tracking your puffs and earning rewards.',
-        wallet: wallet as any,
+        wallet: {
+          publicKey,
+          signMessage: async (message: Uint8Array) => {
+            return await signMessage(message);
+          },
+        } as any,
       });
 
       if (error) {
@@ -71,7 +85,7 @@ export const useAuth = () => {
     } finally {
       setIsAuthenticating(false);
     }
-  }, [connected, wallet, publicKey, toast]);
+  }, [connected, wallet, publicKey, signMessage, toast]);
 
   const signOut = useCallback(async () => {
     try {
