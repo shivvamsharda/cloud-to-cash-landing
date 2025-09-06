@@ -4,8 +4,16 @@ import { Link } from "react-router-dom";
 const CTASection = () => {
   return (
     <section className="bg-black relative overflow-hidden min-h-[900px] px-6 flex items-end">
+      {/* Mobile background image */}
       <div 
-        className="absolute inset-0 bg-contain bg-center bg-no-repeat z-10"
+        className="absolute inset-0 bg-contain bg-center bg-no-repeat z-10 block md:hidden"
+        style={{
+          backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mobile_Footer1.png')"
+        }}
+      />
+      {/* Desktop background image */}
+      <div 
+        className="absolute inset-0 bg-contain bg-center bg-no-repeat z-10 hidden md:block"
         style={{
           backgroundImage: "url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Footer.png')"
         }}
