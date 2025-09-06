@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -26,6 +26,7 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
   const { isAuthenticated, profileComplete, signInWithWallet, isAuthenticating } = useAuth();
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
+  const hasAutoSignedRef = useRef(false);
   
   // Use auth navigation hook for automatic redirects
   useAuthNavigation();
@@ -68,12 +69,35 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
   // Only navigate after explicit button click authentication
   // Remove automatic navigation to prevent interference with other navigation
 
-  // Reset connecting state when wallet connects (but don't auto-authenticate)
+  // After wallet connects, auto sign-in once
   useEffect(() => {
-    if (connected && isConnecting) {
+    if (connected) {
       setIsConnecting(false);
+      if (!isAuthenticated && !isAuthenticating && !hasAutoSignedRef.current) {
+        hasAutoSignedRef.current = true;
+        (async () => {
+          try {
+            // Ensure modal is closed
+            if (visible) setVisible(false);
+            const success = await signInWithWallet();
+            if (success) {
+              if (profileComplete) {
+                navigate(redirectTo);
+              } else {
+                navigate('/setup-profile');
+              }
+            }
+          } catch (e) {
+            console.error('Auto sign-in error:', e);
+            hasAutoSignedRef.current = false;
+          }
+        })();
+      }
+    } else {
+      // Reset guard when disconnected
+      hasAutoSignedRef.current = false;
     }
-  }, [connected, isConnecting]);
+  }, [connected, isAuthenticated, isAuthenticating, profileComplete, navigate, redirectTo, signInWithWallet, visible, setVisible]);
 
   // Reset connecting if modal closes without a connection
   useEffect(() => {
