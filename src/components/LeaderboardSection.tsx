@@ -58,6 +58,16 @@ const LeaderboardSection = () => {
 
   return (
     <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
+      {/* Grid Background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 1px 1px, hsl(var(--button-green) / 0.08) 1px, transparent 0)
+          `,
+          backgroundSize: '30px 30px'
+        }}
+      />
       
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
