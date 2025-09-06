@@ -13,10 +13,18 @@ const HeroSection = () => {
           backgroundSize: '50px 50px'
         }}
       />
+      {/* Desktop Hero Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
+        className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
         style={{
           backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Hero_Trans.png)'
+        }}
+      />
+      {/* Mobile Hero Image */}
+      <div 
+        className="block md:hidden absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
+        style={{
+          backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Untitled%20design%20(41).png)'
         }}
       />
     </section>
