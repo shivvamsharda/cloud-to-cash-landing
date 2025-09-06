@@ -74,9 +74,9 @@ const LeaderboardSection = () => {
         </div>
         
         {/* Leaderboard Container */}
-        <div className="bg-gradient-to-br from-[hsl(var(--card-bg))] to-[hsl(var(--pure-black))] border border-[hsl(var(--card-border))] rounded-2xl p-8 backdrop-blur-sm">
-          {/* Header */}
-          <div className="grid grid-cols-12 gap-4 pb-6 mb-6 border-b border-[hsl(var(--button-green))]/20">
+        <div className="bg-gradient-to-br from-[hsl(var(--card-bg))] to-[hsl(var(--pure-black))] border border-[hsl(var(--card-border))] rounded-2xl p-4 md:p-8 backdrop-blur-sm">
+          {/* Desktop Header */}
+          <div className="hidden md:grid grid-cols-12 gap-4 pb-6 mb-6 border-b border-[hsl(var(--button-green))]/20">
             <div className="col-span-1 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider">Rank</div>
             <div className="col-span-4 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider">Player</div>
             <div className="col-span-2 text-[hsl(var(--button-green))] font-bold text-sm uppercase tracking-wider text-center">Puffs</div>
@@ -85,60 +85,103 @@ const LeaderboardSection = () => {
           </div>
           
           {/* Leaderboard Entries */}
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {leaderboardData.map((player) => (
-              <div 
-                key={player.rank} 
-                className={`grid grid-cols-12 gap-4 py-4 px-4 rounded-xl transition-all duration-300 hover:bg-[hsl(var(--button-green))]/5 group ${
+              <div key={player.rank}>
+                {/* Mobile Layout */}
+                <div className={`md:hidden p-4 rounded-xl transition-all duration-300 hover:bg-[hsl(var(--button-green))]/5 ${
+                  player.isTopPlayer 
+                    ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20 shadow-[0_0_20px_hsl(var(--button-green)/0.1)]' 
+                    : 'border border-[hsl(var(--card-border))]/50'
+                }`}>
+                  {/* Top Row: Rank, Username, Status */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      {getRankDisplay(player.rank)}
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
+                          player.isTopPlayer 
+                            ? 'from-[hsl(var(--button-green))]/30 to-[hsl(var(--button-green))]/10 border-2 border-[hsl(var(--button-green))]/30' 
+                            : 'from-white/10 to-white/5 border border-white/20'
+                        } flex items-center justify-center font-bold text-sm`}>
+                          {player.username.charAt(0)}
+                        </div>
+                        <span className={`font-semibold text-lg ${player.isTopPlayer ? 'text-white' : 'text-white/90'}`}>
+                          {player.username}
+                        </span>
+                      </div>
+                    </div>
+                    {getStatusBadge(player.status)}
+                  </div>
+                  
+                  {/* Bottom Row: Stats */}
+                  <div className="flex justify-between items-center">
+                    <div className="text-center">
+                      <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
+                        {player.puffs.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-white/60 uppercase tracking-wider">Puffs</div>
+                    </div>
+                    <div className="text-center">
+                      <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
+                        {player.points.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-white/60 uppercase tracking-wider">Points</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className={`hidden md:grid grid-cols-12 gap-4 py-4 px-4 rounded-xl transition-all duration-300 hover:bg-[hsl(var(--button-green))]/5 group ${
                   player.isTopPlayer 
                     ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20 shadow-[0_0_20px_hsl(var(--button-green)/0.1)]' 
                     : 'hover:border-[hsl(var(--card-border))] hover:shadow-lg'
-                }`}
-              >
-                {/* Rank */}
-                <div className="col-span-1 flex items-center">
-                  {getRankDisplay(player.rank)}
-                </div>
-                
-                {/* Username */}
-                <div className="col-span-4 flex items-center">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
-                      player.isTopPlayer 
-                        ? 'from-[hsl(var(--button-green))]/30 to-[hsl(var(--button-green))]/10 border-2 border-[hsl(var(--button-green))]/30' 
-                        : 'from-white/10 to-white/5 border border-white/20'
-                    } flex items-center justify-center font-bold text-sm`}>
-                      {player.username.charAt(0)}
-                    </div>
-                    <span className={`font-semibold ${player.isTopPlayer ? 'text-white' : 'text-white/90'} group-hover:text-[hsl(var(--button-green))] transition-colors`}>
-                      {player.username}
-                    </span>
+                }`}>
+                  {/* Rank */}
+                  <div className="col-span-1 flex items-center">
+                    {getRankDisplay(player.rank)}
                   </div>
-                </div>
-                
-                {/* Puffs */}
-                <div className="col-span-2 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
-                      {player.puffs.toLocaleString()}
+                  
+                  {/* Username */}
+                  <div className="col-span-4 flex items-center">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${
+                        player.isTopPlayer 
+                          ? 'from-[hsl(var(--button-green))]/30 to-[hsl(var(--button-green))]/10 border-2 border-[hsl(var(--button-green))]/30' 
+                          : 'from-white/10 to-white/5 border border-white/20'
+                      } flex items-center justify-center font-bold text-sm`}>
+                        {player.username.charAt(0)}
+                      </div>
+                      <span className={`font-semibold ${player.isTopPlayer ? 'text-white' : 'text-white/90'} group-hover:text-[hsl(var(--button-green))] transition-colors`}>
+                        {player.username}
+                      </span>
                     </div>
-                    <div className="text-xs text-white/60 uppercase tracking-wider">Puffs</div>
                   </div>
-                </div>
-                
-                {/* Points */}
-                <div className="col-span-3 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
-                      {player.points.toLocaleString()}
+                  
+                  {/* Puffs */}
+                  <div className="col-span-2 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
+                        {player.puffs.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-white/60 uppercase tracking-wider">Puffs</div>
                     </div>
-                    <div className="text-xs text-white/60 uppercase tracking-wider">Points</div>
                   </div>
-                </div>
-                
-                {/* Status */}
-                <div className="col-span-2 flex items-center justify-center">
-                  {getStatusBadge(player.status)}
+                  
+                  {/* Points */}
+                  <div className="col-span-3 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className={`font-bold text-lg ${player.isTopPlayer ? 'text-[hsl(var(--button-green))]' : 'text-white'}`}>
+                        {player.points.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-white/60 uppercase tracking-wider">Points</div>
+                    </div>
+                  </div>
+                  
+                  {/* Status */}
+                  <div className="col-span-2 flex items-center justify-center">
+                    {getStatusBadge(player.status)}
+                  </div>
                 </div>
               </div>
             ))}
