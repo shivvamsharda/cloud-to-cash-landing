@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { usePuffSessions } from '@/hooks/usePuffSessions';
+import { WalletConnectionModal } from '@/components/WalletConnectionModal';
 
 const Track = () => {
   const navigate = useNavigate();
@@ -22,13 +23,14 @@ const Track = () => {
     puffs: 0,
     duration: 0,
   });
+  const [showConnectionModal, setShowConnectionModal] = useState(false);
 
-  // Redirect if not authenticated
+  // Show connection modal if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/');
+      setShowConnectionModal(true);
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading]);
 
   const startTracking = () => {
     setIsTracking(true);
@@ -101,17 +103,21 @@ const Track = () => {
     );
   }
 
-  // Show auth required message if not logged in
+  // Show connection modal if not authenticated
   if (!user) {
     return (
       <div className="min-h-screen bg-[hsl(var(--pure-black))] pt-24 px-6 flex items-center justify-center">
         <div className="text-center text-white">
           <h2 className="text-2xl mb-4">Authentication Required</h2>
           <p className="mb-6">Please connect your wallet to start tracking.</p>
-          <Button onClick={() => navigate('/')} variant="hero-primary">
-            Go to Home
-          </Button>
         </div>
+        <WalletConnectionModal 
+          isOpen={showConnectionModal} 
+          onClose={() => {
+            setShowConnectionModal(false);
+            navigate('/');
+          }} 
+        />
       </div>
     );
   }
