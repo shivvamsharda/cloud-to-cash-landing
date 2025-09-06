@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Rewards from "./pages/Rewards";
 import Contact from "./pages/Contact";
 import Track from "./pages/Track";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { WalletContextProvider } from "@/components/WalletProvider";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/track" element={<Track />} />
+              <Route path="/profile" element={<Profile />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

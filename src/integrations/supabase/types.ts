@@ -20,6 +20,7 @@ export type Database = {
           id: string
           last_score_update: string | null
           name: string | null
+          profile_picture_url: string | null
           total_puffs: number | null
           total_rewards: number | null
           twitter_username: string | null
@@ -33,6 +34,7 @@ export type Database = {
           id: string
           last_score_update?: string | null
           name?: string | null
+          profile_picture_url?: string | null
           total_puffs?: number | null
           total_rewards?: number | null
           twitter_username?: string | null
@@ -46,6 +48,7 @@ export type Database = {
           id?: string
           last_score_update?: string | null
           name?: string | null
+          profile_picture_url?: string | null
           total_puffs?: number | null
           total_rewards?: number | null
           twitter_username?: string | null

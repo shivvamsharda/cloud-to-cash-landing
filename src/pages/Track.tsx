@@ -10,11 +10,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { usePuffSessions } from '@/hooks/usePuffSessions';
 import { WalletConnectionModal } from '@/components/WalletConnectionModal';
+import { ProfileCreationModal } from '@/components/ProfileCreationModal';
 
 const Track = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, isNewUser, completeProfile } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
   const { createSession, loading: sessionLoading } = usePuffSessions();
   
@@ -27,10 +28,10 @@ const Track = () => {
 
   // Show connection modal if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!user) {
       setShowConnectionModal(true);
     }
-  }, [user, authLoading]);
+  }, [user]);
 
   const startTracking = () => {
     setIsTracking(true);
@@ -95,7 +96,7 @@ const Track = () => {
   };
 
   // Show loading screen while checking auth
-  if (authLoading || profileLoading) {
+  if (profileLoading) {
     return (
       <div className="min-h-screen bg-[hsl(var(--pure-black))] pt-24 px-6 flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
@@ -238,6 +239,20 @@ const Track = () => {
           </Button>
         </div>
       </div>
+
+      {/* Modals */}
+      <WalletConnectionModal
+        isOpen={!user}
+        onClose={() => {}}
+      />
+
+      {user && isNewUser && profile?.wallet_address && (
+        <ProfileCreationModal
+          isOpen={isNewUser}
+          walletAddress={profile.wallet_address}
+          userId={user.id}
+        />
+      )}
     </div>
   );
 };

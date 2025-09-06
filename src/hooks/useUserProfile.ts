@@ -11,6 +11,7 @@ interface UserProfile {
   vape_name: string | null;
   name: string | null;
   twitter_username: string | null;
+  profile_picture_url: string | null;
 }
 
 export const useUserProfile = () => {

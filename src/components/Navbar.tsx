@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { WalletAuth } from "@/components/WalletAuth";
+import { WalletAuth } from "./WalletAuth";
+import { ProfileAvatar } from "./ProfileAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { toast } from 'sonner';
@@ -99,22 +100,16 @@ const Navbar = () => {
 
           {/* User Actions - Right aligned */}
           <div className="hidden md:flex items-center justify-end space-x-4">
-            <WalletAuth />
-            {user && (
+            {!user ? (
+              <WalletAuth />
+            ) : (
               <>
                 <Link to="/track">
                   <Button variant="hero-primary" className="px-4 py-2 text-sm font-semibold">
                     Track Now
                   </Button>
                 </Link>
-                <Button 
-                  onClick={handleDisconnect}
-                  variant="ghost" 
-                  size="icon"
-                  className="text-background hover:text-background/70 hover:bg-background/10"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                <ProfileAvatar />
               </>
             )}
           </div>
@@ -156,28 +151,34 @@ const Navbar = () => {
                     )
                   ))}
                   <div className="pt-4">
-                    <WalletAuth />
-                  </div>
-                  {user && (
-                    <div className="space-y-4">
-                      <Link to="/track" onClick={() => setIsOpen(false)}>
-                        <Button variant="hero-primary" className="w-full px-4 py-2 text-sm font-semibold">
-                          Track Now
+                    {!user ? (
+                      <WalletAuth />
+                    ) : (
+                      <div className="space-y-4">
+                        <Link to="/track" onClick={() => setIsOpen(false)}>
+                          <Button variant="hero-primary" className="w-full px-4 py-2 text-sm font-semibold">
+                            Track Now
+                          </Button>
+                        </Link>
+                        <Link to="/profile" onClick={() => setIsOpen(false)}>
+                          <Button variant="outline" className="w-full flex items-center gap-2">
+                            Profile
+                          </Button>
+                        </Link>
+                        <Button 
+                          onClick={() => {
+                            handleDisconnect();
+                            setIsOpen(false);
+                          }}
+                          variant="outline" 
+                          className="w-full flex items-center gap-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Disconnect
                         </Button>
-                      </Link>
-                      <Button 
-                        onClick={() => {
-                          handleDisconnect();
-                          setIsOpen(false);
-                        }}
-                        variant="outline" 
-                        className="w-full flex items-center gap-2"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Disconnect
-                      </Button>
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

@@ -6,6 +6,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isNewUser: boolean;
+  completeProfile: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -15,6 +17,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -29,24 +32,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             try {
               const { data: existingProfile } = await supabase
                 .from('profiles')
-                .select('*')
+                .select('id, username, name, profile_picture_url')
                 .eq('id', session.user.id)
                 .maybeSingle();
 
               if (!existingProfile) {
-                const walletAddress = session.user.user_metadata?.wallet_address;
-                await supabase
+                // New user - create minimal profile
+                const { error: profileError } = await supabase
                   .from('profiles')
                   .insert({
                     id: session.user.id,
-                    username: `User_${session.user.id.slice(0, 8)}`,
-                    wallet_address: walletAddress,
+                    username: `temp_${session.user.id.slice(0, 8)}`,
+                    wallet_address: session.user.user_metadata?.publicKey || null,
                   });
+
+                if (profileError) {
+                  console.error('Error creating profile:', profileError);
+                } else {
+                  setIsNewUser(true);
+                }
+              } else {
+                // Check if profile is complete (has required fields)
+                const isProfileComplete = existingProfile.name && 
+                                        existingProfile.profile_picture_url && 
+                                        existingProfile.username && 
+                                        !existingProfile.username.startsWith('temp_');
+                setIsNewUser(!isProfileComplete);
               }
             } catch (error) {
               console.error('Error creating user profile:', error);
             }
           }, 0);
+        } else {
+          setIsNewUser(false);
         }
         
         setLoading(false);
@@ -68,8 +86,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) throw error;
   };
 
+  const completeProfile = () => {
+    setIsNewUser(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isNewUser, completeProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   );
