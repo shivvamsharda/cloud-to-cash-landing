@@ -25,10 +25,6 @@ const HowItWorksSection = () => {
 
   return (
     <section id="how-it-works" className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[hsl(var(--effect-purple))] rounded-full mix-blend-screen filter blur-xl opacity-10 animate-pulse animation-delay-2000"></div>
-      </div>
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
@@ -51,7 +47,7 @@ const HowItWorksSection = () => {
               )}
               
               {/* Step Card */}
-              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--button-green))]/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[hsl(var(--button-green))]/20">
+              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--button-green))]/30 transition-all duration-300">
                 {/* Number Badge */}
                 <div className="absolute -top-4 -left-4 w-12 h-12 bg-[hsl(var(--button-green))] text-black font-bold text-lg rounded-full flex items-center justify-center shadow-lg shadow-[hsl(var(--button-green))]/50">
                   {step.number}

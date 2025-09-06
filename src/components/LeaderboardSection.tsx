@@ -58,9 +58,6 @@ const LeaderboardSection = () => {
 
   return (
     <section className="bg-[hsl(var(--pure-black))] py-24 px-6 relative overflow-hidden">
-      {/* Glowing Orbs */}
-      <div className="absolute top-20 left-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 bg-[hsl(var(--button-green))] rounded-full blur-[80px] opacity-20" />
       
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Title */}
@@ -89,9 +86,9 @@ const LeaderboardSection = () => {
             {leaderboardData.map((player) => (
               <div key={player.rank}>
                 {/* Mobile Layout */}
-                <div className={`md:hidden p-4 rounded-xl transition-all duration-300 hover:bg-[hsl(var(--button-green))]/5 ${
+                <div className={`md:hidden p-4 rounded-xl transition-colors duration-300 ${
                   player.isTopPlayer 
-                    ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20 shadow-[0_0_20px_hsl(var(--button-green)/0.1)]' 
+                    ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20' 
                     : 'border border-[hsl(var(--card-border))]/50'
                 }`}>
                   {/* Top Row: Rank, Username, Status */}
@@ -132,10 +129,10 @@ const LeaderboardSection = () => {
                 </div>
 
                 {/* Desktop Layout */}
-                <div className={`hidden md:grid grid-cols-12 gap-4 py-4 px-4 rounded-xl transition-all duration-300 hover:bg-[hsl(var(--button-green))]/5 group ${
+                <div className={`hidden md:grid grid-cols-12 gap-4 py-4 px-4 rounded-xl transition-colors duration-300 group ${
                   player.isTopPlayer 
-                    ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20 shadow-[0_0_20px_hsl(var(--button-green)/0.1)]' 
-                    : 'hover:border-[hsl(var(--card-border))] hover:shadow-lg'
+                    ? 'bg-gradient-to-r from-[hsl(var(--button-green))]/10 to-transparent border border-[hsl(var(--button-green))]/20' 
+                    : 'hover:border-[hsl(var(--card-border))]'
                 }`}>
                   {/* Rank */}
                   <div className="col-span-1 flex items-center">
