@@ -57,18 +57,7 @@ export const WalletAuth: React.FC = () => {
   };
 
   if (user) {
-    return (
-      <div className="flex items-center gap-4">
-        <div className="flex flex-col items-end">
-          <span className="text-sm text-muted-foreground">
-            Connected: {publicKey?.toString().slice(0, 8)}...{publicKey?.toString().slice(-8)}
-          </span>
-        </div>
-        <Button onClick={handleSignOut} variant="outline">
-          Disconnect
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   return (

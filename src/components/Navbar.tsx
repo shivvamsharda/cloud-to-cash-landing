@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { WalletAuth } from "@/components/WalletAuth";
 import { useAuth } from "@/hooks/useAuth";
+import { useWallet } from '@solana/wallet-adapter-react';
+import { toast } from 'sonner';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const { disconnect } = useWallet();
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -39,6 +42,19 @@ const Navbar = () => {
   };
 
   const isActive = (href: string) => location.pathname === href;
+
+  const handleDisconnect = async () => {
+    try {
+      await signOut();
+      if (disconnect) {
+        await disconnect();
+      }
+      toast.success('Signed out successfully');
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      toast.error(`Failed to sign out: ${error.message}`);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[hsl(var(--pure-black))]">
@@ -85,11 +101,21 @@ const Navbar = () => {
           <div className="hidden md:flex items-center justify-end space-x-4">
             <WalletAuth />
             {user && (
-              <Link to="/track">
-                <Button variant="hero-primary" className="px-4 py-2 text-sm font-semibold">
-                  Track Now
+              <>
+                <Link to="/track">
+                  <Button variant="hero-primary" className="px-4 py-2 text-sm font-semibold">
+                    Track Now
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={handleDisconnect}
+                  variant="ghost" 
+                  size="icon"
+                  className="text-background hover:text-background/70 hover:bg-background/10"
+                >
+                  <LogOut className="h-4 w-4" />
                 </Button>
-              </Link>
+              </>
             )}
           </div>
 
@@ -133,11 +159,24 @@ const Navbar = () => {
                     <WalletAuth />
                   </div>
                   {user && (
-                    <Link to="/track" onClick={() => setIsOpen(false)}>
-                      <Button variant="hero-primary" className="w-full mt-4 px-4 py-2 text-sm font-semibold">
-                        Track Now
+                    <div className="space-y-4">
+                      <Link to="/track" onClick={() => setIsOpen(false)}>
+                        <Button variant="hero-primary" className="w-full px-4 py-2 text-sm font-semibold">
+                          Track Now
+                        </Button>
+                      </Link>
+                      <Button 
+                        onClick={() => {
+                          handleDisconnect();
+                          setIsOpen(false);
+                        }}
+                        variant="outline" 
+                        className="w-full flex items-center gap-2"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Disconnect
                       </Button>
-                    </Link>
+                    </div>
                   )}
                 </div>
               </SheetContent>
