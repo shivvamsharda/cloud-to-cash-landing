@@ -24,7 +24,7 @@ const HeroSection = () => {
       <div 
         className="block md:hidden absolute inset-0 bg-cover bg-center bg-no-repeat z-10"
         style={{
-          backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Untitled%20design%20(41).png)'
+          backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Hero_Mobile2.png)'
         }}
       />
     </section>
