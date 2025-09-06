@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const Track = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user, publicKey } = useAuth();
+  const { isAuthenticated, profileComplete, user, publicKey } = useAuth();
   const { toast } = useToast();
   
   const [isTracking, setIsTracking] = useState(false);
@@ -22,18 +22,23 @@ const Track = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or profile incomplete
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/');
       return;
     }
-  }, [isAuthenticated, navigate]);
+    
+    if (profileComplete === false) {
+      navigate('/setup-profile');
+      return;
+    }
+  }, [isAuthenticated, profileComplete, navigate]);
 
-  // Fetch user profile
+  // Fetch user profile (only if profile is complete)
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user) return;
+      if (!user || profileComplete !== true) return;
       
       try {
         const { data, error } = await supabase
@@ -42,27 +47,12 @@ const Track = () => {
           .eq('id', user.id)
           .single();
 
-        if (error && error.code !== 'PGRST116') {
+        if (error) {
           console.error('Error fetching profile:', error);
           return;
         }
 
-        if (!data) {
-          // Create profile if it doesn't exist
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: user.id,
-              wallet_address: publicKey?.toBase58(),
-              username: 'Anonymous Vaper',
-            });
-
-          if (insertError) {
-            console.error('Error creating profile:', insertError);
-          }
-        } else {
-          setUserProfile(data);
-        }
+        setUserProfile(data);
       } catch (error) {
         console.error('Error handling profile:', error);
       } finally {
@@ -71,7 +61,7 @@ const Track = () => {
     };
 
     fetchUserProfile();
-  }, [user, publicKey]);
+  }, [user, profileComplete]);
 
   const startTracking = () => {
     setIsTracking(true);

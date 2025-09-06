@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WalletContextProvider } from "@/contexts/WalletContext";
 import Navbar from "@/components/Navbar";
 import Index from "./pages/Index";
-
+import SetupProfile from "./pages/SetupProfile";
 import Rewards from "./pages/Rewards";
 import Contact from "./pages/Contact";
 import Track from "./pages/Track";
@@ -24,7 +24,7 @@ const App = () => (
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
-            
+            <Route path="/setup-profile" element={<SetupProfile />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/track" element={<Track />} />

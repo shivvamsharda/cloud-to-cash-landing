@@ -9,6 +9,7 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
   const { toast } = useToast();
 
   // Initialize auth state
@@ -17,16 +18,53 @@ export const useAuth = () => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Check profile completeness when auth state changes
+        if (session?.user) {
+          setTimeout(() => {
+            checkProfileComplete(session.user.id);
+          }, 0);
+        } else {
+          setProfileComplete(null);
+        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkProfileComplete(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Check if user has a complete profile
+  const checkProfileComplete = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, username')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking profile:', error);
+        setProfileComplete(false);
+        return;
+      }
+
+      // Profile is complete if it exists and has required fields
+      const isComplete = data && data.name && data.username;
+      setProfileComplete(!!isComplete);
+    } catch (error) {
+      console.error('Error in checkProfileComplete:', error);
+      setProfileComplete(false);
+    }
+  };
 
   const signInWithWallet = useCallback(async () => {
     if (!connected || !publicKey) {
@@ -73,6 +111,12 @@ export const useAuth = () => {
         title: "Successfully authenticated!",
         description: "Welcome to VapeFi.",
       });
+      
+      // Check profile completeness after successful authentication
+      if (user) {
+        await checkProfileComplete(user.id);
+      }
+      
       return true;
     } catch (error) {
       console.error('Auth error:', error);
@@ -112,7 +156,10 @@ export const useAuth = () => {
     publicKey,
     isAuthenticating,
     isAuthenticated: !!user && connected,
+    profileComplete,
+    isFullyAuthenticated: !!user && connected && profileComplete,
     signInWithWallet,
     signOut,
+    checkProfileComplete,
   };
 };

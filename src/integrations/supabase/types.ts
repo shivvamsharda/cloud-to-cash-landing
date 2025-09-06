@@ -25,6 +25,7 @@ export type Database = {
           twitter_username: string | null
           updated_at: string | null
           username: string
+          vape_name: string | null
           wallet_address: string | null
         }
         Insert: {
@@ -37,6 +38,7 @@ export type Database = {
           twitter_username?: string | null
           updated_at?: string | null
           username: string
+          vape_name?: string | null
           wallet_address?: string | null
         }
         Update: {
@@ -49,6 +51,7 @@ export type Database = {
           twitter_username?: string | null
           updated_at?: string | null
           username?: string
+          vape_name?: string | null
           wallet_address?: string | null
         }
         Relationships: []

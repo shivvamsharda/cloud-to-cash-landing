@@ -22,14 +22,20 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
 }) => {
   const { connected } = useWallet();
   const { setVisible } = useWalletModal();
-  const { isAuthenticated, signInWithWallet, isAuthenticating } = useAuth();
+  const { isAuthenticated, profileComplete, signInWithWallet, isAuthenticating } = useAuth();
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
 
   const handleClick = async () => {
-    if (isAuthenticated) {
-      // Already authenticated, go to tracking
+    if (isAuthenticated && profileComplete) {
+      // Fully authenticated with complete profile, go to tracking
       navigate(redirectTo);
+      return;
+    }
+
+    if (isAuthenticated && profileComplete === false) {
+      // Authenticated but incomplete profile, go to setup
+      navigate('/setup-profile');
       return;
     }
 
@@ -43,9 +49,22 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
     // Connected but not authenticated, sign in with Web3
     const success = await signInWithWallet();
     if (success) {
-      navigate(redirectTo);
+      // After successful authentication, check profile status
+      // The useAuth hook will update profileComplete state
+      // We'll let useEffect handle the navigation
     }
   };
+
+  // Handle navigation after authentication based on profile completeness
+  useEffect(() => {
+    if (isAuthenticated && profileComplete !== null) {
+      if (profileComplete) {
+        navigate(redirectTo);
+      } else {
+        navigate('/setup-profile');
+      }
+    }
+  }, [isAuthenticated, profileComplete, navigate, redirectTo]);
 
   // Reset connecting state when wallet connects (but don't auto-authenticate)
   useEffect(() => {
@@ -62,7 +81,8 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
       if (isAuthenticating) return 'Signing...';
       if (isConnecting) return 'Connecting...';
     }
-    if (isAuthenticated) return children;
+    if (isAuthenticated && profileComplete) return children;
+    if (isAuthenticated && profileComplete === false) return 'Complete Profile';
     if (connected) return 'Sign Message';
     return 'Connect Wallet';
   };
