@@ -158,7 +158,7 @@ export const ProfileCreationModal: React.FC<ProfileCreationModalProps> = ({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="w-full max-w-lg rounded-lg" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Complete Your Profile</DialogTitle>
         </DialogHeader>

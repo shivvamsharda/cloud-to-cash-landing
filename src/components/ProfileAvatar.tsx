@@ -35,14 +35,14 @@ export const ProfileAvatar: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-md">
+          <Avatar className="h-10 w-10 rounded-md">
             <AvatarImage src={profile?.profile_picture_url || ''} alt="Profile" />
             <AvatarFallback>{getInitials(profile?.name)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent className="w-56 bg-background border z-50" align="end" forceMount>
         <div className="flex flex-col space-y-1 p-2">
           <p className="text-sm font-medium leading-none">{profile?.name || 'User'}</p>
           <p className="text-xs leading-none text-muted-foreground">
