@@ -22,7 +22,7 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
   redirectTo = '/track' 
 }) => {
   const { connected } = useWallet();
-  const { setVisible } = useWalletModal();
+  const { setVisible, visible } = useWalletModal();
   const { isAuthenticated, profileComplete, signInWithWallet, isAuthenticating } = useAuth();
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
@@ -53,7 +53,13 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
     // Connected but not authenticated, sign in with Web3
     try {
       const success = await signInWithWallet();
-      // useAuthNavigation hook will handle automatic redirection
+      if (success) {
+        if (profileComplete) {
+          navigate(redirectTo);
+        } else {
+          navigate('/setup-profile');
+        }
+      }
     } catch (error) {
       console.error('Sign in error:', error);
     }
@@ -68,6 +74,13 @@ export const WalletConnectButton: React.FC<WalletConnectButtonProps> = ({
       setIsConnecting(false);
     }
   }, [connected, isConnecting]);
+
+  // Reset connecting if modal closes without a connection
+  useEffect(() => {
+    if (!visible && isConnecting && !connected) {
+      setIsConnecting(false);
+    }
+  }, [visible, isConnecting, connected]);
 
   const isLoading = isAuthenticating || isConnecting;
 

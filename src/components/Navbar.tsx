@@ -31,7 +31,7 @@ const Navbar = () => {
   }];
 
   // Add Track link for authenticated users with complete profiles
-  const navLinks = isAuthenticated && profileComplete 
+  const navLinks = isAuthenticated 
     ? [
         ...baseNavLinks.slice(0, 2), // Home and How It Works
         { name: "Track", href: "/track" },
