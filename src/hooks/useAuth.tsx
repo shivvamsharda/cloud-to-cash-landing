@@ -37,20 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .maybeSingle();
 
               if (!existingProfile) {
-                // New user - create minimal profile
-                const { error: profileError } = await supabase
-                  .from('profiles')
-                  .insert({
-                    id: session.user.id,
-                    username: `temp_${session.user.id.slice(0, 8)}`,
-                    wallet_address: session.user.user_metadata?.publicKey || null,
-                  });
-
-                if (profileError) {
-                  console.error('Error creating profile:', profileError);
-                } else {
-                  setIsNewUser(true);
-                }
+                // New user - no profile exists, prompt for creation
+                setIsNewUser(true);
               } else {
                 // Check if profile is complete (has required fields)
                 const isProfileComplete = existingProfile.name && 
@@ -60,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setIsNewUser(!isProfileComplete);
               }
             } catch (error) {
-              console.error('Error creating user profile:', error);
+              console.error('Error checking user profile:', error);
             }
           }, 0);
         } else {
