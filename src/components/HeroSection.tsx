@@ -21,7 +21,8 @@ const HeroSection = () => {
         loading="eager"
         fetchPriority="high"
         decoding="async"
-        className="hidden md:block absolute inset-0 w-full h-full object-cover z-10"
+        className="hidden md:block absolute inset-0 w-full h-full object-cover z-10 opacity-0 animate-fade-in"
+        style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
       />
       
       {/* Mobile Hero Image */}
@@ -31,7 +32,8 @@ const HeroSection = () => {
         loading="eager"
         fetchPriority="high"
         decoding="async"
-        className="block md:hidden absolute inset-0 w-full h-full object-cover z-10"
+        className="block md:hidden absolute inset-0 w-full h-full object-cover z-10 opacity-0 animate-fade-in"
+        style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
       />
     </section>
   );
