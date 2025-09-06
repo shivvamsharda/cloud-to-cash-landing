@@ -131,6 +131,10 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+  
+  html {
+    @apply dark;
+  }
 }
 
 /* Overrides for Solana Wallet Adapter button to match pill shape and brand color */
