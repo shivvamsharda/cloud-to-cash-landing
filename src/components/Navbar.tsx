@@ -53,14 +53,14 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation - Centered */}
-          <div className="hidden md:flex items-center justify-center space-x-8">
+          <div className="hidden md:flex items-center justify-center space-x-4">
             {navLinks.map(link => (
               link.href === "/#how-it-works" ? (
                 <a 
                   key={link.name} 
                   href={link.href} 
                   onClick={(e) => handleSmoothScroll(e, link.href)}
-                  className="text-background hover:text-background/70 transition-colors"
+                  className="text-background hover:text-background/70 transition-colors whitespace-nowrap"
                 >
                   {link.name}
                 </a>
@@ -68,7 +68,7 @@ const Navbar = () => {
                 <Link 
                   key={link.name} 
                   to={link.href} 
-                  className={`text-background hover:text-background/70 transition-colors ${
+                  className={`text-background hover:text-background/70 transition-colors whitespace-nowrap ${
                     isActive(link.href) ? "font-semibold" : ""
                   }`}
                 >
