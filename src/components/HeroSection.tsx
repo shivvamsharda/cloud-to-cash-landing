@@ -47,7 +47,7 @@ const HeroSection = () => {
       />
       
       {/* Content Overlay */}
-      <div className="absolute left-1/2 top-[72%] z-20 -translate-x-1/2 -translate-y-1/2 px-6">
+      <div className="absolute left-1/2 top-[74%] z-20 -translate-x-1/2 -translate-y-1/2 px-6">
         <div className="text-center max-w-4xl mx-auto">
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
