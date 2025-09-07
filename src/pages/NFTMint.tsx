@@ -67,88 +67,117 @@ const NFTMint = () => {
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        
-        {/* Grid Overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        {/* Hero Image Overlay */}
+        <div className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-60" style={{backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mint_Hero.png)'}} />
 
         <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Side - NFT Showcase */}
-            
-
-            {/* Right Side - Mint Interface */}
-            <div className="space-y-6">
-              <Card className="bg-card-bg border-card-border">
-                <CardHeader>
-                  <CardTitle className="text-hero-text text-2xl">Mint Your Genesis NFT</CardTitle>
-                  <CardDescription className="text-muted-text">
-                    {collectionStats.remaining} of {collectionStats.totalSupply} remaining
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Progress Bar */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-text">Progress</span>
-                      <span className="text-hero-text">{progressPercentage.toFixed(1)}%</span>
-                    </div>
-                    <div className="w-full bg-card-border rounded-full h-2">
-                      <div className="bg-gradient-to-r from-button-green to-brand-yellow h-2 rounded-full transition-all duration-300" style={{
-                      width: `${progressPercentage}%`
-                    }} />
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-text">
-                      <span>{collectionStats.minted} minted</span>
-                      <span>{collectionStats.remaining} left</span>
-                    </div>
-                  </div>
-
-                  {/* Price and Quantity */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-text">Price per NFT</span>
-                      <span className="text-hero-text font-bold text-lg">{collectionStats.price} SOL</span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm text-muted-text">Quantity (Max 10)</label>
-                      <div className="flex items-center space-x-3">
-                        <Button variant="outline" size="icon" onClick={() => adjustQuantity(-1)} disabled={mintQuantity <= 1} className="border-card-border hover:bg-card-border">
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="text-2xl font-bold text-hero-text w-8 text-center">
-                          {mintQuantity}
-                        </span>
-                        <Button variant="outline" size="icon" onClick={() => adjustQuantity(1)} disabled={mintQuantity >= 10} className="border-card-border hover:bg-card-border">
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center pt-2 border-t border-card-border">
-                      <span className="text-muted-text">Total Cost</span>
-                      <span className="text-hero-text font-bold text-xl">{totalCost} SOL</span>
-                    </div>
-                  </div>
-
-                  {/* Mint Button or Wallet Connection */}
-                  <div className="space-y-3">
-                    {!connected ? <div className="text-center">
-                        <p className="text-muted-text mb-4">Connect your wallet to mint</p>
-                        <WalletAuth />
-                      </div> : <Button onClick={handleMint} disabled={isMinting} className="w-full bg-button-green hover:bg-button-green/90 text-pure-black font-bold py-3 text-lg" size="lg">
-                        {isMinting ? <>
-                            <div className="animate-spin w-4 h-4 border-2 border-pure-black border-t-transparent rounded-full mr-2" />
-                            Minting...
-                          </> : `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`}
-                      </Button>}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Collection Stats */}
+          <div className="flex items-center justify-center min-h-[70vh]">
+            <Card className="bg-card-bg border-0 shadow-2xl max-w-md w-full mx-auto">
+              <CardHeader className="text-center pb-6 pt-8">
+                <CardTitle className="text-3xl md:text-4xl font-bold text-hero-text mb-4 mt-2">
+                  MINT Your Genesis NFT
+                </CardTitle>
+                <CardDescription className="text-base text-muted-text">
+                  Securing funds and assets with VapeFi reliability
+                </CardDescription>
+              </CardHeader>
               
-            </div>
+              <CardContent className="space-y-8">
+                {/* Collection Stats */}
+                <div className="grid grid-cols-2 gap-6 text-center">
+                  <div className="space-y-2">
+                    <div className="text-2xl md:text-3xl font-bold text-hero-text">
+                      {collectionStats.remaining}
+                    </div>
+                    <div className="text-sm text-muted-text uppercase tracking-wide">
+                      Remaining
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-2xl md:text-3xl font-bold text-hero-text">
+                      {collectionStats.price} SOL
+                    </div>
+                    <div className="text-sm text-muted-text uppercase tracking-wide">
+                      Price per NFT
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-muted-text">
+                    <span>Minted: {collectionStats.minted}</span>
+                    <span>Total: {collectionStats.totalSupply}</span>
+                  </div>
+                  <div className="w-full bg-background rounded-full h-2">
+                    <div 
+                      className="bg-button-green h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Quantity Selector */}
+                <div className="flex items-center justify-center space-x-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => adjustQuantity(-1)}
+                    disabled={mintQuantity <= 1}
+                    className="h-10 w-10"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <div className="text-2xl font-bold text-hero-text min-w-[3rem] text-center">
+                    {mintQuantity}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => adjustQuantity(1)}
+                    disabled={mintQuantity >= 10}
+                    className="h-10 w-10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Total Cost */}
+                <div className="text-center space-y-2">
+                  <div className="text-sm text-muted-text">Total Cost</div>
+                  <div className="text-3xl font-bold text-hero-text">{totalCost} SOL</div>
+                </div>
+
+                {/* Mint Button / Wallet Connection */}
+                <div className="space-y-4">
+                  {!connected ? (
+                    <div className="space-y-4">
+                      <div className="flex justify-center">
+                        <WalletAuth />
+                      </div>
+                      <p className="text-center text-sm text-muted-text">
+                        Connect your wallet to start minting
+                      </p>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handleMint}
+                      disabled={isMinting}
+                      className="w-full bg-button-green text-pure-black hover:bg-button-green/90 text-lg py-3 h-auto font-bold"
+                    >
+                      {isMinting ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-pure-black/20 border-t-pure-black rounded-full animate-spin" />
+                          <span>Minting...</span>
+                        </div>
+                      ) : (
+                        `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
