@@ -152,22 +152,7 @@ const NFTMint = () => {
               </Card>
 
               {/* Collection Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-card-bg border-card-border">
-                  <CardContent className="p-4 text-center">
-                    <Users className="w-8 h-8 text-brand-purple mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-hero-text">{collectionStats.minted}</p>
-                    <p className="text-sm text-muted-text">Minted</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-card-bg border-card-border">
-                  <CardContent className="p-4 text-center">
-                    <Trophy className="w-8 h-8 text-brand-yellow mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-hero-text">{collectionStats.totalSupply}</p>
-                    <p className="text-sm text-muted-text">Total Supply</p>
-                  </CardContent>
-                </Card>
-              </div>
+              
             </div>
           </div>
         </div>
