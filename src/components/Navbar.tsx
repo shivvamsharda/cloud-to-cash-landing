@@ -80,7 +80,7 @@ const Navbar = () => {
                   key={link.name} 
                   href={link.href} 
                   onClick={(e) => handleSmoothScroll(e, link.href)}
-                  className="text-background hover:text-background/70 transition-colors whitespace-nowrap"
+                  className="text-white hover:text-white/70 transition-colors whitespace-nowrap"
                 >
                   {link.name}
                 </a>
@@ -88,7 +88,7 @@ const Navbar = () => {
                 <Link 
                   key={link.name} 
                   to={link.href} 
-                  className={`text-background hover:text-background/70 transition-colors whitespace-nowrap ${
+                  className={`text-white hover:text-white/70 transition-colors whitespace-nowrap ${
                     isActive(link.href) ? "font-semibold" : ""
                   }`}
                 >
@@ -118,7 +118,7 @@ const Navbar = () => {
           <div className="md:hidden flex justify-end">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-background">
+                <Button variant="ghost" size="icon" className="text-white">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
@@ -133,7 +133,7 @@ const Navbar = () => {
                           handleSmoothScroll(e, link.href);
                           setIsOpen(false);
                         }}
-                        className="text-background hover:text-background/70 transition-colors text-lg"
+                        className="text-white hover:text-white/70 transition-colors text-lg"
                       >
                         {link.name}
                       </a>
@@ -142,7 +142,7 @@ const Navbar = () => {
                         key={link.name} 
                         to={link.href} 
                         onClick={() => setIsOpen(false)} 
-                        className={`text-background hover:text-background/70 transition-colors text-lg ${
+                        className={`text-white hover:text-white/70 transition-colors text-lg ${
                           isActive(link.href) ? "font-semibold" : ""
                         }`}
                       >
