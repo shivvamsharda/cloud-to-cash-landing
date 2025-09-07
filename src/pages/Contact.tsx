@@ -6,8 +6,8 @@ const Contact = () => {
       icon: Mail,
       title: "Email Support",
       description: "Send us your questions and we'll respond within 24 hours.",
-      contact: "support@vapefi.io",
-      action: "mailto:support@vapefi.io"
+      contact: "vapefisolana@gmail.com",
+      action: "mailto:vapefisolana@gmail.com"
     },
     {
       icon: MessageCircle,

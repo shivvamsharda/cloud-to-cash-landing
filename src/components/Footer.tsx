@@ -93,11 +93,11 @@ const Footer = () => {
             <div className="space-y-3 mb-6">
               <div className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-[hsl(var(--button-green))] mt-0.5 flex-shrink-0" />
-                <span className="text-white/70">support@vapefi.com</span>
+                <span className="text-white/70">vapefisolana@gmail.com</span>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-[hsl(var(--button-green))] mt-0.5 flex-shrink-0" />
-                <span className="text-white/70">Global Community Platform</span>
+                <span className="text-white/70">Solana</span>
               </div>
             </div>
             <div>
