@@ -72,7 +72,7 @@ const NFTMint = () => {
 
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="flex items-center justify-center min-h-[70vh]">
-            <Card className="bg-card-bg/80 backdrop-blur-sm border-card-border shadow-2xl max-w-2xl w-full mx-auto">
+            <Card className="bg-card-bg border-0 shadow-2xl max-w-lg w-full mx-auto">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-4xl md:text-5xl font-bold text-hero-text mb-4">
                   MINT Your Genesis NFT
