@@ -5,3 +5,6 @@ enabled = true
 
 [functions.score-updater]
 verify_jwt = false
+
+[functions.get-candy-guard]
+verify_jwt = false

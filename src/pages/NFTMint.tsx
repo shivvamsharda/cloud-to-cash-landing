@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +36,7 @@ const NFTMint = () => {
 
     if (!collectionStats.isLive) {
       toast({
-        title: "Minting not active",
+        title: "Minting not active", 
         description: "NFT minting is currently not active",
         variant: "destructive"
       });
@@ -59,33 +60,100 @@ const NFTMint = () => {
         return;
       }
 
-      // Send to our edge function for Candy Machine minting
-      // The Candy Machine will handle SOL payment automatically
-      const { data, error } = await supabase.functions.invoke('mint-nft', {
-        body: {
-          walletAddress: publicKey.toString(),
-          quantity: mintQuantity,
-          candyMachineId: collectionStats.candyMachineId
+      // Initialize Metaplex with wallet adapter identity for client-side minting
+      const metaplex = Metaplex.make(connection).use(walletAdapterIdentity({
+        publicKey,
+        signTransaction,
+        signAllTransactions: async (txs) => {
+          if ('signAllTransactions' in window.solana) {
+            return window.solana.signAllTransactions(txs);
+          }
+          throw new Error('Wallet does not support signing multiple transactions');
         }
+      }));
+
+      // Get candy machine guard info first to provide better error messages
+      let candyMachineGuards;
+      try {
+        const { data: guardData } = await supabase.functions.invoke('get-candy-guard', {
+          body: { candyMachineId: collectionStats.candyMachineId }
+        });
+        candyMachineGuards = guardData?.guards;
+      } catch (guardError) {
+        console.warn('Could not fetch guard info:', guardError);
+      }
+
+      // Find the candy machine
+      const candyMachine = await metaplex.candyMachines().findByAddress({
+        address: new PublicKey(collectionStats.candyMachineId)
       });
 
-      if (error) {
-        throw new Error(error.message || 'Mint failed');
+      console.log('Candy machine loaded:', {
+        address: candyMachine.address.toString(),
+        itemsAvailable: candyMachine.itemsAvailable.toString(),
+        itemsMinted: candyMachine.itemsMinted.toString()
+      });
+
+      // Check availability
+      const itemsRemaining = candyMachine.itemsAvailable.sub(candyMachine.itemsMinted);
+      if (itemsRemaining.toNumber() < mintQuantity) {
+        toast({
+          title: "Sold Out",
+          description: `Only ${itemsRemaining.toString()} NFTs remaining`,
+          variant: "destructive"
+        });
+        return;
       }
 
-      if (data.success) {
-        setLastMintSignature(data.signature);
-        toast({
-          title: "Mint Successful!",
-          description: `Successfully minted ${mintQuantity} VapeFi NFT${mintQuantity > 1 ? 's' : ''}!`
-        });
+      // Mint NFTs one by one to handle potential failures gracefully
+      const signatures: string[] = [];
+      
+      for (let i = 0; i < mintQuantity; i++) {
+        console.log(`Minting NFT ${i + 1} of ${mintQuantity}...`);
         
-        // Reset form and refresh stats
-        setMintQuantity(1);
-        refetchStats();
-      } else {
-        throw new Error(data.error || 'Mint failed');
+        try {
+          const { nft, response } = await metaplex.candyMachines().mint({
+            candyMachine,
+            owner: publicKey,
+            guards: {},
+            collectionUpdateAuthority: candyMachine.authorityAddress
+          });
+
+          signatures.push(response.signature);
+          console.log(`NFT ${i + 1} minted successfully:`, {
+            mint: nft.address.toString(),
+            signature: response.signature
+          });
+
+        } catch (mintError) {
+          console.error(`Failed to mint NFT ${i + 1}:`, mintError);
+          
+          // Provide specific error messages based on guard failures
+          let errorMessage = 'Failed to mint NFT';
+          if (mintError.message.includes('insufficient')) {
+            errorMessage = 'Insufficient SOL for minting';
+          } else if (mintError.message.includes('sold out')) {
+            errorMessage = 'Candy machine sold out';
+          } else if (mintError.message.includes('guard')) {
+            errorMessage = `Guard validation failed: ${mintError.message}`;
+          }
+          
+          throw new Error(`${errorMessage} (NFT ${i + 1})`);
+        }
       }
+
+      // Success! 
+      const primarySignature = signatures[0];
+      setLastMintSignature(primarySignature);
+      
+      toast({
+        title: "Mint Successful!",
+        description: `Successfully minted ${mintQuantity} VapeFi NFT${mintQuantity > 1 ? 's' : ''}!`
+      });
+      
+      // Reset form and refresh stats
+      setMintQuantity(1);
+      refetchStats();
 
     } catch (error) {
       console.error('Mint error:', error);
