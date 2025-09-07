@@ -19,6 +19,10 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Polyfill global for browser compatibility
+    global: 'globalThis',
+  },
   optimizeDeps: {
     include: [
       '@metaplex-foundation/umi',
@@ -31,7 +35,6 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: 'esnext',
     rollupOptions: {
-      // No need for Node.js polyfills with Umi
       external: [],
     },
   },
