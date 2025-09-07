@@ -6,7 +6,7 @@ import {
   mintV2,
   safeFetchCandyGuard
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1';
-import { base64 } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
+import { encode as encodeBase64 } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
     const partiallySignedTransaction = await builder.buildAndSign(tempUmi);
     
     // Serialize transaction to base64 for frontend
-    const serializedTx = base64.encode(partiallySignedTransaction.serializedMessage);
+    const serializedTx = encodeBase64(partiallySignedTransaction.serializedMessage);
     
     console.log('Transaction built and partially signed successfully');
     console.log('NFT Mint:', nftMint.publicKey.toString());
