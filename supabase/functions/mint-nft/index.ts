@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Metaplex, keypairIdentity } from 'https://esm.sh/@metaplex-foundation/js@0.20.1';
-import { Connection, Keypair, PublicKey } from 'https://esm.sh/@solana/web3.js@1.95.2';
+import { Connection, Keypair, PublicKey } from 'https://esm.sh/@solana/web3.js@1.98.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -61,18 +61,43 @@ serve(async (req) => {
     }
 
     // Initialize connection and Metaplex
-    const connection = new Connection(devnetRpc);
+    console.log('Initializing Solana connection to:', devnetRpc);
+    const connection = new Connection(devnetRpc, 'confirmed');
+    
+    // Test connection
+    try {
+      const version = await connection.getVersion();
+      console.log('Solana connection established:', version);
+    } catch (error) {
+      console.error('Failed to connect to Solana network:', error);
+      return new Response(JSON.stringify({ 
+        error: 'Failed to connect to Solana network',
+        details: error.message 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     // Create keypair from the authority private key
     let authorityKeypair: Keypair;
     try {
+      console.log('Parsing candy machine authority key...');
       const secretKeyArray = JSON.parse(candyMachineAuthority);
+      
+      if (!Array.isArray(secretKeyArray) || secretKeyArray.length !== 64) {
+        throw new Error('Authority key must be a JSON array of 64 numbers');
+      }
+      
       authorityKeypair = Keypair.fromSecretKey(new Uint8Array(secretKeyArray));
-      console.log('Authority keypair created successfully');
+      console.log('Authority keypair created successfully:', {
+        publicKey: authorityKeypair.publicKey.toString()
+      });
     } catch (error) {
       console.error('Failed to create authority keypair:', error);
       return new Response(JSON.stringify({ 
-        error: 'Invalid candy machine authority key format' 
+        error: 'Invalid candy machine authority key format. Must be JSON array of 64 numbers.',
+        details: error.message 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -112,17 +137,45 @@ serve(async (req) => {
       for (let i = 0; i < quantity; i++) {
         console.log(`Minting NFT ${i + 1} of ${quantity}...`);
         
-        const { nft, response } = await metaplex.candyMachines().mint({
-          candyMachine,
-          owner: minterPublicKey,
-          guards: {}
-        });
-
-        signatures.push(response.signature);
-        console.log(`NFT ${i + 1} minted successfully:`, {
-          mint: nft.address.toString(),
-          signature: response.signature
-        });
+        let retries = 3;
+        let mintSuccess = false;
+        let nft, response;
+        
+        while (retries > 0 && !mintSuccess) {
+          try {
+            console.log(`Attempt ${4 - retries} for NFT ${i + 1}...`);
+            
+            const mintResult = await metaplex.candyMachines().mint({
+              candyMachine,
+              owner: minterPublicKey,
+              guards: {},
+              newMint: Keypair.generate() // Generate a new mint keypair for each NFT
+            });
+            
+            nft = mintResult.nft;
+            response = mintResult.response;
+            mintSuccess = true;
+            
+            console.log(`NFT ${i + 1} minted successfully:`, {
+              mint: nft.address.toString(),
+              signature: response.signature,
+              owner: minterPublicKey.toString()
+            });
+            
+            signatures.push(response.signature);
+            
+          } catch (mintError) {
+            retries--;
+            console.error(`Mint attempt failed for NFT ${i + 1}:`, mintError);
+            
+            if (retries === 0) {
+              throw mintError;
+            }
+            
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
       }
 
       const primarySignature = signatures[0];
