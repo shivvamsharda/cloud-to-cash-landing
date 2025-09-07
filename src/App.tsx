@@ -14,6 +14,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
 import Cookies from "./pages/Cookies";
+import NFTMint from "./pages/NFTMint";
 import { WalletContextProvider } from "@/components/WalletProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProfileGate from "@/components/ProfileGate";
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/cookies" element={<Cookies />} />
+                <Route path="/mint" element={<NFTMint />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
