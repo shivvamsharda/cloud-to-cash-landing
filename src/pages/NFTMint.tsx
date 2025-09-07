@@ -70,11 +70,14 @@ const NFTMint = () => {
         
         {/* Grid Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        
+        {/* Hero Image Overlay */}
+        <div className="absolute inset-0 bg-center bg-no-repeat bg-contain" style={{backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mint_Hero.png)'}} />
 
         <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-3 gap-12 items-center">
             {/* Left Side - NFT Showcase */}
-            <div className="space-y-8">
+            <div className="lg:col-span-2 space-y-8">
               
 
               {/* NFT Preview */}
@@ -82,7 +85,7 @@ const NFTMint = () => {
             </div>
 
             {/* Right Side - Mint Interface */}
-            <div className="space-y-6">
+            <div className="lg:col-span-1 space-y-6">
               <Card className="bg-card-bg border-card-border">
                 <CardHeader>
                   <CardTitle className="text-hero-text text-2xl">Mint Your Genesis NFT</CardTitle>
