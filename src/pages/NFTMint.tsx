@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useConnection } from '@solana/wallet-adapter-react';
-import { Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,10 +12,10 @@ import { toast } from '@/hooks/use-toast';
 import { Minus, Plus, Zap, Shield, Trophy, Users, Sparkles, Star, ExternalLink } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
-import { supabase } from '@/integrations/supabase/client';
+
 import { NFT_CONFIG } from '@/config/nft';
 const NFTMint = () => {
-  const { publicKey, connected, signTransaction } = useWallet();
+  const { publicKey, connected, wallet } = useWallet();
   const { connection } = useConnection();
   const { user } = useAuth();
   const [mintQuantity, setMintQuantity] = useState(1);
@@ -24,7 +25,7 @@ const NFTMint = () => {
   // Use real collection stats
   const { stats: collectionStats, loading: statsLoading, refetch: refetchStats } = useCollectionStats();
   const handleMint = async () => {
-    if (!connected || !publicKey || !signTransaction || !collectionStats) {
+    if (!connected || !publicKey || !collectionStats) {
       toast({
         title: "Wallet not connected",
         description: "Please connect your wallet to mint NFTs",
@@ -59,45 +60,24 @@ const NFTMint = () => {
         return;
       }
 
-      // Create a mock transaction for now (in production, this would be built with Metaplex)
-      // This is a placeholder that transfers the mint cost to the creator wallet
-      const transaction = new Transaction();
-      
-      // Add instruction to transfer SOL to creator wallet (simplified mint simulation)
-      const { SystemProgram } = await import('@solana/web3.js');
-      
-      transaction.add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: new PublicKey(NFT_CONFIG.creatorWallet),
-          lamports: requiredLamports,
-        })
+      // Initialize Metaplex with wallet adapter
+      const metaplex = Metaplex.make(connection).use(
+        walletAdapterIdentity(wallet?.adapter as any)
       );
 
-      // Set recent blockhash
-      const { blockhash } = await connection.getLatestBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
+      // Load Candy Machine
+      const candyMachineAddress = new PublicKey(collectionStats.candyMachineId);
+      const candyMachine = await metaplex.candyMachines().findByAddress({ address: candyMachineAddress });
 
-      // Sign transaction
-      const signedTransaction = await signTransaction(transaction);
-      const serializedTransaction = signedTransaction.serialize().toString('base64');
-
-      // Send to our edge function for processing
-      const { data, error } = await supabase.functions.invoke('mint-nft', {
-        body: {
-          walletAddress: publicKey.toString(),
-          quantity: mintQuantity,
-          signedTransaction: serializedTransaction
-        }
-      });
-
-      if (error) {
-        throw new Error(error.message || 'Mint failed');
+      // Mint NFTs (one by one)
+      let lastSig: string | null = null;
+      for (let i = 0; i < mintQuantity; i++) {
+        const { response } = await metaplex.candyMachines().mint({ candyMachine, collectionUpdateAuthority: new PublicKey(collectionStats.creatorWallet) });
+        lastSig = response.signature;
       }
 
-      if (data.success) {
-        setLastMintSignature(data.signature);
+      if (lastSig) {
+        setLastMintSignature(lastSig);
         toast({
           title: "Mint Successful!",
           description: `Successfully minted ${mintQuantity} VapeFi NFT${mintQuantity > 1 ? 's' : ''}!`
@@ -107,7 +87,7 @@ const NFTMint = () => {
         setMintQuantity(1);
         refetchStats();
       } else {
-        throw new Error(data.error || 'Mint failed');
+        throw new Error('Mint failed');
       }
 
     } catch (error) {
