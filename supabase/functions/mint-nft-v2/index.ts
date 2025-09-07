@@ -39,16 +39,14 @@ Deno.serve(async (req) => {
     // Get configuration from Supabase secrets
     const devnetRpc = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
     const candyMachineIdStr = Deno.env.get('CANDY_MACHINE_ID');
-    const authorityStr = Deno.env.get('CANDY_MACHINE_AUTHORITY');
     
-    if (!candyMachineIdStr || !authorityStr) {
-      throw new Error('Candy machine configuration not found');
+    if (!candyMachineIdStr) {
+      throw new Error('Candy machine configuration not found: missing CANDY_MACHINE_ID');
     }
 
     console.log('Using configuration:', {
       rpc: devnetRpc,
-      candyMachine: candyMachineIdStr,
-      authority: authorityStr
+      candyMachine: candyMachineIdStr
     });
 
     // Initialize Umi
@@ -56,7 +54,6 @@ Deno.serve(async (req) => {
     
     // Parse addresses
     const candyMachineId = publicKey(candyMachineIdStr);
-    const authority = publicKey(authorityStr);
     const minterPubkey = publicKey(walletAddress);
     const minter = createNoopSigner(minterPubkey);
     
