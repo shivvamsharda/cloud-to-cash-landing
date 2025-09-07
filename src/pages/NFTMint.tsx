@@ -100,14 +100,16 @@ const NFTMint = () => {
               </div>
 
               {/* Mint Button */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 flex justify-center items-center">
                 {!connected ? (
-                  <WalletAuth />
+                  <div className="flex justify-center">
+                    <WalletAuth />
+                  </div>
                 ) : (
                   <Button
                     onClick={handleMint}
                     disabled={isMinting}
-                    className="bg-button-green text-pure-black hover:bg-button-green/90 text-2xl px-12 py-6 h-auto rounded-full font-bold"
+                    className="bg-button-green text-pure-black hover:bg-button-green/90 text-2xl px-12 py-6 h-auto rounded-full font-bold mx-auto"
                   >
                     {isMinting ? "Minting..." : "Mint"}
                   </Button>

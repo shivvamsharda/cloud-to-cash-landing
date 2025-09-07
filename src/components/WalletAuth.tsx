@@ -61,13 +61,13 @@ export const WalletAuth: React.FC = () => {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex flex-col items-center justify-center">
       {connected ? (
-        <Button onClick={handleSignIn} variant="hero-primary">
+        <Button onClick={handleSignIn} variant="hero-primary" className="!mx-auto">
           Sign In with Solana
         </Button>
       ) : (
-        <WalletMultiButton className="!bg-[hsl(var(--button-green))] !text-[hsl(var(--pure-black))] hover:!bg-[hsl(var(--button-green))]/90 !rounded-full !h-10 !px-6" />
+        <WalletMultiButton className="!bg-[hsl(var(--button-green))] !text-[hsl(var(--pure-black))] hover:!bg-[hsl(var(--button-green))]/90 !rounded-full !h-10 !px-6 !mx-auto !block" />
       )}
     </div>
   );
