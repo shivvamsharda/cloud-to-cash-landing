@@ -10,6 +10,10 @@ import Contact from "./pages/Contact";
 import Track from "./pages/Track";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
+import Cookies from "./pages/Cookies";
 import { WalletContextProvider } from "@/components/WalletProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProfileGate from "@/components/ProfileGate";
@@ -32,6 +36,10 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/track" element={<Track />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/cookies" element={<Cookies />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
