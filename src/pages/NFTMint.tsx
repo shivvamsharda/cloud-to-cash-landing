@@ -169,7 +169,7 @@ const NFTMint = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-archivo-black text-hero-text mb-6">
-              Genesis NFT <span className="text-brand-yellow">Utilities</span>
+              Genesis NFT <span className="text-button-green">Utilities</span>
             </h2>
             <p className="text-lg text-muted-text max-w-2xl mx-auto">
               Unlock exclusive benefits and enhanced features with your VapeFi Genesis NFT
@@ -192,9 +192,9 @@ const NFTMint = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-card-bg border-card-border hover:border-brand-purple/50 transition-colors">
+            <Card className="bg-card-bg border-card-border hover:border-button-green/50 transition-colors">
               <CardHeader>
-                <Zap className="w-12 h-12 text-brand-purple mb-4" />
+                <Zap className="w-12 h-12 text-button-green mb-4" />
                 <CardTitle className="text-hero-text">Enhanced Rewards</CardTitle>
               </CardHeader>
               <CardContent>
@@ -207,9 +207,9 @@ const NFTMint = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-card-bg border-card-border hover:border-brand-yellow/50 transition-colors">
+            <Card className="bg-card-bg border-card-border hover:border-button-green/50 transition-colors">
               <CardHeader>
-                <Star className="w-12 h-12 text-brand-yellow mb-4" />
+                <Star className="w-12 h-12 text-button-green mb-4" />
                 <CardTitle className="text-hero-text">Community Perks</CardTitle>
               </CardHeader>
               <CardContent>
@@ -230,7 +230,7 @@ const NFTMint = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-archivo-black text-hero-text mb-6">
-              Collection <span className="text-brand-purple">Roadmap</span>
+              Collection <span className="text-button-green">Roadmap</span>
             </h2>
             <p className="text-lg text-muted-text max-w-2xl mx-auto">
               Our journey to revolutionize vaping rewards through blockchain technology
@@ -250,13 +250,13 @@ const NFTMint = () => {
               title: "Enhanced Platform",
               description: "Advanced tracking features and gamification for NFT holders",
               status: "upcoming",
-              color: "brand-purple"
+              color: "button-green"
             }, {
               phase: "Phase 3",
               title: "Marketplace & Trading",
               description: "Secondary marketplace and NFT breeding mechanics",
               status: "future",
-              color: "brand-yellow"
+              color: "button-green"
             }, {
               phase: "Phase 4",
               title: "Metaverse Integration",
