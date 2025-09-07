@@ -1,34 +1,24 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import React, { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { ExternalLink, Minus, Plus, Loader2, Zap, Shield, Trophy, Users, Sparkles, Star } from 'lucide-react';
-import { WalletAuth } from '@/components/WalletAuth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ExternalLink, Minus, Plus, Loader2, Zap, Shield, Star } from 'lucide-react';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
-import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
-import { mplCandyMachine, mintV2, fetchCandyMachine } from '@metaplex-foundation/mpl-candy-machine';
-import { publicKey, lamports, sol, transactionBuilder, some, none, generateSigner } from '@metaplex-foundation/umi';
 import { Progress } from '@/components/ui/progress';
-import { useAuth } from '@/hooks/useAuth';
 import { NFT_CONFIG } from '@/config/nft';
 
 const NFTMint = () => {
-  const wallet = useWallet();
-  const { connection } = useConnection();
-  const { user } = useAuth();
   const [mintQuantity, setMintQuantity] = useState(1);
   const [isMinting, setIsMinting] = useState(false);
   const [lastMintSignature, setLastMintSignature] = useState<string | null>(null);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
 
-  // Use real collection stats
-  const { stats: collectionStats, loading: statsLoading, refetch: refetchStats } = useCollectionStats();
+  // Use mock collection stats
+  const { stats: collectionStats, loading: statsLoading } = useCollectionStats();
 
   const handleMint = useCallback(async () => {
-    if (!wallet?.publicKey || !connection) {
+    if (!isWalletConnected) {
       toast.error('Please connect your wallet first');
       return;
     }
@@ -38,100 +28,33 @@ const NFTMint = () => {
       return;
     }
 
-    if (!collectionStats.isLive) {
-      toast.error('NFT minting is currently not active');
-      return;
-    }
-
     setIsMinting(true);
     
     try {
-      // Check SOL balance
-      const balance = await connection.getBalance(wallet.publicKey);
-      const solBalance = balance / 1e9;
-      const requiredSOL = collectionStats.price * mintQuantity;
-      
-      if (solBalance < requiredSOL + 0.01) {
-        throw new Error(`Insufficient SOL balance. Need ${requiredSOL + 0.01} SOL, have ${solBalance.toFixed(3)} SOL`);
-      }
-
-      // Initialize Umi with wallet adapter identity
-      const umi = createUmi(connection.rpcEndpoint)
-        .use(walletAdapterIdentity(wallet))
-        .use(mplCandyMachine());
-
-      const candyMachineId = publicKey(collectionStats.candyMachineId);
-      const collectionMintId = publicKey(collectionStats.collectionMintId);
-
-      // Fetch the candy machine to get current state
-      const candyMachine = await fetchCandyMachine(umi, candyMachineId);
-      
-      if (!candyMachine) {
-        throw new Error('Candy Machine not found');
-      }
-
-      // Check if there are items available
-      if (candyMachine.itemsRedeemed >= candyMachine.itemsLoaded) {
-        throw new Error('Collection is sold out');
-      }
-
-      // Check if there are enough items remaining for the requested quantity
-      const remaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
-      if (remaining < mintQuantity) {
-        throw new Error(`Only ${remaining} NFTs remaining`);
-      }
-
-      // Mint NFTs one by one
-      const signatures = [];
-      
+      // Simulate minting process
       for (let i = 0; i < mintQuantity; i++) {
-        console.log(`Minting NFT ${i + 1} of ${mintQuantity}...`);
+        // Simulate delay for each mint
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        try {
-          // Generate a new NFT mint
-          const nftMint = generateSigner(umi);
-          
-          const mintResult = await transactionBuilder()
-            .add(mintV2(umi, {
-              candyMachine: candyMachineId,
-              nftMint,
-              collectionMint: collectionMintId,
-              collectionUpdateAuthority: umi.identity.publicKey,
-            }))
-            .sendAndConfirm(umi);
-
-          signatures.push(mintResult.signature);
-          
-          // Update UI after each successful mint
-          toast.success(`NFT ${i + 1}/${mintQuantity} minted successfully!`);
-        } catch (error) {
-          console.error(`Failed to mint NFT ${i + 1}:`, error);
-          toast.error(`Failed to mint NFT ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          break;
-        }
+        toast.success(`NFT ${i + 1}/${mintQuantity} minted successfully!`);
       }
 
-      if (signatures.length > 0) {
-        setLastMintSignature(signatures[signatures.length - 1]);
-        
-        // Refresh collection stats
-        setTimeout(() => {
-          refetchStats();
-        }, 2000);
-        
-        toast.success(`Successfully minted ${signatures.length} NFT${signatures.length > 1 ? 's' : ''}!`);
-        
-        // Reset mint quantity
-        setMintQuantity(1);
-      }
+      // Mock transaction signature
+      const mockSignature = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setLastMintSignature(mockSignature);
+      
+      toast.success(`Successfully minted ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`);
+      
+      // Reset mint quantity
+      setMintQuantity(1);
 
     } catch (error) {
       console.error('Minting error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to mint NFT');
+      toast.error('Failed to mint NFT');
     } finally {
       setIsMinting(false);
     }
-  }, [wallet, connection, mintQuantity, collectionStats, refetchStats]);
+  }, [isWalletConnected, mintQuantity, collectionStats]);
 
   const adjustQuantity = (change: number) => {
     const newQuantity = mintQuantity + change;
@@ -230,13 +153,13 @@ const NFTMint = () => {
                       </p>
                     </div>
                     
-                    {wallet.connected ? (
+                    {isWalletConnected ? (
                       <div className="space-y-3">
                         <Button
                           variant="hero-primary"
                           size="lg"
                           onClick={handleMint}
-                          disabled={isMinting || !collectionStats.isLive}
+                          disabled={isMinting}
                           className="w-full md:w-auto px-8 py-4 text-lg font-bold"
                         >
                           {isMinting ? (
@@ -249,19 +172,24 @@ const NFTMint = () => {
                           )}
                         </Button>
                         {lastMintSignature && (
-                          <a 
-                            href={`https://solscan.io/tx/${lastMintSignature}?cluster=devnet`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-sm text-button-green hover:underline"
-                          >
-                            View last transaction <ExternalLink className="h-3 w-3" />
-                          </a>
+                          <div className="inline-flex items-center gap-1 text-sm text-button-green">
+                            Mock transaction: {lastMintSignature.substring(0, 20)}...
+                          </div>
                         )}
                       </div>
                     ) : (
                       <div className="w-full md:w-auto">
-                        <WalletAuth />
+                        <Button
+                          variant="hero-primary"
+                          size="lg"
+                          onClick={() => {
+                            setIsWalletConnected(true);
+                            toast.success('Wallet connected!');
+                          }}
+                          className="px-8 py-4 text-lg font-bold"
+                        >
+                          Connect Wallet
+                        </Button>
                       </div>
                     )}
                   </div>
