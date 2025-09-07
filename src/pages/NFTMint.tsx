@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { WalletAuth } from '@/components/WalletAuth';
 import { toast } from '@/hooks/use-toast';
 import { Minus, Plus, Zap, Shield, Trophy, Users, Sparkles, Star } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 const NFTMint = () => {
   const {
     publicKey,
@@ -80,7 +81,86 @@ const NFTMint = () => {
         />
 
         <div className="container mx-auto px-4 py-20 relative z-20">
-          
+          {/* NFT Minting Menu */}
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <Card className="bg-card-bg/90 backdrop-blur-sm border-card-border shadow-2xl max-w-4xl w-full">
+              <CardContent className="p-8">
+                {/* Horizontal Layout */}
+                <div className="grid md:grid-cols-3 gap-8 items-center">
+                  
+                  {/* Collection Info Section */}
+                  <div className="text-center md:text-left">
+                    <h3 className="text-2xl font-bold text-hero-text mb-2">VapeFi Genesis</h3>
+                    <p className="text-muted-text mb-4">
+                      {collectionStats.minted.toLocaleString()} / {collectionStats.totalSupply.toLocaleString()} minted
+                    </p>
+                    <Progress value={progressPercentage} className="h-3 mb-2" />
+                    <p className="text-sm text-muted-text">
+                      {progressPercentage.toFixed(1)}% Complete
+                    </p>
+                  </div>
+
+                  {/* Quantity Selector Section */}
+                  <div className="text-center">
+                    <h4 className="text-lg font-semibold text-hero-text mb-4">Select Quantity</h4>
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => adjustQuantity(-1)}
+                        disabled={mintQuantity <= 1}
+                        className="h-12 w-12"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="text-3xl font-bold text-hero-text min-w-[3rem]">
+                        {mintQuantity}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => adjustQuantity(1)}
+                        disabled={mintQuantity >= 10}
+                        className="h-12 w-12"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-text">Max 10 per wallet</p>
+                  </div>
+
+                  {/* Mint Section */}
+                  <div className="text-center md:text-right">
+                    <div className="mb-4">
+                      <p className="text-lg font-semibold text-hero-text">
+                        {totalCost} SOL
+                      </p>
+                      <p className="text-sm text-muted-text">
+                        {collectionStats.price} SOL each
+                      </p>
+                    </div>
+                    
+                    {connected ? (
+                      <Button
+                        variant="hero-primary"
+                        size="lg"
+                        onClick={handleMint}
+                        disabled={isMinting}
+                        className="w-full md:w-auto px-8 py-4 text-lg font-bold"
+                      >
+                        {isMinting ? "Minting..." : `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`}
+                      </Button>
+                    ) : (
+                      <div className="w-full md:w-auto">
+                        <WalletAuth />
+                      </div>
+                    )}
+                  </div>
+                  
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
