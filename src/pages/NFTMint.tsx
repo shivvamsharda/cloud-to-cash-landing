@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { Transaction, VersionedTransaction } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ const NFTMint = () => {
   const [lastMintSignature, setLastMintSignature] = useState<string | null>(null);
   
   // Real wallet connection from Solana wallet adapter
-  const { publicKey, connected, disconnect } = useWallet();
+  const { publicKey, connected, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
 
   // Real collection stats from Supabase edge function
@@ -65,9 +66,49 @@ const NFTMint = () => {
         throw new Error(data.error);
       }
 
-      console.log('Mint response:', data);
+      console.log('Mint preparation response:', data);
 
-      setLastMintSignature(data.transactionSignature);
+      if (!data.transaction) {
+        throw new Error('No transaction returned from server');
+      }
+
+      // Deserialize the transaction
+      const transactionBuffer = Buffer.from(data.transaction, 'base64');
+      const transaction = VersionedTransaction.deserialize(transactionBuffer);
+
+      console.log('Transaction deserialized, requesting signature...');
+
+      // Sign the transaction with the connected wallet
+      if (!signTransaction) {
+        throw new Error('Wallet does not support transaction signing');
+      }
+
+      const signedTransaction = await signTransaction(transaction);
+      
+      console.log('Transaction signed, sending to devnet...');
+
+      // Send the signed transaction to devnet
+      const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
+        maxRetries: 3,
+        preflightCommitment: 'confirmed'
+      });
+
+      console.log('Transaction sent:', signature);
+
+      // Confirm the transaction
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash: data.blockhash,
+        lastValidBlockHeight: data.lastValidBlockHeight
+      }, 'confirmed');
+
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${confirmation.value.err}`);
+      }
+
+      console.log('Transaction confirmed:', signature);
+
+      setLastMintSignature(signature);
       
       toast.success(
         `${CANDY_MACHINE_CONFIG.SUCCESS.MINT_SUCCESS} ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`

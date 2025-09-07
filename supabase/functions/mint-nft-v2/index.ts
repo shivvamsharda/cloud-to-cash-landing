@@ -1,11 +1,12 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1';
-import { generateSigner, publicKey, transactionBuilder } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1';
+import { generateSigner, publicKey, transactionBuilder, keypairIdentity } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1';
 import { 
   fetchCandyMachine, 
   mintV2,
   safeFetchCandyGuard
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1';
+import { base64 } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -120,10 +121,21 @@ Deno.serve(async (req) => {
       })
     );
 
-    // Build the transaction
-    const transaction = await builder.buildAndSign(umi);
+    // Create temporary Umi with nftMint keypair to partially sign
+    const tempUmi = createUmi(devnetRpc).use(keypairIdentity(nftMint));
     
-    console.log('Transaction built successfully');
+    // Build the transaction with proper signing
+    const builtTransaction = await builder.build(tempUmi);
+    const { signature, ...unsignedTransaction } = builtTransaction;
+    
+    // Partially sign with the nftMint keypair
+    const partiallySignedTransaction = await builder.buildAndSign(tempUmi);
+    
+    // Serialize transaction to base64 for frontend
+    const serializedTx = base64.encode(partiallySignedTransaction.serializedMessage);
+    
+    console.log('Transaction built and partially signed successfully');
+    console.log('NFT Mint:', nftMint.publicKey.toString());
     
     // Return the transaction for the frontend to sign and send
     return new Response(
@@ -131,9 +143,9 @@ Deno.serve(async (req) => {
         success: true,
         nftMint: nftMint.publicKey.toString(),
         message: 'Transaction prepared successfully',
-        // Note: In a production app, you'd return the transaction bytes
-        // for the frontend to sign and submit
-        transactionSignature: 'mock_signature_' + Date.now()
+        transaction: serializedTx,
+        blockhash: partiallySignedTransaction.message.blockhash,
+        lastValidBlockHeight: partiallySignedTransaction.message.lastValidBlockHeight
       }),
       { 
         headers: { 
