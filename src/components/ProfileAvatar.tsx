@@ -35,8 +35,8 @@ export const ProfileAvatar: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-md">
-          <Avatar className="h-10 w-10 rounded-md">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-none">
+          <Avatar className="h-10 w-10 rounded-none">
             <AvatarImage src={profile?.profile_picture_url || ''} alt="Profile" />
             <AvatarFallback>{getInitials(profile?.name)}</AvatarFallback>
           </Avatar>

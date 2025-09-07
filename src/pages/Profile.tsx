@@ -236,7 +236,7 @@ export default function Profile() {
                 {isEditing && (
                   <div 
                     {...getRootProps()} 
-                    className="flex-1 border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 cursor-pointer hover:border-muted-foreground/50 transition-colors"
+                    className="flex-1 border-2 border-dashed border-muted-foreground/25 rounded-none p-6 cursor-pointer hover:border-muted-foreground/50 transition-colors"
                   >
                     <input {...getInputProps()} />
                     <div className="text-center">
@@ -340,11 +340,11 @@ export default function Profile() {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 pt-4">
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <div className="text-center p-4 bg-muted/50 rounded-none">
                 <div className="text-2xl font-bold text-primary">{profile.total_puffs}</div>
                 <div className="text-sm text-muted-foreground">Total Puffs</div>
               </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
+              <div className="text-center p-4 bg-muted/50 rounded-none">
                 <div className="text-2xl font-bold text-green-600">{profile.total_rewards}</div>
                 <div className="text-sm text-muted-foreground">Tokens Earned</div>
               </div>
