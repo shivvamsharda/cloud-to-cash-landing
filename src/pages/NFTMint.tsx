@@ -59,35 +59,12 @@ const NFTMint = () => {
         return;
       }
 
-      // Create a placeholder transaction for the mint cost
-      const transaction = new Transaction();
-      
-      // Add instruction to transfer SOL to creator wallet (this will be handled by Candy Machine)
-      const { SystemProgram } = await import('@solana/web3.js');
-      
-      transaction.add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: new PublicKey(NFT_CONFIG.creatorWallet),
-          lamports: requiredLamports,
-        })
-      );
-
-      // Set recent blockhash
-      const { blockhash } = await connection.getLatestBlockhash();
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = publicKey;
-
-      // Sign transaction
-      const signedTransaction = await signTransaction(transaction);
-      const serializedTransaction = signedTransaction.serialize().toString('base64');
-
       // Send to our edge function for Candy Machine minting
+      // The Candy Machine will handle SOL payment automatically
       const { data, error } = await supabase.functions.invoke('mint-nft', {
         body: {
           walletAddress: publicKey.toString(),
           quantity: mintQuantity,
-          signedTransaction: serializedTransaction,
           candyMachineId: collectionStats.candyMachineId
         }
       });

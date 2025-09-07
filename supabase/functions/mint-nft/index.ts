@@ -50,50 +50,124 @@ serve(async (req) => {
       });
     }
 
+    // Validate candy machine authority is available
+    if (!candyMachineAuthority) {
+      return new Response(JSON.stringify({ 
+        error: 'Candy machine authority not configured' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Initialize connection and Metaplex
     const connection = new Connection(devnetRpc);
     
-    // For now, we'll create a simple transfer since we don't have the candy machine authority key
-    // In production, you would use the actual candy machine authority keypair
-    const mintResponse = await fetch(devnetRpc, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getAccountInfo',
-        params: [
-          candyMachineId,
-          {
-            encoding: 'base64',
-            commitment: 'confirmed'
-          }
-        ]
-      })
-    });
+    // Create keypair from the authority private key
+    let authorityKeypair: Keypair;
+    try {
+      const secretKeyArray = JSON.parse(candyMachineAuthority);
+      authorityKeypair = Keypair.fromSecretKey(new Uint8Array(secretKeyArray));
+      console.log('Authority keypair created successfully');
+    } catch (error) {
+      console.error('Failed to create authority keypair:', error);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid candy machine authority key format' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    const candyMachineInfo = await mintResponse.json();
-    console.log('Candy Machine Info:', candyMachineInfo);
-
-    // For demonstration, simulate a successful mint
-    // In production, you would use Metaplex to actually mint from the candy machine
-    const mockSignature = `mock_mint_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Initialize Metaplex with the authority keypair
+    const metaplex = Metaplex.make(connection).use(keypairIdentity(authorityKeypair));
     
-    console.log('Mock mint successful, signature:', mockSignature);
-    
-    const confirmed = true;
+    try {
+      // Find the candy machine
+      const candyMachine = await metaplex.candyMachines().findByAddress({
+        address: new PublicKey(candyMachineId)
+      });
 
-    return new Response(JSON.stringify({
-      success: true,
-      signature: mockSignature,
-      confirmed,
-      quantity,
-      solscanUrl: `https://solscan.io/tx/${mockSignature}?cluster=devnet`
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+      console.log('Candy machine loaded:', {
+        address: candyMachine.address.toString(),
+        itemsAvailable: candyMachine.itemsAvailable.toString(),
+        itemsMinted: candyMachine.itemsMinted.toString()
+      });
+
+      // Check if candy machine has enough items remaining
+      const itemsRemaining = candyMachine.itemsAvailable.sub(candyMachine.itemsMinted);
+      if (itemsRemaining.toNumber() < quantity) {
+        return new Response(JSON.stringify({ 
+          error: `Not enough NFTs remaining. Only ${itemsRemaining.toString()} left.` 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Mint NFTs for the specified quantity
+      const signatures: string[] = [];
+      const minterPublicKey = new PublicKey(walletAddress);
+
+      for (let i = 0; i < quantity; i++) {
+        console.log(`Minting NFT ${i + 1} of ${quantity}...`);
+        
+        const { nft, response } = await metaplex.candyMachines().mint({
+          candyMachine,
+          owner: minterPublicKey,
+          guards: {}
+        });
+
+        signatures.push(response.signature);
+        console.log(`NFT ${i + 1} minted successfully:`, {
+          mint: nft.address.toString(),
+          signature: response.signature
+        });
+      }
+
+      const primarySignature = signatures[0];
+      
+      return new Response(JSON.stringify({
+        success: true,
+        signature: primarySignature,
+        signatures: signatures,
+        confirmed: true,
+        quantity,
+        solscanUrl: `https://solscan.io/tx/${primarySignature}?cluster=devnet`
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+    } catch (mintError) {
+      console.error('Minting error:', mintError);
+      
+      // Handle specific candy machine errors
+      if (mintError.message.includes('sold out')) {
+        return new Response(JSON.stringify({ 
+          error: 'Candy machine is sold out' 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (mintError.message.includes('insufficient funds')) {
+        return new Response(JSON.stringify({ 
+          error: 'Insufficient SOL for minting' 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({ 
+        error: 'Minting failed',
+        details: mintError.message 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
   } catch (error) {
     console.error('Error in mint-nft function:', error);
