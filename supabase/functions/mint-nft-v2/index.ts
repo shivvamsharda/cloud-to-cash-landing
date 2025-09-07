@@ -4,8 +4,11 @@ import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createN
 import { 
   fetchCandyMachine, 
   mintV2,
-  safeFetchCandyGuard
+  safeFetchCandyGuard,
+  mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1';
+import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0';
+import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.3.1';
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 Deno.serve(async (req) => {
@@ -49,8 +52,11 @@ Deno.serve(async (req) => {
       candyMachine: candyMachineIdStr
     });
 
-    // Initialize Umi
-    const umi = createUmi(devnetRpc);
+    // Initialize Umi with required Metaplex programs
+    const umi = createUmi(devnetRpc)
+      .use(mplTokenMetadata())
+      .use(mplCandyMachine())
+      .use(mplCandyGuard());
     
     // Parse addresses
     const candyMachineId = publicKey(candyMachineIdStr);
@@ -119,8 +125,12 @@ Deno.serve(async (req) => {
       })
     );
 
-    // Create temporary Umi with nftMint keypair to partially sign
-    const tempUmi = createUmi(devnetRpc).use(keypairIdentity(nftMint));
+    // Create temporary Umi with plugins and nftMint keypair to partially sign
+    const tempUmi = createUmi(devnetRpc)
+      .use(mplTokenMetadata())
+      .use(mplCandyMachine())
+      .use(mplCandyGuard())
+      .use(keypairIdentity(nftMint));
     
     // Build the transaction with proper signing
     const builtTransaction = await builder.build(tempUmi);
@@ -154,14 +164,28 @@ Deno.serve(async (req) => {
       }
     );
 
-  } catch (error) {
-    console.error('Mint error:', error);
+  } catch (error: any) {
+    console.error('Mint error:', {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+      source: error?.source,
+      identifier: error?.identifier,
+      cluster: error?.cluster,
+      raw: String(error),
+    });
     
+    const isProgramNotRecognized = error?.name === 'ProgramNotRecognizedError' || error?.identifier?.includes?.('mplCandyGuard');
+
+    const body = {
+      error: error?.message || 'Minting failed',
+      name: error?.name,
+      details: String(error),
+      hint: isProgramNotRecognized ? 'Metaplex programs not registered. Ensure mplCandyMachine, mplCandyGuard, and mplTokenMetadata plugins are added to Umi.' : undefined,
+    };
+
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Minting failed',
-        details: error.toString()
-      }),
+      JSON.stringify(body),
       { 
         status: 500,
         headers: { 
