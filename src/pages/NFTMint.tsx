@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useConnection } from '@solana/wallet-adapter-react';
-import { Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { Metaplex, walletAdapterIdentity } from '@metaplex-foundation/js';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState, useCallback, useMemo } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ExternalLink, Minus, Plus, Loader2, Zap, Shield, Trophy, Users, Sparkles, Star } from 'lucide-react';
 import { WalletAuth } from '@/components/WalletAuth';
-import { toast } from '@/hooks/use-toast';
-import { Minus, Plus, Zap, Shield, Trophy, Users, Sparkles, Star, ExternalLink } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
-import { supabase } from '@/integrations/supabase/client';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
+import { mplCandyMachine, mintV2, fetchCandyMachine } from '@metaplex-foundation/mpl-candy-machine';
+import { publicKey, lamports, sol, transactionBuilder, some, none, generateSigner } from '@metaplex-foundation/umi';
+import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/hooks/useAuth';
 import { NFT_CONFIG } from '@/config/nft';
+
 const NFTMint = () => {
-  const { publicKey, connected, signTransaction } = useWallet();
+  const wallet = useWallet();
   const { connection } = useConnection();
   const { user } = useAuth();
   const [mintQuantity, setMintQuantity] = useState(1);
@@ -24,148 +26,113 @@ const NFTMint = () => {
 
   // Use real collection stats
   const { stats: collectionStats, loading: statsLoading, refetch: refetchStats } = useCollectionStats();
-  const handleMint = async () => {
-    if (!connected || !publicKey || !signTransaction || !collectionStats) {
-      toast({
-        title: "Wallet not connected",
-        description: "Please connect your wallet to mint NFTs",
-        variant: "destructive"
-      });
+
+  const handleMint = useCallback(async () => {
+    if (!wallet?.publicKey || !connection) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!collectionStats) {
+      toast.error('Collection data not available');
       return;
     }
 
     if (!collectionStats.isLive) {
-      toast({
-        title: "Minting not active", 
-        description: "NFT minting is currently not active",
-        variant: "destructive"
-      });
+      toast.error('NFT minting is currently not active');
       return;
     }
 
     setIsMinting(true);
+    
     try {
       // Check SOL balance
-      const balance = await connection.getBalance(publicKey);
-      const requiredSol = mintQuantity * collectionStats.price;
-      const requiredLamports = requiredSol * LAMPORTS_PER_SOL;
-      const buffer = 0.01 * LAMPORTS_PER_SOL; // 0.01 SOL buffer for transaction fees
-
-      if (balance < requiredLamports + buffer) {
-        toast({
-          title: "Insufficient SOL",
-          description: `You need ${requiredSol} SOL + fees to mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`,
-          variant: "destructive"
-        });
-        return;
+      const balance = await connection.getBalance(wallet.publicKey);
+      const solBalance = balance / 1e9;
+      const requiredSOL = collectionStats.price * mintQuantity;
+      
+      if (solBalance < requiredSOL + 0.01) {
+        throw new Error(`Insufficient SOL balance. Need ${requiredSOL + 0.01} SOL, have ${solBalance.toFixed(3)} SOL`);
       }
 
-      // Initialize Metaplex with wallet adapter identity for client-side minting
-      const metaplex = Metaplex.make(connection).use(walletAdapterIdentity({
-        publicKey,
-        signTransaction,
-        signAllTransactions: async (txs) => {
-          if ('signAllTransactions' in window.solana) {
-            return window.solana.signAllTransactions(txs);
-          }
-          throw new Error('Wallet does not support signing multiple transactions');
-        }
-      }));
+      // Initialize Umi with wallet adapter identity
+      const umi = createUmi(connection.rpcEndpoint)
+        .use(walletAdapterIdentity(wallet))
+        .use(mplCandyMachine());
 
-      // Get candy machine guard info first to provide better error messages
-      let candyMachineGuards;
-      try {
-        const { data: guardData } = await supabase.functions.invoke('get-candy-guard', {
-          body: { candyMachineId: collectionStats.candyMachineId }
-        });
-        candyMachineGuards = guardData?.guards;
-      } catch (guardError) {
-        console.warn('Could not fetch guard info:', guardError);
+      const candyMachineId = publicKey(collectionStats.candyMachineId);
+      const collectionMintId = publicKey(collectionStats.collectionMintId);
+
+      // Fetch the candy machine to get current state
+      const candyMachine = await fetchCandyMachine(umi, candyMachineId);
+      
+      if (!candyMachine) {
+        throw new Error('Candy Machine not found');
       }
 
-      // Find the candy machine
-      const candyMachine = await metaplex.candyMachines().findByAddress({
-        address: new PublicKey(collectionStats.candyMachineId)
-      });
-
-      console.log('Candy machine loaded:', {
-        address: candyMachine.address.toString(),
-        itemsAvailable: candyMachine.itemsAvailable.toString(),
-        itemsMinted: candyMachine.itemsMinted.toString()
-      });
-
-      // Check availability
-      const itemsRemaining = candyMachine.itemsAvailable.sub(candyMachine.itemsMinted);
-      if (itemsRemaining.toNumber() < mintQuantity) {
-        toast({
-          title: "Sold Out",
-          description: `Only ${itemsRemaining.toString()} NFTs remaining`,
-          variant: "destructive"
-        });
-        return;
+      // Check if there are items available
+      if (candyMachine.itemsRedeemed >= candyMachine.itemsLoaded) {
+        throw new Error('Collection is sold out');
       }
 
-      // Mint NFTs one by one to handle potential failures gracefully
-      const signatures: string[] = [];
+      // Check if there are enough items remaining for the requested quantity
+      const remaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
+      if (remaining < mintQuantity) {
+        throw new Error(`Only ${remaining} NFTs remaining`);
+      }
+
+      // Mint NFTs one by one
+      const signatures = [];
       
       for (let i = 0; i < mintQuantity; i++) {
         console.log(`Minting NFT ${i + 1} of ${mintQuantity}...`);
         
         try {
-          const { nft, response } = await metaplex.candyMachines().mint({
-            candyMachine,
-            owner: publicKey,
-            guards: {},
-            collectionUpdateAuthority: candyMachine.authorityAddress
-          });
-
-          signatures.push(response.signature);
-          console.log(`NFT ${i + 1} minted successfully:`, {
-            mint: nft.address.toString(),
-            signature: response.signature
-          });
-
-        } catch (mintError) {
-          console.error(`Failed to mint NFT ${i + 1}:`, mintError);
+          // Generate a new NFT mint
+          const nftMint = generateSigner(umi);
           
-          // Provide specific error messages based on guard failures
-          let errorMessage = 'Failed to mint NFT';
-          if (mintError.message.includes('insufficient')) {
-            errorMessage = 'Insufficient SOL for minting';
-          } else if (mintError.message.includes('sold out')) {
-            errorMessage = 'Candy machine sold out';
-          } else if (mintError.message.includes('guard')) {
-            errorMessage = `Guard validation failed: ${mintError.message}`;
-          }
+          const mintResult = await transactionBuilder()
+            .add(mintV2(umi, {
+              candyMachine: candyMachineId,
+              nftMint,
+              collectionMint: collectionMintId,
+              collectionUpdateAuthority: umi.identity.publicKey,
+            }))
+            .sendAndConfirm(umi);
+
+          signatures.push(mintResult.signature);
           
-          throw new Error(`${errorMessage} (NFT ${i + 1})`);
+          // Update UI after each successful mint
+          toast.success(`NFT ${i + 1}/${mintQuantity} minted successfully!`);
+        } catch (error) {
+          console.error(`Failed to mint NFT ${i + 1}:`, error);
+          toast.error(`Failed to mint NFT ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          break;
         }
       }
 
-      // Success! 
-      const primarySignature = signatures[0];
-      setLastMintSignature(primarySignature);
-      
-      toast({
-        title: "Mint Successful!",
-        description: `Successfully minted ${mintQuantity} VapeFi NFT${mintQuantity > 1 ? 's' : ''}!`
-      });
-      
-      // Reset form and refresh stats
-      setMintQuantity(1);
-      refetchStats();
+      if (signatures.length > 0) {
+        setLastMintSignature(signatures[signatures.length - 1]);
+        
+        // Refresh collection stats
+        setTimeout(() => {
+          refetchStats();
+        }, 2000);
+        
+        toast.success(`Successfully minted ${signatures.length} NFT${signatures.length > 1 ? 's' : ''}!`);
+        
+        // Reset mint quantity
+        setMintQuantity(1);
+      }
 
     } catch (error) {
-      console.error('Mint error:', error);
-      toast({
-        title: "Mint Failed",
-        description: error instanceof Error ? error.message : "There was an error minting your NFT. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Minting error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to mint NFT');
     } finally {
       setIsMinting(false);
     }
-  };
+  }, [wallet, connection, mintQuantity, collectionStats, refetchStats]);
+
   const adjustQuantity = (change: number) => {
     const newQuantity = mintQuantity + change;
     if (newQuantity >= 1 && newQuantity <= NFT_CONFIG.maxMintPerWallet) {
@@ -186,7 +153,9 @@ const NFTMint = () => {
 
   const totalCost = (mintQuantity * collectionStats.price).toFixed(1);
   const progressPercentage = (collectionStats.minted / collectionStats.totalSupply) * 100;
-  return <div className="min-h-screen bg-background">
+
+  return (
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         
@@ -261,7 +230,7 @@ const NFTMint = () => {
                       </p>
                     </div>
                     
-                    {connected ? (
+                    {wallet.connected ? (
                       <div className="space-y-3">
                         <Button
                           variant="hero-primary"
@@ -270,7 +239,14 @@ const NFTMint = () => {
                           disabled={isMinting || !collectionStats.isLive}
                           className="w-full md:w-auto px-8 py-4 text-lg font-bold"
                         >
-                          {isMinting ? "Minting..." : `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`}
+                          {isMinting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Minting...
+                            </>
+                          ) : (
+                            `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`
+                          )}
                         </Button>
                         {lastMintSignature && (
                           <a 
@@ -372,31 +348,37 @@ const NFTMint = () => {
 
           <div className="max-w-4xl mx-auto">
             <div className="space-y-8">
-              {[{
-              phase: "Phase 1",
-              title: "Genesis Launch",
-              description: "Launch 5,000 Genesis NFTs with premium utility features",
-              status: "current",
-              color: "button-green"
-            }, {
-              phase: "Phase 2",
-              title: "Enhanced Platform",
-              description: "Advanced tracking features and gamification for NFT holders",
-              status: "upcoming",
-              color: "button-green"
-            }, {
-              phase: "Phase 3",
-              title: "Marketplace & Trading",
-              description: "Secondary marketplace and NFT breeding mechanics",
-              status: "future",
-              color: "button-green"
-            }, {
-              phase: "Phase 4",
-              title: "Metaverse Integration",
-              description: "VR/AR experiences and virtual vaping competitions",
-              status: "future",
-              color: "hero-bg"
-            }].map((item, index) => <div key={index} className="flex gap-6">
+              {[
+                {
+                  phase: "Phase 1",
+                  title: "Genesis Launch",
+                  description: "Launch 5,000 Genesis NFTs with premium utility features",
+                  status: "current",
+                  color: "button-green"
+                },
+                {
+                  phase: "Phase 2", 
+                  title: "Enhanced Platform",
+                  description: "Advanced tracking features and gamification for NFT holders",
+                  status: "upcoming",
+                  color: "button-green"
+                },
+                {
+                  phase: "Phase 3",
+                  title: "Marketplace & Trading", 
+                  description: "Secondary marketplace and NFT breeding mechanics",
+                  status: "future",
+                  color: "button-green"
+                },
+                {
+                  phase: "Phase 4",
+                  title: "Metaverse Integration",
+                  description: "VR/AR experiences and virtual vaping competitions", 
+                  status: "future",
+                  color: "hero-bg"
+                }
+              ].map((item, index) => (
+                <div key={index} className="flex gap-6">
                   <div className="flex-shrink-0">
                     <div className={`w-12 h-12 rounded-full bg-${item.color}/20 border-2 border-${item.color} flex items-center justify-center`}>
                       <span className="text-sm font-bold text-hero-text">{index + 1}</span>
@@ -405,17 +387,23 @@ const NFTMint = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-bold text-hero-text">{item.title}</h3>
-                      <Badge variant={item.status === 'current' ? 'default' : 'outline'} className={item.status === 'current' ? 'bg-button-green text-pure-black' : ''}>
+                      <Badge 
+                        variant={item.status === 'current' ? 'default' : 'outline'} 
+                        className={item.status === 'current' ? 'bg-button-green text-pure-black' : ''}
+                      >
                         {item.phase}
                       </Badge>
                     </div>
                     <p className="text-muted-text">{item.description}</p>
                   </div>
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
-    </div>;
+    </div>
+  );
 };
+
 export default NFTMint;

@@ -19,4 +19,20 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: [
+      '@metaplex-foundation/umi',
+      '@metaplex-foundation/umi-bundle-defaults',
+      '@metaplex-foundation/mpl-candy-machine',
+      '@metaplex-foundation/mpl-candy-guard',
+      '@metaplex-foundation/umi-signer-wallet-adapters',
+    ],
+  },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      // No need for Node.js polyfills with Umi
+      external: [],
+    },
+  },
 }));
