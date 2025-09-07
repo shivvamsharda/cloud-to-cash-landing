@@ -4,7 +4,7 @@
  */
 export const CANDY_MACHINE_CONFIG = {
   // Default values - actual values come from Supabase secrets via edge functions
-  DEFAULT_MINT_PRICE: 0.1, // SOL
+  DEFAULT_MINT_PRICE: 0.15, // SOL
   MAX_MINT_PER_TRANSACTION: 10,
   NETWORK: 'devnet' as const,
   

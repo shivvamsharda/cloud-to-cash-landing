@@ -40,7 +40,7 @@ export const useCollectionStats = () => {
         setStats({
           totalSupply: 5000,
           minted: 0,
-          price: 0.1,
+          price: 0.15,
           remaining: 5000,
           candyMachineId: '',
           collectionMintId: '',
