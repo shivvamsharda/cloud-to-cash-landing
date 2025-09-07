@@ -1,34 +1,30 @@
 import React, { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnection } from '@solana/wallet-adapter-react';
+import { Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { WalletAuth } from '@/components/WalletAuth';
 import { toast } from '@/hooks/use-toast';
-import { Minus, Plus, Zap, Shield, Trophy, Users, Sparkles, Star } from 'lucide-react';
+import { Minus, Plus, Zap, Shield, Trophy, Users, Sparkles, Star, ExternalLink } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { useCollectionStats } from '@/hooks/useCollectionStats';
+import { supabase } from '@/integrations/supabase/client';
+import { NFT_CONFIG } from '@/config/nft';
 const NFTMint = () => {
-  const {
-    publicKey,
-    connected
-  } = useWallet();
-  const {
-    user
-  } = useAuth();
+  const { publicKey, connected, signTransaction } = useWallet();
+  const { connection } = useConnection();
+  const { user } = useAuth();
   const [mintQuantity, setMintQuantity] = useState(1);
   const [isMinting, setIsMinting] = useState(false);
+  const [lastMintSignature, setLastMintSignature] = useState<string | null>(null);
 
-  // Collection stats (placeholder data)
-  const collectionStats = {
-    totalSupply: 5000,
-    minted: 1247,
-    price: 0.1,
-    // SOL
-    remaining: 3753
-  };
+  // Use real collection stats
+  const { stats: collectionStats, loading: statsLoading, refetch: refetchStats } = useCollectionStats();
   const handleMint = async () => {
-    if (!connected || !publicKey) {
+    if (!connected || !publicKey || !signTransaction || !collectionStats) {
       toast({
         title: "Wallet not connected",
         description: "Please connect your wallet to mint NFTs",
@@ -36,21 +32,89 @@ const NFTMint = () => {
       });
       return;
     }
+
+    if (!collectionStats.isLive) {
+      toast({
+        title: "Minting not active",
+        description: "NFT minting is currently not active",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsMinting(true);
     try {
-      // Placeholder mint logic - replace with actual Solana NFT minting
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      toast({
-        title: "Mint Successful!",
-        description: `Successfully minted ${mintQuantity} VapeFi NFT${mintQuantity > 1 ? 's' : ''}!`
+      // Check SOL balance
+      const balance = await connection.getBalance(publicKey);
+      const requiredSol = mintQuantity * collectionStats.price;
+      const requiredLamports = requiredSol * LAMPORTS_PER_SOL;
+      const buffer = 0.01 * LAMPORTS_PER_SOL; // 0.01 SOL buffer for transaction fees
+
+      if (balance < requiredLamports + buffer) {
+        toast({
+          title: "Insufficient SOL",
+          description: `You need ${requiredSol} SOL + fees to mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create a mock transaction for now (in production, this would be built with Metaplex)
+      // This is a placeholder that transfers the mint cost to the creator wallet
+      const transaction = new Transaction();
+      
+      // Add instruction to transfer SOL to creator wallet (simplified mint simulation)
+      const { SystemProgram } = await import('@solana/web3.js');
+      
+      transaction.add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(NFT_CONFIG.creatorWallet),
+          lamports: requiredLamports,
+        })
+      );
+
+      // Set recent blockhash
+      const { blockhash } = await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;
+
+      // Sign transaction
+      const signedTransaction = await signTransaction(transaction);
+      const serializedTransaction = signedTransaction.serialize().toString('base64');
+
+      // Send to our edge function for processing
+      const { data, error } = await supabase.functions.invoke('mint-nft', {
+        body: {
+          walletAddress: publicKey.toString(),
+          quantity: mintQuantity,
+          signedTransaction: serializedTransaction
+        }
       });
 
-      // Reset quantity after successful mint
-      setMintQuantity(1);
+      if (error) {
+        throw new Error(error.message || 'Mint failed');
+      }
+
+      if (data.success) {
+        setLastMintSignature(data.signature);
+        toast({
+          title: "Mint Successful!",
+          description: `Successfully minted ${mintQuantity} VapeFi NFT${mintQuantity > 1 ? 's' : ''}!`
+        });
+
+        // Reset quantity and refresh stats
+        setMintQuantity(1);
+        refetchStats();
+      } else {
+        throw new Error(data.error || 'Mint failed');
+      }
+
     } catch (error) {
+      console.error('Mint error:', error);
       toast({
         title: "Mint Failed",
-        description: "There was an error minting your NFT. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error minting your NFT. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -59,12 +123,24 @@ const NFTMint = () => {
   };
   const adjustQuantity = (change: number) => {
     const newQuantity = mintQuantity + change;
-    if (newQuantity >= 1 && newQuantity <= 10) {
+    if (newQuantity >= 1 && newQuantity <= NFT_CONFIG.maxMintPerWallet) {
       setMintQuantity(newQuantity);
     }
   };
+
+  if (statsLoading || !collectionStats) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-button-green mx-auto mb-4"></div>
+          <p className="text-hero-text">Loading collection data...</p>
+        </div>
+      </div>
+    );
+  }
+
   const totalCost = (mintQuantity * collectionStats.price).toFixed(1);
-  const progressPercentage = collectionStats.minted / collectionStats.totalSupply * 100;
+  const progressPercentage = (collectionStats.minted / collectionStats.totalSupply) * 100;
   return <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -120,13 +196,13 @@ const NFTMint = () => {
                         variant="outline"
                         size="icon"
                         onClick={() => adjustQuantity(1)}
-                        disabled={mintQuantity >= 10}
+                        disabled={mintQuantity >= NFT_CONFIG.maxMintPerWallet}
                         className="h-12 w-12"
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-text">Max 10 per wallet</p>
+                    <p className="text-sm text-muted-text">Max {NFT_CONFIG.maxMintPerWallet} per wallet</p>
                   </div>
 
                   {/* Mint Section */}
@@ -141,15 +217,27 @@ const NFTMint = () => {
                     </div>
                     
                     {connected ? (
-                      <Button
-                        variant="hero-primary"
-                        size="lg"
-                        onClick={handleMint}
-                        disabled={isMinting}
-                        className="w-full md:w-auto px-8 py-4 text-lg font-bold"
-                      >
-                        {isMinting ? "Minting..." : `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`}
-                      </Button>
+                      <div className="space-y-3">
+                        <Button
+                          variant="hero-primary"
+                          size="lg"
+                          onClick={handleMint}
+                          disabled={isMinting || !collectionStats.isLive}
+                          className="w-full md:w-auto px-8 py-4 text-lg font-bold"
+                        >
+                          {isMinting ? "Minting..." : `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`}
+                        </Button>
+                        {lastMintSignature && (
+                          <a 
+                            href={`https://solscan.io/tx/${lastMintSignature}?cluster=devnet`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-sm text-button-green hover:underline"
+                          >
+                            View last transaction <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
                     ) : (
                       <div className="w-full md:w-auto">
                         <WalletAuth />
