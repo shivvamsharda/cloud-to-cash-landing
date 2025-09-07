@@ -68,18 +68,12 @@ const NFTMint = () => {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Hero Image Overlay */}
-        <div className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-60" style={{backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mint_Hero.png)'}} />
+        <div className="absolute inset-0 bg-center bg-no-repeat bg-contain opacity-60" style={{backgroundImage: 'url(https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mint_Hero2.png)'}} />
 
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="flex items-center justify-center min-h-[70vh]">
             <Card className="bg-card-bg border-0 shadow-2xl max-w-md w-full mx-auto">
               <CardHeader className="text-center pb-6 pt-8">
-                <CardTitle className="text-3xl md:text-4xl font-bold text-hero-text mb-4 mt-2">
-                  MINT Your Genesis NFT
-                </CardTitle>
-                <CardDescription className="text-base text-muted-text">
-                  Securing funds and assets with VapeFi reliability
-                </CardDescription>
               </CardHeader>
               
               <CardContent className="space-y-8">
