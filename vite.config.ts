@@ -24,13 +24,12 @@ export default defineConfig(({ mode }) => ({
     global: 'globalThis',
   },
   optimizeDeps: {
-    include: [
-      '@metaplex-foundation/umi',
-      '@metaplex-foundation/umi-bundle-defaults',
-      '@metaplex-foundation/mpl-candy-machine',
-      '@metaplex-foundation/mpl-candy-guard',
-      '@metaplex-foundation/umi-signer-wallet-adapters',
-    ],
+    esbuildOptions: {
+      define: {
+        // Critical fix: rewrite 'global' inside prebundled dependencies
+        global: 'globalThis',
+      },
+    },
   },
   build: {
     target: 'esnext',
