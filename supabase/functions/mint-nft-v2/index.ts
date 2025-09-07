@@ -1,12 +1,12 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1';
-import { generateSigner, publicKey, transactionBuilder, keypairIdentity } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1';
+import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1';
 import { 
   fetchCandyMachine, 
   mintV2,
   safeFetchCandyGuard
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1';
-import { encode as encodeBase64 } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
+import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -57,7 +57,8 @@ Deno.serve(async (req) => {
     // Parse addresses
     const candyMachineId = publicKey(candyMachineIdStr);
     const authority = publicKey(authorityStr);
-    const minter = publicKey(walletAddress);
+    const minterPubkey = publicKey(walletAddress);
+    const minter = createNoopSigner(minterPubkey);
     
     // Fetch candy machine data
     console.log('Fetching candy machine...');
@@ -131,8 +132,9 @@ Deno.serve(async (req) => {
     // Partially sign with the nftMint keypair
     const partiallySignedTransaction = await builder.buildAndSign(tempUmi);
     
-    // Serialize transaction to base64 for frontend
-    const serializedTx = encodeBase64(partiallySignedTransaction.serializedMessage);
+    // Serialize the full transaction (with partial signatures) to base64 for frontend
+    const serializedBytes = umi.transactions.serialize(partiallySignedTransaction);
+    const serializedTx = encodeBase64(serializedBytes);
     
     console.log('Transaction built and partially signed successfully');
     console.log('NFT Mint:', nftMint.publicKey.toString());
