@@ -75,7 +75,7 @@ const NFTMint = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-10"
           style={{
-            backgroundImage: `url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mint_Hero2.png')`
+            backgroundImage: `url('https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/Mint_Hero2%20(1).png')`
           }}
         />
 
