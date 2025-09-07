@@ -73,11 +73,11 @@ const NFTMint = () => {
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="flex items-center justify-center min-h-[70vh]">
             <Card className="bg-card-bg border-0 shadow-2xl max-w-md w-full mx-auto">
-              <CardHeader className="text-center pb-6">
-                <CardTitle className="text-4xl md:text-5xl font-bold text-hero-text mb-4">
+              <CardHeader className="text-center pb-6 pt-8">
+                <CardTitle className="text-3xl md:text-4xl font-bold text-hero-text mb-4 mt-2">
                   MINT Your Genesis NFT
                 </CardTitle>
-                <CardDescription className="text-lg text-muted-text">
+                <CardDescription className="text-base text-muted-text">
                   Securing funds and assets with VapeFi reliability
                 </CardDescription>
               </CardHeader>
