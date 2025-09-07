@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Mail, MapPin } from "lucide-react";
+import { Send, Twitter, Mail, MapPin } from "lucide-react";
 
 const Footer = () => {
   const navLinks = [
@@ -16,9 +16,8 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Instagram, href: "#", label: "Instagram" },
+    { icon: Send, href: "https://t.me/vape_fi", label: "Telegram" },
+    { icon: Twitter, href: "https://x.com/vape_fi", label: "X" },
   ];
 
   return (

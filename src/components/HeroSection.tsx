@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Send, Twitter } from "lucide-react";
 
 const HeroSection = () => {
   const scrollToLeaderboard = () => {
@@ -49,7 +50,7 @@ const HeroSection = () => {
       <div className="absolute left-1/2 top-[70%] z-20 -translate-x-1/2 -translate-y-1/2 px-6">
         <div className="text-center max-w-4xl mx-auto">
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
             <Link to="/track">
               <Button variant="hero-primary" className="px-8 py-3 text-lg font-semibold min-w-[180px]">
                 Start Earning Now
@@ -62,6 +63,28 @@ const HeroSection = () => {
             >
               View Leaderboard
             </Button>
+          </div>
+          
+          {/* Social Links */}
+          <div className="flex gap-4 justify-center items-center">
+            <a
+              href="https://t.me/vape_fi"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Telegram"
+              className="w-12 h-12 bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[hsl(var(--pure-black))] transition-all duration-300 backdrop-blur-sm"
+            >
+              <Send className="w-5 h-5" />
+            </a>
+            <a
+              href="https://x.com/vape_fi"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="X"
+              className="w-12 h-12 bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[hsl(var(--pure-black))] transition-all duration-300 backdrop-blur-sm"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
           </div>
         </div>
       </div>
