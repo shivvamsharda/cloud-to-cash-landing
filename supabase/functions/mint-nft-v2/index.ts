@@ -8,7 +8,7 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
-import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.5.0?target=deno';
+import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.5.0?bundle&target=deno';
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 Deno.serve(async (req) => {
