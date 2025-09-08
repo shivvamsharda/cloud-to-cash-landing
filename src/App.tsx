@@ -23,6 +23,7 @@ const FAQ = React.lazy(() => import("./pages/FAQ"));
 const Cookies = React.lazy(() => import("./pages/Cookies"));
 // NFTMint is especially important to lazy load due to heavy Umi dependencies
 const NFTMint = React.lazy(() => import("./pages/NFTMint"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/rewards" element={<Rewards />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/track" element={<Track />} />
