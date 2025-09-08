@@ -1,6 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1?target=deno';
-import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner, signerIdentity } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
+import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner, signerIdentity, some } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
 import {
   fetchCandyMachine,
   mintV2,
@@ -103,6 +103,25 @@ Deno.serve(async (req) => {
       // ignore if not found
     }
 
+    // Determine guard group and required mint args (e.g., solPayment destination)
+    let groupLabel: string | undefined = undefined;
+    let solPaymentDestination: any | null = null;
+    if (candyGuard) {
+      const topSol = (candyGuard as any).guards?.solPayment;
+      if (topSol && topSol.__option === 'Some') {
+        solPaymentDestination = topSol.value.destination;
+      } else if (Array.isArray((candyGuard as any).groups) && (candyGuard as any).groups.length > 0) {
+        for (const grp of (candyGuard as any).groups) {
+          const grpSol = grp?.guards?.solPayment;
+          if (grpSol && grpSol.__option === 'Some') {
+            groupLabel = grp.label;
+            solPaymentDestination = grpSol.value.destination;
+            break;
+          }
+        }
+      }
+    }
+
     // Generate NFT mint address
     const nftMint = generateSigner(umi);
     
@@ -119,11 +138,11 @@ Deno.serve(async (req) => {
         collectionMint: candyMachine.collectionMint,
         collectionUpdateAuthority: candyMachine.authority,
         minter,
-        // Add candy guard if present
-        ...(candyGuard && { 
-          candyGuard: candyGuard.publicKey,
-          group: undefined // Use default group
-        })
+        ...(candyGuard && { candyGuard: (candyGuard as any).publicKey }),
+        ...(groupLabel ? { group: groupLabel } : {}),
+        mintArgs: solPaymentDestination
+          ? { solPayment: some({ destination: solPaymentDestination }) }
+          : undefined,
       })
     );
 
