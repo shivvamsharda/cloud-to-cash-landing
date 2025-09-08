@@ -4,11 +4,13 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWalletDisconnect } from '@/hooks/useWalletDisconnect';
 import { toast } from 'sonner';
 
 export const WalletAuth: React.FC = () => {
-  const { publicKey, signMessage, connected, disconnect } = useWallet();
-  const { user, signOut } = useAuth();
+  const { publicKey, signMessage, connected } = useWallet();
+  const { user } = useAuth();
+  const { handleDisconnect } = useWalletDisconnect();
 
   const handleSignIn = async () => {
     if (!connected || !publicKey || !signMessage) {
@@ -43,18 +45,8 @@ export const WalletAuth: React.FC = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      if (disconnect) {
-        await disconnect();
-      }
-      toast.success('Signed out successfully');
-    } catch (error: any) {
-      console.error('Sign out error:', error);
-      toast.error(`Failed to sign out: ${error.message}`);
-    }
-  };
+  // Note: WalletAuth component handles sign-in only
+  // Sign-out is handled by ProfileAvatar and Navbar components
 
   if (user) {
     return null;

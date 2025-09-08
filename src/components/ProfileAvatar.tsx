@@ -11,16 +11,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { User, LogOut } from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { useAuth } from '@/hooks/useAuth';
+import { useWalletDisconnect } from '@/hooks/useWalletDisconnect';
 
 export const ProfileAvatar: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useUserProfile();
-  const { signOut } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
+  const { handleDisconnect, isDisconnecting } = useWalletDisconnect();
 
   const getInitials = (name: string | null) => {
     if (!name) return 'U';
@@ -55,9 +51,9 @@ export const ProfileAvatar: React.FC = () => {
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
+        <DropdownMenuItem onClick={handleDisconnect} disabled={isDisconnecting}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign Out</span>
+          <span>{isDisconnecting ? 'Disconnecting...' : 'Sign Out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

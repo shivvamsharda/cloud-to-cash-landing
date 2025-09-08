@@ -6,14 +6,13 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { WalletAuth } from "./WalletAuth";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { useAuth } from "@/hooks/useAuth";
-import { useWallet } from '@solana/wallet-adapter-react';
-import { toast } from 'sonner';
+import { useWalletDisconnect } from '@/hooks/useWalletDisconnect';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
-  const { disconnect } = useWallet();
+  const { user } = useAuth();
+  const { handleDisconnect, isDisconnecting } = useWalletDisconnect();
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -23,21 +22,7 @@ const Navbar = () => {
     { name: "Contact", href: "/contact" }
   ];
 
-
   const isActive = (href: string) => location.pathname === href;
-
-  const handleDisconnect = async () => {
-    try {
-      await signOut();
-      if (disconnect) {
-        await disconnect();
-      }
-      toast.success('Signed out successfully');
-    } catch (error: any) {
-      console.error('Sign out error:', error);
-      toast.error(`Failed to sign out: ${error.message}`);
-    }
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[hsl(var(--pure-black))]">
@@ -132,9 +117,10 @@ const Navbar = () => {
                           }}
                           variant="outline" 
                           className="w-full flex items-center gap-2"
+                          disabled={isDisconnecting}
                         >
                           <LogOut className="h-4 w-4" />
-                          Disconnect
+                          {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
                         </Button>
                       </div>
                     )}
