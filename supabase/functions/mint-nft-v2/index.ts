@@ -36,9 +36,6 @@ Deno.serve(async (req) => {
   try {
     const { walletAddress } = await req.json();
     
-    console.log('Mint request received');
-    console.log('Wallet:', walletAddress);
-    
     if (!walletAddress) {
       return new Response(
         JSON.stringify({ error: 'Wallet address is required' }),
@@ -58,11 +55,6 @@ Deno.serve(async (req) => {
       throw new Error('CANDY_MACHINE_ID not configured in environment');
     }
 
-    console.log('Using Candy Machine:', candyMachineIdStr);
-    if (candyGuardIdStr) {
-      console.log('Using Candy Guard:', candyGuardIdStr);
-    }
-
     // Initialize Umi
     const umi = createUmi(rpcUrl)
       .use(mplTokenMetadata())
@@ -76,10 +68,6 @@ Deno.serve(async (req) => {
     // Fetch Candy Machine
     const candyMachinePublicKey = publicKey(candyMachineIdStr);
     const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
-    
-    console.log('Candy Machine fetched');
-    console.log('Items available:', Number(candyMachine.itemsLoaded));
-    console.log('Items redeemed:', Number(candyMachine.itemsRedeemed));
 
     // Check if sold out
     const itemsRemaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
@@ -101,7 +89,6 @@ Deno.serve(async (req) => {
       try {
         const candyGuardPublicKey = publicKey(candyGuardIdStr);
         const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
-        console.log('Candy Guard fetched successfully');
         
         // Check for solPayment guard at top level
         if (candyGuard.guards?.solPayment?.__option === 'Some') {
@@ -110,10 +97,9 @@ Deno.serve(async (req) => {
               destination: candyGuard.guards.solPayment.value.destination 
             })
           };
-          console.log('Using solPayment guard');
         }
         
-        // Check for group guards
+        // Check for group guards if no top-level guard found
         if (!Object.keys(mintArgs).length && candyGuard.groups?.length > 0) {
           for (const grp of candyGuard.groups) {
             if (grp.guards?.solPayment?.__option === 'Some') {
@@ -123,7 +109,6 @@ Deno.serve(async (req) => {
                   destination: grp.guards.solPayment.value.destination 
                 })
               };
-              console.log('Using group:', grp.label);
               break;
             }
           }
@@ -135,10 +120,8 @@ Deno.serve(async (req) => {
 
     // Generate new NFT mint keypair
     const nftMint = generateSigner(umi);
-    console.log('NFT mint address:', nftMint.publicKey.toString());
 
-    // Get blockhash
-    console.log('Getting blockhash');
+    // Get blockhash for transaction
     const blockhash = await umi.rpc.getLatestBlockhash();
     
     // Build transaction
@@ -174,26 +157,17 @@ Deno.serve(async (req) => {
     // Serialize transaction
     const serializedTransaction = umi.transactions.serialize(signedTransaction);
     
-    // Convert to base64 - FIXED encoding
+    // Convert to base64
     const base64Transaction = Buffer.from(serializedTransaction).toString('base64');
     
-    console.log('Transaction prepared successfully');
-    
-    // Return single transaction (maintaining compatibility with frontend)
+    // Return simplified response for single NFT mint
     return new Response(
       JSON.stringify({
         success: true,
-        transactions: [{
-          transaction: base64Transaction,
-          nftMint: nftMint.publicKey.toString(),
-          blockhash: blockhash.blockhash,
-          lastValidBlockHeight: blockhash.lastValidBlockHeight
-        }],
-        // Also include legacy format for backward compatibility
         transaction: base64Transaction,
+        nftMint: nftMint.publicKey.toString(),
         blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
-        nftMint: nftMint.publicKey.toString()
+        lastValidBlockHeight: blockhash.lastValidBlockHeight
       }),
       { 
         headers: { 
@@ -204,15 +178,11 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('=== MINT ERROR ===');
-    console.error('Error:', error);
-    console.error('Message:', error?.message);
-    console.error('Stack:', error?.stack);
+    console.error('Mint error:', error?.message || error);
     
     return new Response(
       JSON.stringify({
-        error: error?.message || 'Unknown error occurred',
-        details: error?.stack || ''
+        error: error?.message || 'Unknown error occurred'
       }),
       { 
         status: 500,

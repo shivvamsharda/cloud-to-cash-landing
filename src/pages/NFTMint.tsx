@@ -12,16 +12,55 @@ import { Progress } from '@/components/ui/progress';
 import { CANDY_MACHINE_CONFIG, getSolanaExplorerUrl, formatSol } from '@/config/candyMachine';
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * NFT Mint Response Interface
+ * Defines the expected response format from the mint-nft-v2 edge function
+ */
+interface MintResponse {
+  success: boolean;
+  transaction: string;
+  nftMint: string;
+  blockhash: string;
+  lastValidBlockHeight: number;
+  error?: string;
+}
+
+/**
+ * NFTMint Component
+ * 
+ * Handles single NFT minting for the VapeFi Genesis collection.
+ * This component provides a complete minting interface including:
+ * - Wallet connection
+ * - Collection statistics display
+ * - Single NFT transaction processing
+ * - Success/error feedback
+ * 
+ * @returns JSX.Element - The complete NFT minting page
+ */
 const NFTMint = () => {
+  // Component state
   const [isMinting, setIsMinting] = useState(false);
   const [lastMintSignature, setLastMintSignature] = useState<string | null>(null);
   
+  // Wallet and connection hooks
   const { publicKey, connected, signTransaction } = useWallet();
   const { connection } = useConnection();
 
+  // Collection statistics
   const { stats: collectionStats, loading: statsLoading } = useCollectionStats();
 
+  /**
+   * Handles the NFT minting process
+   * 
+   * Flow:
+   * 1. Validates wallet connection and collection availability
+   * 2. Calls edge function to prepare transaction
+   * 3. Signs and sends transaction via wallet
+   * 4. Confirms transaction on blockchain
+   * 5. Updates UI with success/failure feedback
+   */
   const handleMint = useCallback(async () => {
+    // Validation checks
     if (!connected || !publicKey) {
       toast.error(CANDY_MACHINE_CONFIG.ERRORS.WALLET_NOT_CONNECTED);
       return;
@@ -37,7 +76,6 @@ const NFTMint = () => {
       return;
     }
 
-    // Check if sold out
     if (collectionStats.remaining < 1) {
       toast.error(CANDY_MACHINE_CONFIG.ERRORS.SOLD_OUT);
       return;
@@ -46,60 +84,25 @@ const NFTMint = () => {
     setIsMinting(true);
     
     try {
-      console.log('Starting mint process...', {
-        wallet: publicKey.toString(),
-        price: collectionStats.price
-      });
-
-      // Call edge function for single NFT
+      // Step 1: Get prepared transaction from edge function
       const { data, error } = await supabase.functions.invoke('mint-nft-v2', {
-        body: {
-          walletAddress: publicKey.toString()
-        }
+        body: { walletAddress: publicKey.toString() }
       });
 
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || 'Edge function failed');
+      if (error || data?.error) {
+        throw new Error(error?.message || data?.error || 'Failed to prepare transaction');
       }
 
-      if (data?.error) {
-        console.error('Mint error:', data);
-        throw new Error(data.error);
-      }
+      const mintData = data as MintResponse;
 
-      console.log('Mint response:', data);
-
-      // Handle transaction - support both array and single format
-      let txData;
-      let base64Transaction;
-      
-      if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
-        // New format with array
-        txData = data.transactions[0];
-        base64Transaction = txData.transaction;
-        console.log('Processing NFT mint:', txData.nftMint);
-      } else if (data.transaction) {
-        // Legacy single transaction format
-        txData = data;
-        base64Transaction = data.transaction;
-        console.log('Processing NFT mint (legacy format):', data.nftMint);
-      } else {
-        throw new Error('No transaction returned from server');
-      }
-      
-      // Decode base64 transaction - FIXED decoding
-      const transactionBuffer = Buffer.from(base64Transaction, 'base64');
+      // Step 2: Decode and deserialize transaction
+      const transactionBuffer = Buffer.from(mintData.transaction, 'base64');
       const transaction = VersionedTransaction.deserialize(transactionBuffer);
-      console.log('Transaction deserialized successfully');
 
-      // Sign transaction
-      console.log('Requesting wallet signature...');
+      // Step 3: Sign transaction with wallet
       const signedTransaction = await signTransaction(transaction);
-      console.log('Transaction signed');
 
-      // Send transaction
-      console.log('Sending transaction...');
+      // Step 4: Send transaction to network
       const signature = await connection.sendRawTransaction(
         signedTransaction.serialize(),
         {
@@ -108,22 +111,19 @@ const NFTMint = () => {
           maxRetries: 3
         }
       );
-      console.log('Transaction sent:', signature);
 
-      // Wait for confirmation
-      console.log('Waiting for confirmation...');
-      const latestBlockhash = await connection.getLatestBlockhash();
+      // Step 5: Wait for confirmation
       const confirmation = await connection.confirmTransaction({
         signature,
-        blockhash: txData.blockhash || latestBlockhash.blockhash,
-        lastValidBlockHeight: txData.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
+        blockhash: mintData.blockhash,
+        lastValidBlockHeight: mintData.lastValidBlockHeight
       }, 'confirmed');
 
       if (confirmation.value.err) {
         throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
       }
 
-      console.log('Transaction confirmed!');
+      // Success handling
       setLastMintSignature(signature);
       
       toast.success('Successfully minted NFT!', {
@@ -132,16 +132,9 @@ const NFTMint = () => {
           onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
         }
       });
-      
-      // Refresh stats after a delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
 
     } catch (error: any) {
-      console.error('Minting error:', error);
-      
-      // Parse error message
+      // Error handling with user-friendly messages
       let errorMessage = 'Minting failed';
       
       if (error?.message) {
@@ -149,8 +142,8 @@ const NFTMint = () => {
           errorMessage = 'Insufficient SOL balance';
         } else if (error.message.includes('User rejected')) {
           errorMessage = 'Transaction cancelled';
-        } else if (error.message.includes('0x')) {
-          errorMessage = `Mint error: ${error.message}`;
+        } else if (error.message.includes('sold out')) {
+          errorMessage = 'Collection is sold out';
         } else {
           errorMessage = error.message;
         }
@@ -162,6 +155,7 @@ const NFTMint = () => {
     }
   }, [connected, publicKey, signTransaction, collectionStats, connection]);
 
+  // Loading state
   if (statsLoading || !collectionStats) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -173,18 +167,19 @@ const NFTMint = () => {
     );
   }
 
+  // Calculate display values
   const totalCostLabel = formatSol(collectionStats.price);
   const progressPercentage = (collectionStats.minted / collectionStats.totalSupply) * 100;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
+      {/* Hero Section with Minting Interface */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         
-        {/* Grid Overlay */}
+        {/* Background Grid Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] z-0" />
         
-        {/* Background Image */}
+        {/* Hero Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-10"
           style={{
@@ -193,13 +188,13 @@ const NFTMint = () => {
         />
 
         <div className="container mx-auto px-4 py-20 relative z-20">
-          {/* NFT Minting Menu */}
+          {/* Main Minting Card */}
           <div className="flex items-center justify-center min-h-[60vh]">
             <Card className="bg-card-bg/90 backdrop-blur-sm border-card-border shadow-2xl max-w-4xl w-full">
               <CardContent className="p-8">
                 <div className="grid md:grid-cols-2 gap-8 items-center">
                   
-                  {/* Collection Info */}
+                  {/* Collection Information */}
                   <div className="text-center md:text-left">
                     <h3 className="text-2xl font-bold text-hero-text mb-2">VapeFi Genesis</h3>
                     <p className="text-muted-text mb-4">
@@ -216,13 +211,15 @@ const NFTMint = () => {
                     )}
                   </div>
 
-                  {/* Mint Action */}
+                  {/* Minting Actions */}
                   <div className="text-center">
+                    {/* Price Display */}
                     <div className="mb-6">
                       <p className="text-3xl font-bold text-hero-text mb-2">{totalCostLabel}</p>
                       <p className="text-sm text-muted-text">Price per NFT</p>
                     </div>
 
+                    {/* Wallet Connection & Minting */}
                     {!connected ? (
                       <div className="space-y-4">
                         <WalletMultiButton className="!bg-button-green !text-pure-black hover:!bg-button-green/90 !rounded-full !px-8 !py-3 !font-semibold" />
@@ -244,6 +241,7 @@ const NFTMint = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
+                        {/* Main Mint Button */}
                         <Button
                           onClick={handleMint}
                           disabled={isMinting}
@@ -260,6 +258,7 @@ const NFTMint = () => {
                           )}
                         </Button>
                         
+                        {/* Transaction Link */}
                         {lastMintSignature && (
                           <Button
                             variant="outline"
@@ -271,6 +270,7 @@ const NFTMint = () => {
                           </Button>
                         )}
                         
+                        {/* Remaining Count */}
                         <p className="text-xs text-muted-text">
                           {collectionStats.remaining.toLocaleString()} remaining
                         </p>
