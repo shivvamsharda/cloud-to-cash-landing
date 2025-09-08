@@ -7,7 +7,7 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1'
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0'
-import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.3.1'
+import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.5.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
