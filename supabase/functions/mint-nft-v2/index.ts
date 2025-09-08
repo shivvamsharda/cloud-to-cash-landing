@@ -144,9 +144,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get blockhash once for all transactions
-    console.log('Getting blockhash');
-    const blockhash = await umi.rpc.getLatestBlockhash();
+    // Get initial blockhash
+    console.log('Getting initial blockhash');
+    const initialBlockhash = await umi.rpc.getLatestBlockhash();
 
     // Create array for transactions
     const transactions = [];
@@ -157,6 +157,9 @@ Deno.serve(async (req) => {
       const nftMint = generateSigner(umi);
       console.log(`NFT ${i + 1}/${quantity} mint address:`, nftMint.publicKey.toString());
 
+      // Get fresh blockhash for each transaction to avoid nonce issues
+      const blockhash = i === 0 ? initialBlockhash : await umi.rpc.getLatestBlockhash();
+      
       // Start building transaction
       let builder = transactionBuilder();
       
@@ -199,7 +202,9 @@ Deno.serve(async (req) => {
       
       transactions.push({
         transaction: base64Transaction,
-        nftMint: nftMint.publicKey.toString()
+        nftMint: nftMint.publicKey.toString(),
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight
       });
     }
     
@@ -209,8 +214,6 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: true,
         transactions: transactions,
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
         quantity: quantity
       }),
       { 
