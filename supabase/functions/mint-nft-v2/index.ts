@@ -19,7 +19,6 @@ import {
   setComputeUnitLimit 
 } from 'https://esm.sh/@metaplex-foundation/mpl-toolbox@0.9.4?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.2.1?target=deno';
-import { encode as base64Encode } from 'https://deno.land/std@0.220.0/encoding/base64.ts';
 
 Deno.serve(async (req) => {
   // Handle CORS
@@ -37,7 +36,8 @@ Deno.serve(async (req) => {
   try {
     const { walletAddress } = await req.json();
     
-    console.log('Mint request received for wallet:', walletAddress);
+    console.log('Mint request received');
+    console.log('Wallet:', walletAddress);
     
     if (!walletAddress) {
       return new Response(
@@ -59,6 +59,9 @@ Deno.serve(async (req) => {
     }
 
     console.log('Using Candy Machine:', candyMachineIdStr);
+    if (candyGuardIdStr) {
+      console.log('Using Candy Guard:', candyGuardIdStr);
+    }
 
     // Initialize Umi
     const umi = createUmi(rpcUrl)
@@ -74,7 +77,9 @@ Deno.serve(async (req) => {
     const candyMachinePublicKey = publicKey(candyMachineIdStr);
     const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
     
-    console.log('Candy Machine loaded:', candyMachine.itemsLoaded, 'redeemed:', candyMachine.itemsRedeemed);
+    console.log('Candy Machine fetched');
+    console.log('Items available:', Number(candyMachine.itemsLoaded));
+    console.log('Items redeemed:', Number(candyMachine.itemsRedeemed));
 
     // Check if sold out
     const itemsRemaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
@@ -96,7 +101,7 @@ Deno.serve(async (req) => {
       try {
         const candyGuardPublicKey = publicKey(candyGuardIdStr);
         const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
-        console.log('Candy Guard fetched');
+        console.log('Candy Guard fetched successfully');
         
         // Check for solPayment guard at top level
         if (candyGuard.guards?.solPayment?.__option === 'Some') {
@@ -108,7 +113,7 @@ Deno.serve(async (req) => {
           console.log('Using solPayment guard');
         }
         
-        // Check for group guards if no top-level guard found
+        // Check for group guards
         if (!Object.keys(mintArgs).length && candyGuard.groups?.length > 0) {
           for (const grp of candyGuard.groups) {
             if (grp.guards?.solPayment?.__option === 'Some') {
@@ -132,9 +137,9 @@ Deno.serve(async (req) => {
     const nftMint = generateSigner(umi);
     console.log('NFT mint address:', nftMint.publicKey.toString());
 
-    // Get blockhash for transaction
+    // Get blockhash
+    console.log('Getting blockhash');
     const blockhash = await umi.rpc.getLatestBlockhash();
-    console.log('Got blockhash:', blockhash.blockhash);
     
     // Build transaction
     let builder = transactionBuilder();
@@ -169,12 +174,16 @@ Deno.serve(async (req) => {
     // Serialize transaction
     const serializedTransaction = umi.transactions.serialize(signedTransaction);
     
-    // Convert to base64 using Deno's standard library
-    const base64Transaction = base64Encode(serializedTransaction);
+    // Convert to base64 - using btoa which works in Deno
+    const base64Transaction = btoa(
+      Array.from(serializedTransaction)
+        .map(byte => String.fromCharCode(byte))
+        .join('')
+    );
     
     console.log('Transaction prepared successfully');
     
-    // Return simplified response for single NFT mint
+    // Return response that frontend expects
     return new Response(
       JSON.stringify({
         success: true,
@@ -192,10 +201,9 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('=== MINT ERROR ===');
-    console.error('Error:', error);
-    console.error('Message:', error?.message);
-    console.error('Stack:', error?.stack);
+    console.error('Mint error:', error);
+    console.error('Error message:', error?.message);
+    console.error('Error stack:', error?.stack);
     
     return new Response(
       JSON.stringify({
