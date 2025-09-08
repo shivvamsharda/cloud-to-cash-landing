@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Minus, Plus, Loader2, Zap, Shield, Star } from 'lucide-react';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
 import { Progress } from '@/components/ui/progress';
-import { CANDY_MACHINE_CONFIG, getSolanaExplorerUrl, formatSol } from '@/config/candyMachine';
+import { CANDY_MACHINE_CONFIG, getSolscanUrl, formatSol } from '@/config/candyMachine';
 import { supabase } from '@/integrations/supabase/client';
 
 const NFTMint = () => {
@@ -73,69 +73,146 @@ const NFTMint = () => {
 
       console.log('Mint response:', data);
 
-      if (!data.transaction) {
-        throw new Error('No transaction returned from server');
-      }
-
-      // Decode base64 transaction
-      let transaction: VersionedTransaction;
-      try {
-        // Decode base64 to bytes
-        const transactionBytes = Uint8Array.from(
-          atob(data.transaction),
-          c => c.charCodeAt(0)
-        );
+      // Handle multiple transactions for multiple NFTs
+      if (data.transactions && Array.isArray(data.transactions)) {
+        console.log(`Received ${data.transactions.length} transactions for ${quantity} NFTs`);
         
-        // Deserialize versioned transaction
-        transaction = VersionedTransaction.deserialize(transactionBytes);
-        console.log('Transaction deserialized successfully');
-      } catch (e) {
-        console.error('Deserialization error:', e);
-        throw new Error('Failed to decode transaction');
-      }
+        const signatures = [];
+        
+        for (let i = 0; i < data.transactions.length; i++) {
+          const txData = data.transactions[i];
+          console.log(`Processing transaction ${i + 1}/${data.transactions.length}`);
+          
+          try {
+            // Decode base64 transaction
+            const transactionBytes = Uint8Array.from(
+              atob(txData.transaction),
+              c => c.charCodeAt(0)
+            );
+            
+            // Deserialize versioned transaction
+            const transaction = VersionedTransaction.deserialize(transactionBytes);
+            console.log(`Transaction ${i + 1} deserialized`);
 
-      // Sign transaction
-      console.log('Requesting wallet signature...');
-      const signedTransaction = await signTransaction(transaction);
-      console.log('Transaction signed');
+            // Sign transaction
+            const signedTransaction = await signTransaction(transaction);
+            console.log(`Transaction ${i + 1} signed`);
 
-      // Send transaction
-      console.log('Sending transaction...');
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize(),
-        {
-          skipPreflight: false,
-          preflightCommitment: 'confirmed',
-          maxRetries: 3
-        }
-      );
-      console.log('Transaction sent:', signature);
-
-      // Wait for confirmation
-      console.log('Waiting for confirmation...');
-      const latestBlockhash = await connection.getLatestBlockhash();
-      const confirmation = await connection.confirmTransaction({
-        signature,
-        blockhash: data.blockhash || latestBlockhash.blockhash,
-        lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
-      }, 'confirmed');
-
-      if (confirmation.value.err) {
-        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-      }
-
-      console.log('Transaction confirmed!');
-      setLastMintSignature(signature);
-      
-      toast.success(
-        `Successfully minted ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`,
-        {
-          action: {
-            label: 'View Transaction',
-            onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
+            // Send transaction
+            const signature = await connection.sendRawTransaction(
+              signedTransaction.serialize(),
+              {
+                skipPreflight: false,
+                preflightCommitment: 'confirmed',
+                maxRetries: 3
+              }
+            );
+            console.log(`Transaction ${i + 1} sent:`, signature);
+            
+            signatures.push({
+              signature,
+              nftMint: txData.nftMint
+            });
+            
+          } catch (txError) {
+            console.error(`Failed transaction ${i + 1}:`, txError);
+            throw new Error(`Failed to mint NFT ${i + 1}: ${txError.message}`);
           }
         }
-      );
+        
+        // Wait for all confirmations
+        console.log('Waiting for confirmations...');
+        const latestBlockhash = await connection.getLatestBlockhash();
+        
+        for (const { signature } of signatures) {
+          const confirmation = await connection.confirmTransaction({
+            signature,
+            blockhash: data.blockhash || latestBlockhash.blockhash,
+            lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
+          }, 'confirmed');
+
+          if (confirmation.value.err) {
+            throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+          }
+        }
+        
+        console.log('All transactions confirmed!');
+        setLastMintSignature(signatures[0].signature);
+        
+        toast.success(
+          `Successfully minted ${signatures.length} NFT${signatures.length > 1 ? 's' : ''}!`,
+          {
+            action: {
+              label: 'View First Transaction',
+              onClick: () => window.open(getSolscanUrl(signatures[0].signature), '_blank')
+            }
+          }
+        );
+        
+      } else if (data.transaction) {
+        // Fallback to single transaction (old format)
+        console.log('Single transaction mode');
+        
+        // Decode base64 transaction
+        let transaction: VersionedTransaction;
+        try {
+          const transactionBytes = Uint8Array.from(
+            atob(data.transaction),
+            c => c.charCodeAt(0)
+          );
+          
+          transaction = VersionedTransaction.deserialize(transactionBytes);
+          console.log('Transaction deserialized successfully');
+        } catch (e) {
+          console.error('Deserialization error:', e);
+          throw new Error('Failed to decode transaction');
+        }
+
+        // Sign transaction
+        console.log('Requesting wallet signature...');
+        const signedTransaction = await signTransaction(transaction);
+        console.log('Transaction signed');
+
+        // Send transaction
+        console.log('Sending transaction...');
+        const signature = await connection.sendRawTransaction(
+          signedTransaction.serialize(),
+          {
+            skipPreflight: false,
+            preflightCommitment: 'confirmed',
+            maxRetries: 3
+          }
+        );
+        console.log('Transaction sent:', signature);
+
+        // Wait for confirmation
+        console.log('Waiting for confirmation...');
+        const latestBlockhash = await connection.getLatestBlockhash();
+        const confirmation = await connection.confirmTransaction({
+          signature,
+          blockhash: data.blockhash || latestBlockhash.blockhash,
+          lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
+        }, 'confirmed');
+
+        if (confirmation.value.err) {
+          throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+        }
+
+        console.log('Transaction confirmed!');
+        setLastMintSignature(signature);
+        
+        toast.success(
+          `Successfully minted ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`,
+          {
+            action: {
+              label: 'View Transaction',
+              onClick: () => window.open(getSolscanUrl(signature), '_blank')
+            }
+          }
+        );
+      } else {
+        throw new Error('No transaction returned from server');
+      }
       
       // Reset quantity
       setMintQuantity(1);
@@ -301,12 +378,12 @@ const NFTMint = () => {
                           <div className="flex items-center gap-2 text-sm">
                             <span className="text-button-green">Success!</span>
                             <a
-                              href={getSolanaExplorerUrl(lastMintSignature)}
+                              href={getSolscanUrl(lastMintSignature)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-button-green hover:underline flex items-center gap-1"
                             >
-                              View on Solana Explorer
+                              View Transaction
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           </div>
