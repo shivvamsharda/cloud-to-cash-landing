@@ -1,6 +1,14 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1?target=deno';
-import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner, signerIdentity, some } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
+import { 
+  generateSigner, 
+  publicKey, 
+  transactionBuilder, 
+  keypairIdentity, 
+  createNoopSigner, 
+  signerIdentity,
+  some
+} from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
 import {
   fetchCandyMachine,
   mintV2,
@@ -8,7 +16,8 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
-
+import { fromWeb3JsInstruction } from 'https://esm.sh/@metaplex-foundation/umi-web3js-adapters@1.4.1?target=deno';
+import { ComputeBudgetProgram } from 'https://esm.sh/@solana/web3.js@1.98.4?target=deno';
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 Deno.serve(async (req) => {
@@ -130,43 +139,18 @@ Deno.serve(async (req) => {
     // Create mint transaction
     let builder = transactionBuilder();
     
-    // Add compute unit instructions to handle computational budget
-    // Create raw ComputeBudget instructions since mpl-toolbox import fails
-    const computeBudgetProgram = publicKey('ComputeBudget111111111111111111111111111111');
-    
-    // setComputeUnitPrice instruction (type 3, microlamports as u64 little endian)
-    const priceData = new Uint8Array(9);
-    priceData[0] = 3; // instruction type
-    const priceView = new DataView(priceData.buffer);
-    priceView.setBigUint64(1, BigInt(1000), true); // 1000 microlamports, little endian
-    
-    // setComputeUnitLimit instruction (type 2, units as u32 little endian)  
-    const limitData = new Uint8Array(5);
-    limitData[0] = 2; // instruction type
-    const limitView = new DataView(limitData.buffer);
-    limitView.setUint32(1, 400000, true); // 400000 units, little endian
-    
+    // Add compute budget instructions using proper Web3.js adapter
+    console.log('Adding compute budget instructions...');
     builder = builder
-      .add({
-        instruction: {
-          programId: computeBudgetProgram,
-          accounts: [],
-          data: priceData,
-        },
-        signers: [],
-        bytesCreatedOnChain: 0,
-      })
-      .add({
-        instruction: {
-          programId: computeBudgetProgram, 
-          accounts: [],
-          data: limitData,
-        },
-        signers: [],
-        bytesCreatedOnChain: 0,
-      });
+      .add(fromWeb3JsInstruction(ComputeBudgetProgram.setComputeUnitPrice({ 
+        microLamports: 1000 
+      })))
+      .add(fromWeb3JsInstruction(ComputeBudgetProgram.setComputeUnitLimit({ 
+        units: 400000 
+      })));
     
     // Add mint instruction
+    console.log('Adding mint instruction...');
     builder = builder.add(
       mintV2(umi, {
         candyMachine: candyMachineId,
@@ -186,27 +170,26 @@ Deno.serve(async (req) => {
     builder = builder.setFeePayer(minter);
 
     // Set latest blockhash (required to build the transaction)
+    console.log('Getting latest blockhash...');
     const latestBlockhash = await umi.rpc.getLatestBlockhash();
     builder = builder.setBlockhash(latestBlockhash);
 
     // Create temporary Umi with plugins and nftMint keypair to partially sign
+    console.log('Building and signing transaction...');
     const tempUmi = createUmi(devnetRpc)
       .use(mplTokenMetadata())
       .use(mplCandyMachine())
       .use(keypairIdentity(nftMint));
     
-    // Build the transaction with proper signing
-    const builtTransaction = await builder.build(tempUmi);
-    const { signature, ...unsignedTransaction } = builtTransaction;
-    
-    // Partially sign with the nftMint keypair
+    // Build and sign with the nftMint keypair only
     const partiallySignedTransaction = await builder.buildAndSign(tempUmi);
     
     // Serialize the full transaction (with partial signatures) to base64 for frontend
+    console.log('Serializing transaction...');
     const serializedBytes = umi.transactions.serialize(partiallySignedTransaction);
     const serializedTx = encodeBase64(serializedBytes);
     
-    console.log('Transaction built and partially signed successfully');
+    console.log('Transaction prepared successfully');
     console.log('NFT Mint:', nftMint.publicKey.toString());
     
     // Return the transaction for the frontend to sign and send
@@ -216,8 +199,8 @@ Deno.serve(async (req) => {
         nftMint: nftMint.publicKey.toString(),
         message: 'Transaction prepared successfully',
         transaction: serializedTx,
-        blockhash: partiallySignedTransaction.message.blockhash,
-        lastValidBlockHeight: partiallySignedTransaction.message.lastValidBlockHeight
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
       }),
       { 
         headers: { 
