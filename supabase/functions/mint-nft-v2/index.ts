@@ -1,27 +1,28 @@
 import { corsHeaders } from '../_shared/cors.ts';
-import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1?target=deno';
+import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@0.9.2?target=deno';
 import { 
   generateSigner, 
   publicKey, 
   transactionBuilder, 
-  keypairIdentity, 
-  createNoopSigner, 
+  some,
+  createNoopSigner,
   signerIdentity,
-  some
-} from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
+  keypairIdentity
+} from 'https://esm.sh/@metaplex-foundation/umi@0.9.2?target=deno';
 import {
   fetchCandyMachine,
+  fetchCandyGuard,
   mintV2,
-  safeFetchCandyGuard,
-  mplCandyMachine
+  mplCandyMachine,
+  safeFetchCandyGuard
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
-import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
-import { fromWeb3JsInstruction } from 'https://esm.sh/@metaplex-foundation/umi-web3js-adapters@1.4.1?target=deno';
-import { ComputeBudgetProgram } from 'https://esm.sh/@solana/web3.js@1.98.4?target=deno';
-import { encodeBase64 } from 'jsr:@std/encoding/base64';
+import { 
+  setComputeUnitLimit 
+} from 'https://esm.sh/@metaplex-foundation/mpl-toolbox@0.9.4?target=deno';
+import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.2.1?target=deno';
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -48,159 +49,129 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get configuration from Supabase secrets
-    const devnetRpc = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
+    // Configuration
+    const rpcUrl = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
     const candyMachineIdStr = Deno.env.get('CANDY_MACHINE_ID');
     const candyGuardIdStr = Deno.env.get('CANDY_GUARD_ID');
     
     if (!candyMachineIdStr) {
-      throw new Error('Candy machine configuration not found: missing CANDY_MACHINE_ID');
+      throw new Error('CANDY_MACHINE_ID not configured');
     }
 
-    console.log('Using configuration:', {
-      rpc: devnetRpc,
-      candyMachine: candyMachineIdStr
-    });
-
-    // Initialize Umi with required Metaplex programs
-    const umi = createUmi(devnetRpc)
+    // Initialize Umi following official pattern
+    const umi = createUmi(rpcUrl)
       .use(mplTokenMetadata())
       .use(mplCandyMachine());
+
+    // Setup wallet as noop signer (will be signed client-side)
+    const userWallet = createNoopSigner(publicKey(walletAddress));
+    umi.use(signerIdentity(userWallet));
     
-    // Parse addresses
-    const candyMachineId = publicKey(candyMachineIdStr);
-    const minterPubkey = publicKey(walletAddress);
-    const minter = createNoopSigner(minterPubkey);
-    // Use the user's wallet as fee payer (Noop signer, will be signed client-side)
-    (umi as any).use(signerIdentity(minter));
+    // Fetch Candy Machine
+    const candyMachinePublicKey = publicKey(candyMachineIdStr);
+    const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
     
-    // Fetch candy machine data
-    console.log('Fetching candy machine...');
-    const candyMachine = await fetchCandyMachine(umi, candyMachineId);
-    
-    // Check if sold out
-    if (candyMachine.itemsRedeemed >= candyMachine.itemsLoaded) {
+    console.log('Candy Machine:', {
+      itemsAvailable: Number(candyMachine.itemsLoaded),
+      itemsRedeemed: Number(candyMachine.itemsRedeemed),
+      authority: candyMachine.authority
+    });
+
+    // Check availability
+    const itemsAvailable = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
+    if (itemsAvailable <= 0) {
       return new Response(
-        JSON.stringify({ error: 'Collection is sold out' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify({ error: 'Sold out' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if enough items remaining
-    const remaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
-    if (quantity > remaining) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Only ${remaining} NFTs remaining` 
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    // Prepare mint arguments based on guards
+    let mintArgs = {};
+    let group = undefined;
+    
+    // Fetch Candy Guard if configured
+    if (candyGuardIdStr) {
+      try {
+        const candyGuardPublicKey = publicKey(candyGuardIdStr);
+        const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
+        
+        console.log('Candy Guard found');
+        
+        // Check for solPayment guard
+        if (candyGuard.guards.solPayment && candyGuard.guards.solPayment.__option === 'Some') {
+          const destination = candyGuard.guards.solPayment.value.destination;
+          mintArgs = {
+            ...mintArgs,
+            solPayment: some({ destination })
+          };
+          console.log('Added solPayment guard');
         }
-      );
-    }
-
-    // Fetch candy guard if it exists
-    let candyGuard = null;
-    try {
-      const guardPk = candyGuardIdStr ? publicKey(candyGuardIdStr) : candyMachine.mintAuthority;
-      candyGuard = await safeFetchCandyGuard(umi, guardPk);
-    } catch (_) {
-      // ignore if not found
-    }
-
-    // Determine guard group and required mint args (e.g., solPayment destination)
-    let groupLabel: string | undefined = undefined;
-    let solPaymentDestination: any | null = null;
-    if (candyGuard) {
-      const topSol = (candyGuard as any).guards?.solPayment;
-      if (topSol && topSol.__option === 'Some') {
-        solPaymentDestination = topSol.value.destination;
-      } else if (Array.isArray((candyGuard as any).groups) && (candyGuard as any).groups.length > 0) {
-        for (const grp of (candyGuard as any).groups) {
-          const grpSol = grp?.guards?.solPayment;
-          if (grpSol && grpSol.__option === 'Some') {
-            groupLabel = grp.label;
-            solPaymentDestination = grpSol.value.destination;
-            break;
+        
+        // Check for groups with solPayment
+        if (!mintArgs.solPayment && candyGuard.groups && candyGuard.groups.length > 0) {
+          for (const grp of candyGuard.groups) {
+            if (grp.guards.solPayment && grp.guards.solPayment.__option === 'Some') {
+              group = some(grp.label);
+              mintArgs = {
+                ...mintArgs,
+                solPayment: some({ destination: grp.guards.solPayment.value.destination })
+              };
+              console.log('Using group:', grp.label);
+              break;
+            }
           }
         }
+      } catch (e) {
+        console.log('No candy guard or error fetching:', e.message);
       }
     }
 
-    // Generate NFT mint address
+    // Generate mint keypair
     const nftMint = generateSigner(umi);
+    console.log('NFT mint address:', nftMint.publicKey);
+
+    // Build transaction following official pattern
+    let tx = transactionBuilder();
     
-    console.log('Generating mint transaction...');
-    
-    // Create mint transaction
-    let builder = transactionBuilder();
-    
-    // Add compute budget instructions using proper Web3.js adapter
-    console.log('Adding compute budget instructions...');
-    builder = builder
-      .add(fromWeb3JsInstruction(ComputeBudgetProgram.setComputeUnitPrice({ 
-        microLamports: 1000 
-      })))
-      .add(fromWeb3JsInstruction(ComputeBudgetProgram.setComputeUnitLimit({ 
-        units: 400000 
-      })));
+    // Add compute unit limit for safety
+    tx = tx.add(setComputeUnitLimit(umi, { units: 800_000 }));
     
     // Add mint instruction
-    console.log('Adding mint instruction...');
-    builder = builder.add(
-      mintV2(umi, {
-        candyMachine: candyMachineId,
-        nftMint,
-        collectionMint: candyMachine.collectionMint,
-        collectionUpdateAuthority: candyMachine.authority,
-        minter,
-        ...(candyGuard && { candyGuard: (candyGuard as any).publicKey }),
-        ...(groupLabel ? { group: groupLabel } : {}),
-        mintArgs: solPaymentDestination
-          ? { solPayment: some({ destination: solPaymentDestination }) }
-          : undefined,
-      })
-    );
-
-    // Ensure the fee payer is the user's wallet (they will sign client-side)
-    builder = builder.setFeePayer(minter);
-
-    // Set latest blockhash (required to build the transaction)
-    console.log('Getting latest blockhash...');
-    const latestBlockhash = await umi.rpc.getLatestBlockhash();
-    builder = builder.setBlockhash(latestBlockhash);
-
-    // Create temporary Umi with plugins and nftMint keypair to partially sign
-    console.log('Building and signing transaction...');
-    const tempUmi = createUmi(devnetRpc)
-      .use(mplTokenMetadata())
-      .use(mplCandyMachine())
-      .use(keypairIdentity(nftMint));
+    const mintInstruction = mintV2(umi, {
+      candyMachine: candyMachine.publicKey,
+      candyGuard: candyGuardIdStr ? publicKey(candyGuardIdStr) : undefined,
+      nftMint,
+      collectionMint: candyMachine.collectionMint,
+      collectionUpdateAuthority: candyMachine.authority,
+      group,
+      mintArgs,
+      tokenStandard: candyMachine.tokenStandard
+    });
     
-    // Build and sign with the nftMint keypair only
-    const partiallySignedTransaction = await builder.buildAndSign(tempUmi);
+    tx = tx.add(mintInstruction);
+
+    // Build transaction with nftMint as signer
+    const blockhash = await umi.rpc.getLatestBlockhash();
+    tx = tx.setBlockhash(blockhash);
     
-    // Serialize the full transaction (with partial signatures) to base64 for frontend
-    console.log('Serializing transaction...');
-    const serializedBytes = umi.transactions.serialize(partiallySignedTransaction);
-    const serializedTx = encodeBase64(serializedBytes);
+    // Sign with nftMint only (user will sign as fee payer on client)
+    const nftMintSigner = umi.use(keypairIdentity(nftMint));
+    const signedTx = await tx.buildAndSign(nftMintSigner);
+    
+    // Serialize for client
+    const serialized = umi.transactions.serialize(signedTx);
+    const base64Tx = Buffer.from(serialized).toString('base64');
     
     console.log('Transaction prepared successfully');
-    console.log('NFT Mint:', nftMint.publicKey.toString());
     
-    // Return the transaction for the frontend to sign and send
     return new Response(
       JSON.stringify({
         success: true,
-        nftMint: nftMint.publicKey.toString(),
-        message: 'Transaction prepared successfully',
-        transaction: serializedTx,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+        transaction: base64Tx,
+        nftMint: nftMint.publicKey,
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight
       }),
       { 
         headers: { 
@@ -211,25 +182,13 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('Mint error:', {
-      name: error?.name,
-      message: error?.message,
-      stack: error?.stack,
-      source: error?.source,
-      identifier: error?.identifier,
-      cluster: error?.cluster,
-      raw: String(error),
-    });
+    console.error('Mint error:', error);
     
-    const body = {
-      error: error?.message || 'Minting failed',
-      name: error?.name,
-      details: String(error),
-      hint: 'Ensure Metaplex programs (mplCandyMachine and mplTokenMetadata) are registered in Umi.',
-    };
-
     return new Response(
-      JSON.stringify(body),
+      JSON.stringify({
+        error: error?.message || 'Mint failed',
+        details: error?.toString()
+      }),
       { 
         status: 500,
         headers: { 
