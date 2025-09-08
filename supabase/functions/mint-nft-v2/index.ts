@@ -161,7 +161,8 @@ Deno.serve(async (req) => {
     
     // Serialize for client
     const serialized = umi.transactions.serialize(signedTx);
-    const base64Tx = Buffer.from(serialized).toString('base64');
+    // Use Deno's native base64 encoding instead of Buffer
+    const base64Tx = btoa(String.fromCharCode(...serialized));
     
     console.log('Transaction prepared successfully');
     
