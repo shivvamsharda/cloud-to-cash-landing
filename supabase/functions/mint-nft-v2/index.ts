@@ -8,7 +8,7 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
-import { setComputeUnitLimit, setComputeUnitPrice } from 'https://esm.sh/@metaplex-foundation/mpl-toolbox@0.9.6?target=deno';
+import { setComputeUnitLimit, setComputeUnitPrice } from 'https://esm.sh/@metaplex-foundation/umi-web3js-adapters@1.4.1?target=deno';
 
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
