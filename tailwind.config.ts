@@ -37,6 +37,8 @@ export default {
 				'hero-text': 'hsl(var(--hero-text))',
 				'section-text': 'hsl(var(--section-text))',
 				'muted-text': 'hsl(var(--muted-text))',
+				'button-green': 'hsl(var(--button-green))',
+				'pure-black': 'hsl(var(--pure-black))',
 				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
