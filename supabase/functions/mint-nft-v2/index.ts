@@ -130,6 +130,10 @@ Deno.serve(async (req) => {
     // Ensure the fee payer is the user's wallet (they will sign client-side)
     builder = builder.setFeePayer(minter);
 
+    // Set latest blockhash (required to build the transaction)
+    const latestBlockhash = await umi.rpc.getLatestBlockhash();
+    builder = builder.setBlockhash(latestBlockhash);
+
     // Create temporary Umi with plugins and nftMint keypair to partially sign
     const tempUmi = createUmi(devnetRpc)
       .use(mplTokenMetadata())
