@@ -10,7 +10,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 
 const NFTGallery = () => {
   const { stats, loading: statsLoading } = useCollectionStats();
-  const { nfts, loading: nftsLoading, error, refetch, totalMultiplier, nftCount } = useUserNFTs();
+  const { nfts, loading: nftsLoading, error, refetch, nftCount } = useUserNFTs();
   const { connected } = useWallet();
 
 
@@ -86,8 +86,8 @@ const NFTGallery = () => {
           </Card>
           <Card className="bg-gradient-to-r from-brand-yellow/10 to-brand-yellow/20 border-brand-yellow/30">
             <CardContent className="p-4 text-center">
-              <div className="text-lg font-bold text-hero-text">{totalMultiplier}x</div>
-              <div className="text-xs text-muted-text">Total Multiplier</div>
+              <div className="text-lg font-bold text-hero-text">10x</div>
+              <div className="text-xs text-muted-text">NFT Multiplier</div>
             </CardContent>
           </Card>
         </div>

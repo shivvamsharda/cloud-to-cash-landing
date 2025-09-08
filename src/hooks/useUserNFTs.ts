@@ -57,14 +57,11 @@ export const useUserNFTs = () => {
     fetchUserNFTs();
   }, [publicKey, connected]);
 
-  const totalMultiplier = nfts.reduce((sum, nft) => sum + nft.multiplier, 0);
-
   return {
     nfts,
     loading,
     error,
     refetch: fetchUserNFTs,
-    totalMultiplier,
     nftCount: nfts.length,
   };
 };

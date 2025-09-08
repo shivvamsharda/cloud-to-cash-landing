@@ -221,7 +221,7 @@ const Dashboard = () => {
                         <div className="text-lg font-bold text-button-green">
                           {dailySlots.nft_slot_minutes_remaining}/{dailySlots.total_available_nft_minutes}
                         </div>
-                        <div className="text-xs text-muted-text">10x multiplier</div>
+                        <div className="text-xs text-muted-text">10x multiplier (any NFT)</div>
                       </div>
                     </div>
                     
