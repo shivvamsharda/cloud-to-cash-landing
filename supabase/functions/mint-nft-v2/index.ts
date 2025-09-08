@@ -1,14 +1,14 @@
 import { corsHeaders } from '../_shared/cors.ts';
-import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1';
-import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1';
-import { 
-  fetchCandyMachine, 
+import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1?target=deno';
+import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
+import {
+  fetchCandyMachine,
   mintV2,
   safeFetchCandyGuard,
   mplCandyMachine
-} from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1';
-import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0';
-import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.5.0';
+} from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
+import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
+import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.5.0?target=deno';
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 Deno.serve(async (req) => {
