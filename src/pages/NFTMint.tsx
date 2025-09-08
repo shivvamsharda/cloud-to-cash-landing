@@ -1,65 +1,18 @@
-// Handle multiple transactions for multiple NFTs
-      if (data.transactions && Array.isArray(data.transactions)) {
-        console.log(`Received ${data.transactions.length} transactions for ${quantity} NFTs`);
-        
-        if (data.transactions.length !== quantity) {
-          console.warn(`Expected ${quantity} transactions but got ${data.transactions.length}`);
-        }
-        
-        const signatures = [];
-        
-        // Process each transaction sequentially
-        for (let i = 0; i < data.transactions.length; i++) {
-          const txData = data.transactions[i];
-          console.log(`\n=== Processing NFT ${i + 1}/${data.transactions.length} ===`);
-          console.log(`NFT Mint: ${txData.nftMint}`);
-          
-          toast.info(`Signing transaction ${i + 1} of ${data.transactions.length}...`);
-          
-          try {
-                  // Handle multiple transactions for multiple NFTs
-      if (data.transactions && Array.isArray(data.transactions)) {
-        console.log(`Received ${data.transactions.length} transactions for ${quantity} NFTs`);
-        
-        if (data.transactions.length !== quantity) {
-          console.warn(`Expected ${quantity} transactions but got ${data.transactions.length}`);
-        }
-        
-        const signatures = [];
-        let successCount = 0;
-        
-        for (let i = 0; i < data.transactions.length; i++) {
-          const txData = data.transactions[i];
-          console.log(`\n=== Processing NFT ${i + 1}/${data.transactions.length} ===`);
-          console.log(`NFT Mint: ${txData.nftMint}`);
-          
-          try {
-            // Decode base64 transaction
-            const transactionBytes = Uint8Array.from(
-              atob(txData.transaction),
-              c => c.charCodeAt(0)
-            );
-            
-            // Deserialize versioned transaction
-            const transaction = VersionedTransaction.deserialize(transactionBytes);
-            console.log(`Transaction ${i + 1} deserialized successfully`);
-
-            // Signimport React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, TransactionMessage } from '@solana/web3.js';
+import { VersionedTransaction } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Minus, Plus, Loader2, Zap, Shield, Star } from 'lucide-react';
+import { ExternalLink, Loader2, Zap, Shield, Star } from 'lucide-react';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
 import { Progress } from '@/components/ui/progress';
-import { CANDY_MACHINE_CONFIG, getSolscanUrl, formatSol } from '@/config/candyMachine';
+import { CANDY_MACHINE_CONFIG, getSolanaExplorerUrl, formatSol } from '@/config/candyMachine';
 import { supabase } from '@/integrations/supabase/client';
 
 const NFTMint = () => {
-  const [mintQuantity, setMintQuantity] = useState(1);
   const [isMinting, setIsMinting] = useState(false);
   const [lastMintSignature, setLastMintSignature] = useState<string | null>(null);
   
@@ -85,7 +38,7 @@ const NFTMint = () => {
     }
 
     // Check if sold out
-    if (collectionStats.remaining < mintQuantity) {
+    if (collectionStats.remaining < 1) {
       toast.error(CANDY_MACHINE_CONFIG.ERRORS.SOLD_OUT);
       return;
     }
@@ -95,15 +48,15 @@ const NFTMint = () => {
     try {
       console.log('Starting mint process...', {
         wallet: publicKey.toString(),
-        quantity: mintQuantity,
-        totalCost: mintQuantity * collectionStats.price
+        quantity: 1,
+        totalCost: collectionStats.price
       });
 
-      // Call edge function
+      // Call edge function for single NFT
       const { data, error } = await supabase.functions.invoke('mint-nft-v2', {
         body: {
           walletAddress: publicKey.toString(),
-          quantity: mintQuantity
+          quantity: 1
         }
       });
 
@@ -119,166 +72,19 @@ const NFTMint = () => {
 
       console.log('Mint response:', data);
 
-      // Handle multiple transactions for multiple NFTs
-      if (data.transactions && Array.isArray(data.transactions)) {
-        console.log(`Received ${data.transactions.length} transactions for ${quantity} NFTs`);
-        
-        const signatures = [];
-        const failedMints = [];
-        
-        // Deserialize all transactions first
-        const deserializedTransactions = [];
-        for (let i = 0; i < data.transactions.length; i++) {
-          try {
-            const transactionBytes = Uint8Array.from(
-              atob(data.transactions[i].transaction),
-              c => c.charCodeAt(0)
-            );
-            const transaction = VersionedTransaction.deserialize(transactionBytes);
-            deserializedTransactions.push({
-              transaction,
-              nftMint: data.transactions[i].nftMint,
-              index: i
-            });
-          } catch (e) {
-            console.error(`Failed to deserialize transaction ${i + 1}:`, e);
-            failedMints.push(i + 1);
-          }
-        }
-        
-        if (failedMints.length > 0) {
-          throw new Error(`Failed to prepare transactions for NFTs: ${failedMints.join(', ')}`);
-        }
-        
-        // Process each transaction sequentially
-        for (const { transaction, nftMint, index } of deserializedTransactions) {
-          try {
-            console.log(`\n=== Minting NFT ${index + 1}/${deserializedTransactions.length} ===`);
-            console.log(`NFT Mint Address: ${nftMint}`);
-            
-            // Update UI to show progress
-            if (index > 0) {
-              toast.loading(`Processing NFT ${index + 1} of ${deserializedTransactions.length}...`);
-            }
-            
-            // Sign transaction
-            console.log(`Requesting signature for transaction ${index + 1}...`);
-            const signedTransaction = await signTransaction(transaction);
-            console.log(`Transaction ${index + 1} signed`);
-            
-            // Send transaction
-            const signature = await connection.sendRawTransaction(
-              signedTransaction.serialize(),
-              {
-                skipPreflight: false,
-                preflightCommitment: 'confirmed',
-                maxRetries: 3
-              }
-            );
-            console.log(`Transaction ${index + 1} sent: ${signature}`);
-            
-            // Store signature
-            signatures.push({
-              signature,
-              nftMint,
-              index: index + 1
-            });
-            
-            // Small delay between transactions to avoid rate limiting
-            if (index < deserializedTransactions.length - 1) {
-              await new Promise(resolve => setTimeout(resolve, 500));
-            }
-            
-            // Don't wait for confirmation here - do it in batch later
-            
-          } catch (error) {
-            console.error(`Failed to mint NFT ${index + 1}:`, error);
-            
-            // Check if user rejected
-            if (error?.message?.includes('rejected') || error?.message?.includes('cancelled')) {
-              toast.error('Minting cancelled by user');
-              break; // Stop trying to mint more
-            }
-            
-            failedMints.push(index + 1);
-            // Continue trying remaining NFTs
-          }
-        }
-        
-        // If no signatures were collected, all failed
-        if (signatures.length === 0) {
-          throw new Error('All mint transactions failed');
-        }
-        
-        // Wait for confirmations
-        console.log(`Confirming ${signatures.length} transactions...`);
-        toast.loading(`Confirming ${signatures.length} transaction${signatures.length > 1 ? 's' : ''}...`);
-        
-        const latestBlockhash = await connection.getLatestBlockhash();
-        const confirmedSignatures = [];
-        
-        for (const { signature, nftMint, index } of signatures) {
-          try {
-            const confirmation = await connection.confirmTransaction({
-              signature,
-              blockhash: data.blockhash || latestBlockhash.blockhash,
-              lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
-            }, 'confirmed');
-            
-            if (confirmation.value.err) {
-              console.error(`Transaction ${index} failed:`, confirmation.value.err);
-              failedMints.push(index);
-            } else {
-              confirmedSignatures.push({ signature, nftMint, index });
-            }
-          } catch (error) {
-            console.error(`Failed to confirm transaction ${index}:`, error);
-            failedMints.push(index);
-          }
-        }
-        
-        // Report results
-        if (confirmedSignatures.length > 0) {
-          setLastMintSignature(confirmedSignatures[0].signature);
-          
-          const message = failedMints.length > 0
-            ? `Successfully minted ${confirmedSignatures.length} of ${quantity} NFTs. Failed: ${failedMints.join(', ')}`
-            : `Successfully minted all ${confirmedSignatures.length} NFTs!`;
-          
-          toast.success(message, {
-            action: {
-              label: 'View Transaction',
-              onClick: () => window.open(getSolscanUrl(confirmedSignatures[0].signature), '_blank')
-            }
-          });
-          
-          // Log all successful mints
-          console.log('Successfully minted NFTs:');
-          confirmedSignatures.forEach(({ signature, nftMint }) => {
-            console.log(`- ${nftMint}: ${signature}`);
-          });
-        } else {
-          throw new Error(`All ${quantity} mint transactions failed`);
-        }
-        
-      } else if (data.transaction) {
-        // Fallback to single transaction (old format)
-        console.log('Single transaction mode');
+      // Handle single transaction
+      if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
+        const txData = data.transactions[0];
+        console.log('Processing single NFT mint:', txData.nftMint);
         
         // Decode base64 transaction
-        let transaction: VersionedTransaction;
-        try {
-          const transactionBytes = Uint8Array.from(
-            atob(data.transaction),
-            c => c.charCodeAt(0)
-          );
-          
-          transaction = VersionedTransaction.deserialize(transactionBytes);
-          console.log('Transaction deserialized successfully');
-        } catch (e) {
-          console.error('Deserialization error:', e);
-          throw new Error('Failed to decode transaction');
-        }
+        const transactionBytes = Uint8Array.from(
+          atob(txData.transaction),
+          c => c.charCodeAt(0)
+        );
+        
+        const transaction = VersionedTransaction.deserialize(transactionBytes);
+        console.log('Transaction deserialized successfully');
 
         // Sign transaction
         console.log('Requesting wallet signature...');
@@ -313,21 +119,67 @@ const NFTMint = () => {
         console.log('Transaction confirmed!');
         setLastMintSignature(signature);
         
-        toast.success(
-          `Successfully minted ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`,
+        toast.success('Successfully minted NFT!', {
+          action: {
+            label: 'View Transaction',
+            onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
+          }
+        });
+        
+      } else if (data.transaction) {
+        // Fallback to old single transaction format
+        console.log('Single transaction mode (legacy)');
+        
+        const transactionBytes = Uint8Array.from(
+          atob(data.transaction),
+          c => c.charCodeAt(0)
+        );
+        
+        const transaction = VersionedTransaction.deserialize(transactionBytes);
+        console.log('Transaction deserialized successfully');
+
+        // Sign transaction
+        console.log('Requesting wallet signature...');
+        const signedTransaction = await signTransaction(transaction);
+        console.log('Transaction signed');
+
+        // Send transaction
+        console.log('Sending transaction...');
+        const signature = await connection.sendRawTransaction(
+          signedTransaction.serialize(),
           {
-            action: {
-              label: 'View Transaction',
-              onClick: () => window.open(getSolscanUrl(signature), '_blank')
-            }
+            skipPreflight: false,
+            preflightCommitment: 'confirmed',
+            maxRetries: 3
           }
         );
+        console.log('Transaction sent:', signature);
+
+        // Wait for confirmation
+        console.log('Waiting for confirmation...');
+        const latestBlockhash = await connection.getLatestBlockhash();
+        const confirmation = await connection.confirmTransaction({
+          signature,
+          blockhash: data.blockhash || latestBlockhash.blockhash,
+          lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
+        }, 'confirmed');
+
+        if (confirmation.value.err) {
+          throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+        }
+
+        console.log('Transaction confirmed!');
+        setLastMintSignature(signature);
+        
+        toast.success('Successfully minted NFT!', {
+          action: {
+            label: 'View Transaction',
+            onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
+          }
+        });
       } else {
         throw new Error('No transaction returned from server');
       }
-      
-      // Reset quantity
-      setMintQuantity(1);
       
       // Refresh stats after a delay
       setTimeout(() => {
@@ -352,23 +204,11 @@ const NFTMint = () => {
         }
       }
       
-      // Try to get transaction logs if available
-      if (error?.logs) {
-        console.error('Transaction logs:', error.logs);
-      }
-      
       toast.error(errorMessage);
     } finally {
       setIsMinting(false);
     }
-  }, [connected, publicKey, signTransaction, mintQuantity, collectionStats, connection]);
-
-  const adjustQuantity = (change: number) => {
-    const newQuantity = mintQuantity + change;
-    if (newQuantity >= 1 && newQuantity <= CANDY_MACHINE_CONFIG.MAX_MINT_PER_TRANSACTION) {
-      setMintQuantity(newQuantity);
-    }
-  };
+  }, [connected, publicKey, signTransaction, collectionStats, connection]);
 
   if (statsLoading || !collectionStats) {
     return (
@@ -381,7 +221,7 @@ const NFTMint = () => {
     );
   }
 
-  const totalCostLabel = formatSol(mintQuantity * collectionStats.price);
+  const totalCostLabel = formatSol(collectionStats.price);
   const progressPercentage = (collectionStats.minted / collectionStats.totalSupply) * 100;
 
   return (
@@ -405,7 +245,7 @@ const NFTMint = () => {
           <div className="flex items-center justify-center min-h-[60vh]">
             <Card className="bg-card-bg/90 backdrop-blur-sm border-card-border shadow-2xl max-w-4xl w-full">
               <CardContent className="p-8">
-                <div className="grid md:grid-cols-3 gap-8 items-center">
+                <div className="grid md:grid-cols-2 gap-8 items-center">
                   
                   {/* Collection Info */}
                   <div className="text-center md:text-left">
@@ -424,90 +264,67 @@ const NFTMint = () => {
                     )}
                   </div>
 
-                  {/* Quantity Selector */}
+                  {/* Mint Action */}
                   <div className="text-center">
-                    <h4 className="text-lg font-semibold text-hero-text mb-4">Select Quantity</h4>
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => adjustQuantity(-1)}
-                        disabled={mintQuantity <= 1 || isMinting}
-                        className="h-12 w-12"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="text-3xl font-bold text-hero-text min-w-[3rem]">
-                        {mintQuantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => adjustQuantity(1)}
-                        disabled={mintQuantity >= CANDY_MACHINE_CONFIG.MAX_MINT_PER_TRANSACTION || isMinting}
-                        className="h-12 w-12"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
+                    <div className="mb-6">
+                      <p className="text-3xl font-bold text-hero-text mb-2">{totalCostLabel}</p>
+                      <p className="text-sm text-muted-text">Price per NFT</p>
                     </div>
-                    <p className="text-sm text-muted-text">Max {CANDY_MACHINE_CONFIG.MAX_MINT_PER_TRANSACTION} per transaction</p>
-                  </div>
 
-                  {/* Mint Button */}
-                  <div className="text-center md:text-right">
-                    <div className="mb-4">
-                      <p className="text-lg font-semibold text-hero-text">
-                        {totalCostLabel}
-                      </p>
-                      <p className="text-sm text-muted-text">
-                        {formatSol(collectionStats.price)} each
-                      </p>
-                    </div>
-                    
-                    {connected ? (
-                      <div className="space-y-3">
+                    {!connected ? (
+                      <div className="space-y-4">
+                        <WalletMultiButton className="!bg-button-green !text-pure-black hover:!bg-button-green/90 !rounded-full !px-8 !py-3 !font-semibold" />
+                        <p className="text-sm text-muted-text">Connect your wallet to mint</p>
+                      </div>
+                    ) : collectionStats.remaining === 0 ? (
+                      <div className="text-center">
+                        <Badge variant="destructive" className="text-lg px-6 py-2">
+                          SOLD OUT
+                        </Badge>
+                        <p className="text-sm text-muted-text mt-2">All NFTs have been minted</p>
+                      </div>
+                    ) : !collectionStats.isLive ? (
+                      <div className="text-center">
+                        <Button disabled className="w-full py-3">
+                          Minting Not Live
+                        </Button>
+                        <p className="text-sm text-muted-text mt-2">Minting will begin soon</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
                         <Button
-                          variant="hero-primary"
-                          size="lg"
                           onClick={handleMint}
-                          disabled={isMinting || !collectionStats?.isLive || collectionStats.remaining === 0}
-                          className="w-full md:w-auto px-8 py-4 text-lg font-bold"
+                          disabled={isMinting}
+                          className="w-full py-3 bg-button-green text-pure-black hover:bg-button-green/90 rounded-full font-semibold"
+                          size="lg"
                         >
                           {isMinting ? (
                             <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Minting...
                             </>
-                          ) : collectionStats.remaining === 0 ? (
-                            'Sold Out'
-                          ) : !collectionStats.isLive ? (
-                            'Not Live'
                           ) : (
-                            `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`
+                            'Mint 1 NFT'
                           )}
                         </Button>
+                        
                         {lastMintSignature && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="text-button-green">Success!</span>
-                            <a
-                              href={getSolscanUrl(lastMintSignature)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-button-green hover:underline flex items-center gap-1"
-                            >
-                              View Transaction
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
-                          </div>
+                          <Button
+                            variant="outline"
+                            onClick={() => window.open(getSolanaExplorerUrl(lastMintSignature), '_blank')}
+                            className="w-full"
+                          >
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            View Last Transaction
+                          </Button>
                         )}
-                      </div>
-                    ) : (
-                      <div className="w-full md:w-auto">
-                        <WalletMultiButton className="!bg-gradient-to-r !from-button-green !to-button-green/80 !text-pure-black !font-bold !px-8 !py-4 !text-lg !rounded-lg hover:!from-button-green/90 hover:!to-button-green/70 !transition-all" />
+                        
+                        <p className="text-xs text-muted-text">
+                          {collectionStats.remaining.toLocaleString()} remaining
+                        </p>
                       </div>
                     )}
                   </div>
-                  
                 </div>
               </CardContent>
             </Card>
@@ -515,76 +332,69 @@ const NFTMint = () => {
         </div>
       </section>
 
-      {/* Utility Section */}
-      <section className="py-20 bg-gradient-to-b from-background to-card-bg">
+      {/* NFT Utilities Section */}
+      <section className="py-20 bg-card-bg relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-archivo-black text-hero-text mb-6">
-              Genesis NFT <span className="text-button-green">Utilities</span>
-            </h2>
-            <p className="text-lg text-muted-text max-w-2xl mx-auto">
-              Unlock exclusive benefits and enhanced features with your VapeFi Genesis NFT
+            <h2 className="text-4xl font-bold text-hero-text mb-4">NFT Utilities</h2>
+            <p className="text-xl text-muted-text max-w-3xl mx-auto">
+              Each VapeFi Genesis NFT comes with exclusive benefits and utilities within our ecosystem
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-card-bg border-card-border hover:border-button-green/50 transition-colors">
-              <CardHeader>
-                <Shield className="w-12 h-12 text-button-green mb-4" />
-                <CardTitle className="text-hero-text">Premium Access</CardTitle>
+            <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
+                  <Zap className="w-8 h-8 text-button-green" />
+                </div>
+                <CardTitle className="text-hero-text">Exclusive Access</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-muted-text">
-                  <li>• Exclusive tracking features</li>
-                  <li>• Advanced analytics dashboard</li>
-                  <li>• Priority customer support</li>
-                  <li>• Beta feature access</li>
-                </ul>
+              <CardContent className="text-center">
+                <p className="text-muted-text">
+                  Get priority access to new features, beta testing, and VapeFi ecosystem launches
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-card-bg border-card-border hover:border-button-green/50 transition-colors">
-              <CardHeader>
-                <Zap className="w-12 h-12 text-button-green mb-4" />
-                <CardTitle className="text-hero-text">Enhanced Rewards</CardTitle>
+            <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
+                  <Shield className="w-8 h-8 text-button-green" />
+                </div>
+                <CardTitle className="text-hero-text">Governance Rights</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-muted-text">
-                  <li>• 2x reward multiplier</li>
-                  <li>• Exclusive reward tiers</li>
-                  <li>• Monthly bonus drops</li>
-                  <li>• VIP tournament access</li>
-                </ul>
+              <CardContent className="text-center">
+                <p className="text-muted-text">
+                  Participate in DAO governance and help shape the future direction of VapeFi
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-card-bg border-card-border hover:border-button-green/50 transition-colors">
-              <CardHeader>
-                <Star className="w-12 h-12 text-button-green mb-4" />
-                <CardTitle className="text-hero-text">Community Perks</CardTitle>
+            <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
+                  <Star className="w-8 h-8 text-button-green" />
+                </div>
+                <CardTitle className="text-hero-text">Rewards & Benefits</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-muted-text">
-                  <li>• Private Discord access</li>
-                  <li>• Governance voting rights</li>
-                  <li>• Future NFT allowlist</li>
-                  <li>• Exclusive merchandise</li>
-                </ul>
+              <CardContent className="text-center">
+                <p className="text-muted-text">
+                  Earn exclusive rewards, airdrops, and special benefits as a Genesis holder
+                </p>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Roadmap Section */}
+      {/* Collection Roadmap */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-archivo-black text-hero-text mb-6">
-              Collection <span className="text-button-green">Roadmap</span>
-            </h2>
-            <p className="text-lg text-muted-text max-w-2xl mx-auto">
-              Our journey to revolutionize vaping rewards through blockchain technology
+            <h2 className="text-4xl font-bold text-hero-text mb-4">Collection Roadmap</h2>
+            <p className="text-xl text-muted-text">
+              Our journey to revolutionize the vaping industry with blockchain technology
             </p>
           </div>
 
@@ -594,48 +404,40 @@ const NFTMint = () => {
                 {
                   phase: "Phase 1",
                   title: "Genesis Launch",
-                  description: "Launch 5,000 Genesis NFTs with premium utility features",
-                  status: "current",
-                  color: "button-green"
+                  description: "Launch of 1,000 unique VapeFi Genesis NFTs with exclusive artwork and utilities",
+                  status: "current"
                 },
                 {
                   phase: "Phase 2", 
-                  title: "Enhanced Platform",
-                  description: "Advanced tracking features and gamification for NFT holders",
-                  status: "upcoming",
-                  color: "button-green"
+                  title: "Community Building",
+                  description: "Build a strong community of vaping enthusiasts and establish governance framework",
+                  status: "upcoming"
                 },
                 {
                   phase: "Phase 3",
-                  title: "Marketplace & Trading", 
-                  description: "Secondary marketplace and NFT breeding mechanics",
-                  status: "future",
-                  color: "button-green"
+                  title: "Ecosystem Expansion", 
+                  description: "Launch VapeFi marketplace, staking mechanisms, and partner integrations",
+                  status: "upcoming"
                 },
                 {
                   phase: "Phase 4",
-                  title: "Metaverse Integration",
-                  description: "VR/AR experiences and virtual vaping competitions", 
-                  status: "future",
-                  color: "hero-bg"
+                  title: "Global Adoption",
+                  description: "Expand globally with new partnerships and innovative blockchain solutions",
+                  status: "upcoming"
                 }
               ].map((item, index) => (
-                <div key={index} className="flex gap-6">
-                  <div className="flex-shrink-0">
-                    <div className={`w-12 h-12 rounded-full bg-${item.color}/20 border-2 border-${item.color} flex items-center justify-center`}>
-                      <span className="text-sm font-bold text-hero-text">{index + 1}</span>
-                    </div>
-                  </div>
+                <div key={index} className="flex gap-6 items-start">
+                  <div className={`w-4 h-4 rounded-full mt-2 flex-shrink-0 ${
+                    item.status === 'current' ? 'bg-button-green' : 'bg-card-border'
+                  }`} />
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-hero-text">{item.title}</h3>
-                      <Badge 
-                        variant={item.status === 'current' ? 'default' : 'outline'} 
-                        className={item.status === 'current' ? 'bg-button-green text-pure-black' : ''}
-                      >
-                        {item.phase}
+                      <h3 className="text-xl font-bold text-hero-text">{item.phase}</h3>
+                      <Badge variant={item.status === 'current' ? 'default' : 'secondary'}>
+                        {item.status === 'current' ? 'Current' : 'Coming Soon'}
                       </Badge>
                     </div>
+                    <h4 className="text-lg font-semibold text-hero-text mb-2">{item.title}</h4>
                     <p className="text-muted-text">{item.description}</p>
                   </div>
                 </div>
