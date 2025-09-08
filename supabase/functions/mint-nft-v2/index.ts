@@ -7,16 +7,13 @@ import {
   createNoopSigner,
   signerIdentity,
   keypairIdentity,
-  some,
-  none
+  some
 } from 'https://esm.sh/@metaplex-foundation/umi@0.9.2?target=deno';
 import {
   fetchCandyMachine,
   fetchCandyGuard,
   mintV2,
-  mplCandyMachine,
-  route,
-  guardRoute
+  mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { 
   setComputeUnitLimit 
@@ -39,9 +36,8 @@ Deno.serve(async (req) => {
   try {
     const { walletAddress, quantity = 1 } = await req.json();
     
-    console.log('=== MINT REQUEST START ===');
+    console.log('Mint request received');
     console.log('Wallet:', walletAddress);
-    console.log('Quantity:', quantity);
     
     if (!walletAddress) {
       return new Response(
@@ -53,163 +49,149 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Configuration
+    // Get environment variables
     const rpcUrl = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
     const candyMachineIdStr = Deno.env.get('CANDY_MACHINE_ID');
     const candyGuardIdStr = Deno.env.get('CANDY_GUARD_ID');
     
     if (!candyMachineIdStr) {
-      throw new Error('CANDY_MACHINE_ID not configured');
+      throw new Error('CANDY_MACHINE_ID not configured in environment');
     }
 
-    console.log('Config:', {
-      candyMachine: candyMachineIdStr,
-      candyGuard: candyGuardIdStr || 'none'
-    });
+    console.log('Using Candy Machine:', candyMachineIdStr);
+    if (candyGuardIdStr) {
+      console.log('Using Candy Guard:', candyGuardIdStr);
+    }
 
     // Initialize Umi
     const umi = createUmi(rpcUrl)
       .use(mplTokenMetadata())
       .use(mplCandyMachine());
 
-    // Setup wallet as noop signer
-    const userWallet = createNoopSigner(publicKey(walletAddress));
+    // Create user wallet as noop signer (will be signed client-side)
+    const userPublicKey = publicKey(walletAddress);
+    const userWallet = createNoopSigner(userPublicKey);
     umi.use(signerIdentity(userWallet));
     
     // Fetch Candy Machine
     const candyMachinePublicKey = publicKey(candyMachineIdStr);
     const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
     
-    console.log('Candy Machine loaded:', {
-      itemsAvailable: Number(candyMachine.itemsLoaded),
-      itemsRedeemed: Number(candyMachine.itemsRedeemed),
-      mintAuthority: candyMachine.mintAuthority,
-      tokenStandard: candyMachine.tokenStandard
-    });
+    console.log('Candy Machine fetched');
+    console.log('Items available:', Number(candyMachine.itemsLoaded));
+    console.log('Items redeemed:', Number(candyMachine.itemsRedeemed));
 
-    // Check availability
-    const itemsAvailable = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
-    if (itemsAvailable <= 0) {
+    // Check if sold out
+    const itemsRemaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
+    if (itemsRemaining <= 0) {
       return new Response(
-        JSON.stringify({ error: 'Sold out' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Collection is sold out' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Generate mint keypair
+    // Generate new NFT mint keypair
     const nftMint = generateSigner(umi);
-    console.log('NFT mint address:', nftMint.publicKey);
+    console.log('Generated NFT mint:', nftMint.publicKey.toString());
 
-    // Build transaction
+    // Start building transaction
     let builder = transactionBuilder();
     
-    // Add compute unit limit
+    // Add compute budget
     builder = builder.add(setComputeUnitLimit(umi, { units: 800_000 }));
 
-    // Handle with or without Candy Guard
+    // Prepare mint args for guards
+    let mintArgs = {};
+    let group = undefined;
+    
+    // If candy guard exists, fetch it and prepare args
     if (candyGuardIdStr) {
-      console.log('Using Candy Guard flow');
-      const candyGuardPublicKey = publicKey(candyGuardIdStr);
-      
       try {
+        const candyGuardPublicKey = publicKey(candyGuardIdStr);
         const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
-        console.log('Candy Guard fetched');
+        console.log('Candy Guard fetched successfully');
         
-        // Build mint args based on guards
-        let mintArgs: any = {};
-        let guardGroup = none();
-        
-        // Check for solPayment
-        if (candyGuard.guards.solPayment && candyGuard.guards.solPayment.__option === 'Some') {
-          mintArgs.solPayment = some({ 
-            destination: candyGuard.guards.solPayment.value.destination 
-          });
-          console.log('Added solPayment guard');
+        // Check for solPayment guard at top level
+        if (candyGuard.guards?.solPayment?.__option === 'Some') {
+          mintArgs = {
+            solPayment: some({ 
+              destination: candyGuard.guards.solPayment.value.destination 
+            })
+          };
+          console.log('Using solPayment guard');
         }
         
-        // Check groups
-        if (candyGuard.groups && candyGuard.groups.length > 0) {
-          for (const group of candyGuard.groups) {
-            if (group.guards.solPayment && group.guards.solPayment.__option === 'Some') {
-              guardGroup = some(group.label);
-              mintArgs.solPayment = some({ 
-                destination: group.guards.solPayment.value.destination 
-              });
-              console.log('Using group:', group.label);
+        // Check for group guards
+        if (!Object.keys(mintArgs).length && candyGuard.groups?.length > 0) {
+          for (const grp of candyGuard.groups) {
+            if (grp.guards?.solPayment?.__option === 'Some') {
+              group = some(grp.label);
+              mintArgs = {
+                solPayment: some({ 
+                  destination: grp.guards.solPayment.value.destination 
+                })
+              };
+              console.log('Using group:', grp.label);
               break;
             }
           }
         }
-        
-        // Use the route instruction for guard minting
-        builder = builder.add(
-          route(umi, {
-            candyMachine: candyMachine.publicKey,
-            candyGuard: candyGuardPublicKey,
-            group: guardGroup,
-            guard: 'mintV2',
-            routeArgs: {
-              nftMint,
-              minter: userWallet,
-              mintArgs
-            }
-          })
-        );
-        
-      } catch (e) {
-        console.log('Guard fetch failed, using direct mint');
-        // Fallback to direct mint
-        builder = builder.add(
-          mintV2(umi, {
-            candyMachine: candyMachine.publicKey,
-            nftMint,
-            collectionMint: candyMachine.collectionMint,
-            collectionUpdateAuthority: candyMachine.authority,
-            tokenStandard: candyMachine.tokenStandard
-          })
-        );
+      } catch (guardError) {
+        console.log('Could not fetch guard, proceeding without:', guardError.message);
       }
-    } else {
-      console.log('Using direct mint (no guard)');
-      // Direct mint without guard
-      builder = builder.add(
-        mintV2(umi, {
-          candyMachine: candyMachine.publicKey,
-          nftMint,
-          collectionMint: candyMachine.collectionMint,
-          collectionUpdateAuthority: candyMachine.authority,
-          tokenStandard: candyMachine.tokenStandard
-        })
-      );
     }
 
-    // Set fee payer
+    // Add the mint instruction
+    console.log('Adding mint instruction');
+    const mintInstruction = mintV2(umi, {
+      candyMachine: candyMachine.publicKey,
+      candyGuard: candyGuardIdStr ? publicKey(candyGuardIdStr) : undefined,
+      nftMint,
+      collectionMint: candyMachine.collectionMint,
+      collectionUpdateAuthority: candyMachine.authority,
+      group,
+      mintArgs,
+      tokenStandard: candyMachine.tokenStandard
+    });
+    
+    builder = builder.add(mintInstruction);
+
+    // Set fee payer to user's wallet
     builder = builder.setFeePayer(userWallet);
 
-    // Set blockhash
+    // Get and set blockhash
+    console.log('Getting blockhash');
     const blockhash = await umi.rpc.getLatestBlockhash();
     builder = builder.setBlockhash(blockhash);
     
-    // Sign with nftMint keypair
-    console.log('Signing transaction...');
-    const nftMintSigner = umi.use(keypairIdentity(nftMint));
-    const signedTx = await nftMintSigner.transactions.build(builder);
+    // Create a new Umi instance with the nftMint keypair for signing
+    console.log('Building and signing transaction');
+    const signerUmi = umi.use(keypairIdentity(nftMint));
     
-    // Add nftMint signature
-    const builtAndSigned = await builder.buildAndSign(nftMintSigner);
+    // Build and sign with nftMint
+    const signedTransaction = await builder.buildAndSign(signerUmi);
     
-    // Serialize
-    console.log('Serializing transaction...');
-    const serialized = umi.transactions.serialize(builtAndSigned);
-    const base64Tx = btoa(String.fromCharCode(...serialized));
+    // Serialize transaction
+    console.log('Serializing transaction');
+    const serializedTransaction = umi.transactions.serialize(signedTransaction);
     
-    console.log('=== MINT REQUEST SUCCESS ===');
+    // Convert to base64 (Deno compatible)
+    const base64Transaction = btoa(
+      Array.from(serializedTransaction)
+        .map(byte => String.fromCharCode(byte))
+        .join('')
+    );
+    
+    console.log('Transaction prepared successfully');
     
     return new Response(
       JSON.stringify({
         success: true,
-        transaction: base64Tx,
-        nftMint: nftMint.publicKey,
+        transaction: base64Transaction,
+        nftMint: nftMint.publicKey.toString(),
         blockhash: blockhash.blockhash,
         lastValidBlockHeight: blockhash.lastValidBlockHeight
       }),
@@ -221,16 +203,18 @@ Deno.serve(async (req) => {
       }
     );
 
-  } catch (error: any) {
-    console.error('=== MINT ERROR ===');
-    console.error('Name:', error?.name);
-    console.error('Message:', error?.message);
-    console.error('Stack:', error?.stack);
+  } catch (error) {
+    console.error('Mint error occurred');
+    console.error('Error:', error);
+    
+    // Get error details
+    const errorMessage = error?.message || 'Unknown error occurred';
+    const errorStack = error?.stack || '';
     
     return new Response(
       JSON.stringify({
-        error: error?.message || 'Mint failed',
-        details: error?.toString()
+        error: errorMessage,
+        details: errorStack
       }),
       { 
         status: 500,
