@@ -238,7 +238,8 @@ const NFTMint = () => {
                         <Button
                           onClick={handleMint}
                           disabled={isMinting}
-                          className="w-full py-3 bg-button-green text-pure-black hover:bg-button-green/90 rounded-full font-semibold"
+                          variant="hero-primary"
+                          className="w-full py-3 font-semibold"
                           size="lg"
                         >
                           {isMinting ? (
