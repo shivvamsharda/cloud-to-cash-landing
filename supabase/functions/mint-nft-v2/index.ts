@@ -19,6 +19,7 @@ import {
   setComputeUnitLimit 
 } from 'https://esm.sh/@metaplex-foundation/mpl-toolbox@0.9.4?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.2.1?target=deno';
+import { encode as base64Encode } from 'https://deno.land/std@0.220.0/encoding/base64.ts';
 
 Deno.serve(async (req) => {
   // Handle CORS
@@ -35,6 +36,8 @@ Deno.serve(async (req) => {
 
   try {
     const { walletAddress } = await req.json();
+    
+    console.log('Mint request received for wallet:', walletAddress);
     
     if (!walletAddress) {
       return new Response(
@@ -55,6 +58,8 @@ Deno.serve(async (req) => {
       throw new Error('CANDY_MACHINE_ID not configured in environment');
     }
 
+    console.log('Using Candy Machine:', candyMachineIdStr);
+
     // Initialize Umi
     const umi = createUmi(rpcUrl)
       .use(mplTokenMetadata())
@@ -68,6 +73,8 @@ Deno.serve(async (req) => {
     // Fetch Candy Machine
     const candyMachinePublicKey = publicKey(candyMachineIdStr);
     const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
+    
+    console.log('Candy Machine loaded:', candyMachine.itemsLoaded, 'redeemed:', candyMachine.itemsRedeemed);
 
     // Check if sold out
     const itemsRemaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
@@ -89,6 +96,7 @@ Deno.serve(async (req) => {
       try {
         const candyGuardPublicKey = publicKey(candyGuardIdStr);
         const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
+        console.log('Candy Guard fetched');
         
         // Check for solPayment guard at top level
         if (candyGuard.guards?.solPayment?.__option === 'Some') {
@@ -97,6 +105,7 @@ Deno.serve(async (req) => {
               destination: candyGuard.guards.solPayment.value.destination 
             })
           };
+          console.log('Using solPayment guard');
         }
         
         // Check for group guards if no top-level guard found
@@ -109,6 +118,7 @@ Deno.serve(async (req) => {
                   destination: grp.guards.solPayment.value.destination 
                 })
               };
+              console.log('Using group:', grp.label);
               break;
             }
           }
@@ -120,9 +130,11 @@ Deno.serve(async (req) => {
 
     // Generate new NFT mint keypair
     const nftMint = generateSigner(umi);
+    console.log('NFT mint address:', nftMint.publicKey.toString());
 
     // Get blockhash for transaction
     const blockhash = await umi.rpc.getLatestBlockhash();
+    console.log('Got blockhash:', blockhash.blockhash);
     
     // Build transaction
     let builder = transactionBuilder();
@@ -157,8 +169,10 @@ Deno.serve(async (req) => {
     // Serialize transaction
     const serializedTransaction = umi.transactions.serialize(signedTransaction);
     
-    // Convert to base64
-    const base64Transaction = Buffer.from(serializedTransaction).toString('base64');
+    // Convert to base64 using Deno's standard library
+    const base64Transaction = base64Encode(serializedTransaction);
+    
+    console.log('Transaction prepared successfully');
     
     // Return simplified response for single NFT mint
     return new Response(
@@ -178,11 +192,15 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Mint error:', error?.message || error);
+    console.error('=== MINT ERROR ===');
+    console.error('Error:', error);
+    console.error('Message:', error?.message);
+    console.error('Stack:', error?.stack);
     
     return new Response(
       JSON.stringify({
-        error: error?.message || 'Unknown error occurred'
+        error: error?.message || 'Unknown error occurred',
+        details: error?.stack || ''
       }),
       { 
         status: 500,
