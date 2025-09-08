@@ -72,9 +72,15 @@ const NFTMint = () => {
         throw new Error('No transaction returned from server');
       }
 
-      // Deserialize the transaction
-      const transactionBuffer = Buffer.from(data.transaction, 'base64');
-      const transaction = VersionedTransaction.deserialize(transactionBuffer);
+      // Deserialize the transaction (browser-safe, no Node Buffer)
+      const base64ToUint8 = (b64: string) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      let transaction: VersionedTransaction;
+      try {
+        const transactionBytes = base64ToUint8(data.transaction);
+        transaction = VersionedTransaction.deserialize(transactionBytes);
+      } catch (e) {
+        throw new Error('Failed to decode transaction from server');
+      }
 
       console.log('Transaction deserialized, requesting signature...');
 
