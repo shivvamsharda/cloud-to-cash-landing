@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      nft_cache: {
+        Row: {
+          cached_at: string
+          created_at: string
+          id: string
+          nft_data: Json
+          wallet_address: string
+        }
+        Insert: {
+          cached_at?: string
+          created_at?: string
+          id?: string
+          nft_data: Json
+          wallet_address: string
+        }
+        Update: {
+          cached_at?: string
+          created_at?: string
+          id?: string
+          nft_data?: Json
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
