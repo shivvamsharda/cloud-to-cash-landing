@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Transaction, VersionedTransaction } from '@solana/web3.js';
+import { VersionedTransaction, TransactionMessage } from '@solana/web3.js';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,16 +17,19 @@ const NFTMint = () => {
   const [isMinting, setIsMinting] = useState(false);
   const [lastMintSignature, setLastMintSignature] = useState<string | null>(null);
   
-  // Real wallet connection from Solana wallet adapter
-  const { publicKey, connected, signTransaction, signAllTransactions } = useWallet();
+  const { publicKey, connected, signTransaction } = useWallet();
   const { connection } = useConnection();
 
-  // Real collection stats from Supabase edge function
-  const { stats: collectionStats, loading: statsLoading, error: statsError } = useCollectionStats();
+  const { stats: collectionStats, loading: statsLoading } = useCollectionStats();
 
   const handleMint = useCallback(async () => {
     if (!connected || !publicKey) {
       toast.error(CANDY_MACHINE_CONFIG.ERRORS.WALLET_NOT_CONNECTED);
+      return;
+    }
+
+    if (!signTransaction) {
+      toast.error('Wallet does not support transaction signing');
       return;
     }
 
@@ -50,7 +53,7 @@ const NFTMint = () => {
         totalCost: mintQuantity * collectionStats.price
       });
 
-      // Call the new mint-nft-v2 edge function
+      // Call edge function
       const { data, error } = await supabase.functions.invoke('mint-nft-v2', {
         body: {
           walletAddress: publicKey.toString(),
@@ -59,78 +62,117 @@ const NFTMint = () => {
       });
 
       if (error) {
-        throw error;
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Edge function failed');
       }
 
       if (data?.error) {
+        console.error('Mint error:', data);
         throw new Error(data.error);
       }
 
-      console.log('Mint preparation response:', data);
+      console.log('Mint response:', data);
 
       if (!data.transaction) {
         throw new Error('No transaction returned from server');
       }
 
-      // Deserialize the transaction (browser-safe, no Node Buffer)
-      const base64ToUint8 = (b64: string) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      // Decode base64 transaction
       let transaction: VersionedTransaction;
       try {
-        const transactionBytes = base64ToUint8(data.transaction);
+        // Decode base64 to bytes
+        const transactionBytes = Uint8Array.from(
+          atob(data.transaction),
+          c => c.charCodeAt(0)
+        );
+        
+        // Deserialize versioned transaction
         transaction = VersionedTransaction.deserialize(transactionBytes);
+        console.log('Transaction deserialized successfully');
       } catch (e) {
-        throw new Error('Failed to decode transaction from server');
+        console.error('Deserialization error:', e);
+        throw new Error('Failed to decode transaction');
       }
 
-      console.log('Transaction deserialized, requesting signature...');
-
-      // Sign the transaction with the connected wallet
-      if (!signTransaction) {
-        throw new Error('Wallet does not support transaction signing');
-      }
-
+      // Sign transaction
+      console.log('Requesting wallet signature...');
       const signedTransaction = await signTransaction(transaction);
-      
-      console.log('Transaction signed, sending to devnet...');
+      console.log('Transaction signed');
 
-      // Send the signed transaction to devnet
-      const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
-        maxRetries: 3,
-        preflightCommitment: 'confirmed'
-      });
-
+      // Send transaction
+      console.log('Sending transaction...');
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+        {
+          skipPreflight: false,
+          preflightCommitment: 'confirmed',
+          maxRetries: 3
+        }
+      );
       console.log('Transaction sent:', signature);
 
-      // Confirm the transaction
+      // Wait for confirmation
+      console.log('Waiting for confirmation...');
+      const latestBlockhash = await connection.getLatestBlockhash();
       const confirmation = await connection.confirmTransaction({
         signature,
-        blockhash: data.blockhash,
-        lastValidBlockHeight: data.lastValidBlockHeight
+        blockhash: data.blockhash || latestBlockhash.blockhash,
+        lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
       }, 'confirmed');
 
       if (confirmation.value.err) {
-        throw new Error(`Transaction failed: ${confirmation.value.err}`);
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
       }
 
-      console.log('Transaction confirmed:', signature);
-
+      console.log('Transaction confirmed!');
       setLastMintSignature(signature);
       
       toast.success(
-        `${CANDY_MACHINE_CONFIG.SUCCESS.MINT_SUCCESS} ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`
+        `Successfully minted ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}!`,
+        {
+          action: {
+            label: 'View Transaction',
+            onClick: () => window.open(getSolscanUrl(signature), '_blank')
+          }
+        }
       );
       
-      // Reset mint quantity
+      // Reset quantity
       setMintQuantity(1);
+      
+      // Refresh stats after a delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Minting error:', error);
-      const errorMessage = error instanceof Error ? error.message : CANDY_MACHINE_CONFIG.ERRORS.MINT_FAILED;
+      
+      // Parse error message
+      let errorMessage = 'Minting failed';
+      
+      if (error?.message) {
+        if (error.message.includes('insufficient')) {
+          errorMessage = 'Insufficient SOL balance';
+        } else if (error.message.includes('User rejected')) {
+          errorMessage = 'Transaction cancelled';
+        } else if (error.message.includes('0x')) {
+          errorMessage = `Mint error: ${error.message}`;
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      // Try to get transaction logs if available
+      if (error?.logs) {
+        console.error('Transaction logs:', error.logs);
+      }
+      
       toast.error(errorMessage);
     } finally {
       setIsMinting(false);
     }
-  }, [connected, publicKey, mintQuantity, collectionStats]);
+  }, [connected, publicKey, signTransaction, mintQuantity, collectionStats, connection]);
 
   const adjustQuantity = (change: number) => {
     const newQuantity = mintQuantity + change;
@@ -150,7 +192,7 @@ const NFTMint = () => {
     );
   }
 
-  const totalCostLabel = formatSol(mintQuantity * (Number.isFinite(collectionStats.price) ? collectionStats.price : CANDY_MACHINE_CONFIG.DEFAULT_MINT_PRICE));
+  const totalCostLabel = formatSol(mintQuantity * collectionStats.price);
   const progressPercentage = (collectionStats.minted / collectionStats.totalSupply) * 100;
 
   return (
@@ -174,10 +216,9 @@ const NFTMint = () => {
           <div className="flex items-center justify-center min-h-[60vh]">
             <Card className="bg-card-bg/90 backdrop-blur-sm border-card-border shadow-2xl max-w-4xl w-full">
               <CardContent className="p-8">
-                {/* Horizontal Layout */}
                 <div className="grid md:grid-cols-3 gap-8 items-center">
                   
-                  {/* Collection Info Section */}
+                  {/* Collection Info */}
                   <div className="text-center md:text-left">
                     <h3 className="text-2xl font-bold text-hero-text mb-2">VapeFi Genesis</h3>
                     <p className="text-muted-text mb-4">
@@ -187,9 +228,14 @@ const NFTMint = () => {
                     <p className="text-sm text-muted-text">
                       {progressPercentage.toFixed(1)}% Complete
                     </p>
+                    {!collectionStats.isLive && (
+                      <Badge variant="destructive" className="mt-2">
+                        Minting Not Live
+                      </Badge>
+                    )}
                   </div>
 
-                  {/* Quantity Selector Section */}
+                  {/* Quantity Selector */}
                   <div className="text-center">
                     <h4 className="text-lg font-semibold text-hero-text mb-4">Select Quantity</h4>
                     <div className="flex items-center justify-center gap-4 mb-4">
@@ -197,7 +243,7 @@ const NFTMint = () => {
                         variant="outline"
                         size="icon"
                         onClick={() => adjustQuantity(-1)}
-                        disabled={mintQuantity <= 1}
+                        disabled={mintQuantity <= 1 || isMinting}
                         className="h-12 w-12"
                       >
                         <Minus className="h-4 w-4" />
@@ -209,7 +255,7 @@ const NFTMint = () => {
                         variant="outline"
                         size="icon"
                         onClick={() => adjustQuantity(1)}
-                        disabled={mintQuantity >= CANDY_MACHINE_CONFIG.MAX_MINT_PER_TRANSACTION}
+                        disabled={mintQuantity >= CANDY_MACHINE_CONFIG.MAX_MINT_PER_TRANSACTION || isMinting}
                         className="h-12 w-12"
                       >
                         <Plus className="h-4 w-4" />
@@ -218,57 +264,59 @@ const NFTMint = () => {
                     <p className="text-sm text-muted-text">Max {CANDY_MACHINE_CONFIG.MAX_MINT_PER_TRANSACTION} per transaction</p>
                   </div>
 
-                  {/* Mint Section */}
+                  {/* Mint Button */}
                   <div className="text-center md:text-right">
                     <div className="mb-4">
                       <p className="text-lg font-semibold text-hero-text">
                         {totalCostLabel}
                       </p>
                       <p className="text-sm text-muted-text">
-                        {formatSol(Number.isFinite(collectionStats.price) ? collectionStats.price : CANDY_MACHINE_CONFIG.DEFAULT_MINT_PRICE)} each
+                        {formatSol(collectionStats.price)} each
                       </p>
                     </div>
                     
-                     {connected ? (
-                       <div className="space-y-3">
-                         <Button
-                           variant="hero-primary"
-                           size="lg"
-                           onClick={handleMint}
-                           disabled={isMinting || !collectionStats?.isLive}
-                           className="w-full md:w-auto px-8 py-4 text-lg font-bold"
-                         >
-                           {isMinting ? (
-                             <>
-                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                               Minting...
-                             </>
-                           ) : (
-                             `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`
-                           )}
-                         </Button>
-                         {lastMintSignature && (
-                           <div className="flex items-center gap-2 text-sm">
-                             <span className="text-button-green">
-                               Transaction: {lastMintSignature.substring(0, 20)}...
-                             </span>
-                             <a
-                               href={getSolscanUrl(lastMintSignature)}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               className="text-button-green hover:underline flex items-center gap-1"
-                             >
-                               View
-                               <ExternalLink className="w-3 h-3" />
-                             </a>
-                           </div>
-                         )}
-                       </div>
-                     ) : (
-                       <div className="w-full md:w-auto">
-                         <WalletMultiButton className="!bg-gradient-to-r !from-button-green !to-button-green/80 !text-pure-black !font-bold !px-8 !py-4 !text-lg !rounded-lg hover:!from-button-green/90 hover:!to-button-green/70 !transition-all" />
-                       </div>
-                     )}
+                    {connected ? (
+                      <div className="space-y-3">
+                        <Button
+                          variant="hero-primary"
+                          size="lg"
+                          onClick={handleMint}
+                          disabled={isMinting || !collectionStats?.isLive || collectionStats.remaining === 0}
+                          className="w-full md:w-auto px-8 py-4 text-lg font-bold"
+                        >
+                          {isMinting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Minting...
+                            </>
+                          ) : collectionStats.remaining === 0 ? (
+                            'Sold Out'
+                          ) : !collectionStats.isLive ? (
+                            'Not Live'
+                          ) : (
+                            `Mint ${mintQuantity} NFT${mintQuantity > 1 ? 's' : ''}`
+                          )}
+                        </Button>
+                        {lastMintSignature && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-button-green">Success!</span>
+                            <a
+                              href={getSolscanUrl(lastMintSignature)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-button-green hover:underline flex items-center gap-1"
+                            >
+                              View Transaction
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-full md:w-auto">
+                        <WalletMultiButton className="!bg-gradient-to-r !from-button-green !to-button-green/80 !text-pure-black !font-bold !px-8 !py-4 !text-lg !rounded-lg hover:!from-button-green/90 hover:!to-button-green/70 !transition-all" />
+                      </div>
+                    )}
                   </div>
                   
                 </div>
