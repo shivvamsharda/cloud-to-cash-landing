@@ -122,6 +122,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      update_user_scores_instant: {
+        Args: { target_user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

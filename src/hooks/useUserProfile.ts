@@ -65,10 +65,32 @@ export const useUserProfile = () => {
     }
   };
 
+  const forceRefresh = async () => {
+    // Force refresh without checking user state
+    setLoading(true);
+    try {
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error force refreshing profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     profile,
     loading,
     updateProfile,
     refetch: fetchProfile,
+    forceRefresh,
   };
 };

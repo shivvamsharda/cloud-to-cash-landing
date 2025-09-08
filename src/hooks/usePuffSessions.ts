@@ -62,6 +62,22 @@ export const usePuffSessions = () => {
 
       if (error) throw error;
       
+      // Trigger instant score update
+      try {
+        console.log('🚀 Triggering instant score update for user:', user.id);
+        const { error: updateError } = await supabase.functions.invoke('instant-score-update', {
+          body: { user_id: user.id }
+        });
+        
+        if (updateError) {
+          console.error('❌ Score update error:', updateError);
+        } else {
+          console.log('✅ Scores updated instantly');
+        }
+      } catch (updateError) {
+        console.error('❌ Failed to trigger instant score update:', updateError);
+      }
+      
       // Refresh sessions
       await fetchSessions();
       

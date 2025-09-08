@@ -16,7 +16,7 @@ const Track = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { profile, loading: profileLoading } = useUserProfile();
+  const { profile, loading: profileLoading, forceRefresh } = useUserProfile();
   const { createSession, loading: sessionLoading } = usePuffSessions();
   
   const [isTracking, setIsTracking] = useState(false);
@@ -54,6 +54,10 @@ const Track = () => {
     if (currentSession.puffs > 0) {
       try {
         await createSession(currentSession.puffs, currentSession.duration);
+        
+        // Force refresh profile to get updated totals immediately
+        await forceRefresh();
+        
         const tokensEarned = currentSession.puffs * 0.1;
         
         toast({
@@ -69,6 +73,9 @@ const Track = () => {
         });
       }
     }
+    
+    // Reset session data
+    setCurrentSession({ puffs: 0, duration: 0 });
   };
 
   // Session timer
