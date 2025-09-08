@@ -8,6 +8,7 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
+import { setComputeUnitLimit, setComputeUnitPrice } from 'https://esm.sh/@metaplex-foundation/mpl-toolbox@0.9.6?target=deno';
 
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
@@ -129,6 +130,11 @@ Deno.serve(async (req) => {
     
     // Create mint transaction
     let builder = transactionBuilder();
+    
+    // Add compute unit instructions to handle computational budget
+    builder = builder
+      .add(setComputeUnitPrice(umi, { microLamports: 1000 }))
+      .add(setComputeUnitLimit(umi, { units: 400000 }));
     
     // Add mint instruction
     builder = builder.add(
