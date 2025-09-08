@@ -164,6 +164,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_public_leaderboard: {
+        Args: { limit_count?: number }
+        Returns: {
+          id: string
+          total_puffs: number
+          total_rewards: number
+          username: string
+          wallet_address: string
+        }[]
+      }
       get_user_daily_slots: {
         Args: { target_user_id: string }
         Returns: Json

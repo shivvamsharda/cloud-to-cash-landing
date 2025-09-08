@@ -17,10 +17,7 @@ export const useLeaderboard = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, total_puffs, total_rewards, wallet_address')
-        .order('total_puffs', { ascending: false })
-        .limit(10);
+        .rpc('get_public_leaderboard', { limit_count: 10 });
 
       if (error) throw error;
       setLeaderboard(data || []);
