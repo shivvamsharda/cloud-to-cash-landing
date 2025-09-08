@@ -26,11 +26,11 @@ export const CANDY_MACHINE_CONFIG = {
 } as const;
 
 /**
- * Get Solscan URL for a transaction
+ * Get Solana Explorer URL for a transaction
  */
-export const getSolscanUrl = (signature: string, network: 'mainnet' | 'devnet' = 'devnet') => {
+export const getSolanaExplorerUrl = (signature: string, network: 'mainnet' | 'devnet' = 'devnet') => {
   const cluster = network === 'devnet' ? '?cluster=devnet' : '';
-  return `https://solscan.io/tx/${signature}${cluster}`;
+  return `https://explorer.solana.com/tx/${signature}${cluster}`;
 };
 
 /**

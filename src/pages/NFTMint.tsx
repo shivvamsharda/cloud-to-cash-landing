@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExternalLink, Minus, Plus, Loader2, Zap, Shield, Star } from 'lucide-react';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
 import { Progress } from '@/components/ui/progress';
-import { CANDY_MACHINE_CONFIG, getSolscanUrl, formatSol } from '@/config/candyMachine';
+import { CANDY_MACHINE_CONFIG, getSolanaExplorerUrl, formatSol } from '@/config/candyMachine';
 import { supabase } from '@/integrations/supabase/client';
 
 const NFTMint = () => {
@@ -132,7 +132,7 @@ const NFTMint = () => {
         {
           action: {
             label: 'View Transaction',
-            onClick: () => window.open(getSolscanUrl(signature), '_blank')
+            onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
           }
         }
       );
@@ -301,12 +301,12 @@ const NFTMint = () => {
                           <div className="flex items-center gap-2 text-sm">
                             <span className="text-button-green">Success!</span>
                             <a
-                              href={getSolscanUrl(lastMintSignature)}
+                              href={getSolanaExplorerUrl(lastMintSignature)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-button-green hover:underline flex items-center gap-1"
                             >
-                              View Transaction
+                              View on Solana Explorer
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           </div>
