@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { CANDY_MACHINE_CONFIG } from '@/config/candyMachine';
 
 export interface CollectionStats {
   totalSupply: number;
@@ -26,7 +27,8 @@ export const useCollectionStats = () => {
         const { data, error } = await supabase.functions.invoke('get-collection-stats');
         if (error) throw error;
         if (data && isMounted) {
-          setStats(data);
+          const safePrice = Number.isFinite(data.price) ? data.price : CANDY_MACHINE_CONFIG.DEFAULT_MINT_PRICE;
+          setStats({ ...data, price: safePrice });
         }
       } catch (err) {
         console.error('Error fetching collection stats:', err);

@@ -144,7 +144,7 @@ const NFTMint = () => {
     );
   }
 
-  const totalCost = (mintQuantity * collectionStats.price).toFixed(1);
+  const totalCostLabel = formatSol(mintQuantity * (Number.isFinite(collectionStats.price) ? collectionStats.price : CANDY_MACHINE_CONFIG.DEFAULT_MINT_PRICE));
   const progressPercentage = (collectionStats.minted / collectionStats.totalSupply) * 100;
 
   return (
@@ -216,10 +216,10 @@ const NFTMint = () => {
                   <div className="text-center md:text-right">
                     <div className="mb-4">
                       <p className="text-lg font-semibold text-hero-text">
-                        {totalCost} SOL
+                        {totalCostLabel}
                       </p>
                       <p className="text-sm text-muted-text">
-                        {collectionStats.price} SOL each
+                        {formatSol(Number.isFinite(collectionStats.price) ? collectionStats.price : CANDY_MACHINE_CONFIG.DEFAULT_MINT_PRICE)} each
                       </p>
                     </div>
                     

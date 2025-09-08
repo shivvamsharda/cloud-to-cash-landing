@@ -8,7 +8,7 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
-import { mplCandyGuard } from 'https://esm.sh/@metaplex-foundation/mpl-candy-guard@0.5.0?bundle&target=deno';
+
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
 Deno.serve(async (req) => {
@@ -42,6 +42,7 @@ Deno.serve(async (req) => {
     // Get configuration from Supabase secrets
     const devnetRpc = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
     const candyMachineIdStr = Deno.env.get('CANDY_MACHINE_ID');
+    const candyGuardIdStr = Deno.env.get('CANDY_GUARD_ID');
     
     if (!candyMachineIdStr) {
       throw new Error('Candy machine configuration not found: missing CANDY_MACHINE_ID');
@@ -55,8 +56,7 @@ Deno.serve(async (req) => {
     // Initialize Umi with required Metaplex programs
     const umi = createUmi(devnetRpc)
       .use(mplTokenMetadata())
-      .use(mplCandyMachine())
-      .use(mplCandyGuard());
+      .use(mplCandyMachine());
     
     // Parse addresses
     const candyMachineId = publicKey(candyMachineIdStr);
@@ -95,10 +95,10 @@ Deno.serve(async (req) => {
     // Fetch candy guard if it exists
     let candyGuard = null;
     try {
-      candyGuard = await safeFetchCandyGuard(umi, candyMachine.mintAuthority);
-      console.log('Candy guard found:', candyGuard);
-    } catch (error) {
-      console.log('No candy guard found or error fetching:', error);
+      const guardPk = candyGuardIdStr ? publicKey(candyGuardIdStr) : candyMachine.mintAuthority;
+      candyGuard = await safeFetchCandyGuard(umi, guardPk);
+    } catch (_) {
+      // ignore if not found
     }
 
     // Generate NFT mint address
@@ -129,7 +129,6 @@ Deno.serve(async (req) => {
     const tempUmi = createUmi(devnetRpc)
       .use(mplTokenMetadata())
       .use(mplCandyMachine())
-      .use(mplCandyGuard())
       .use(keypairIdentity(nftMint));
     
     // Build the transaction with proper signing
@@ -175,13 +174,11 @@ Deno.serve(async (req) => {
       raw: String(error),
     });
     
-    const isProgramNotRecognized = error?.name === 'ProgramNotRecognizedError' || error?.identifier?.includes?.('mplCandyGuard');
-
     const body = {
       error: error?.message || 'Minting failed',
       name: error?.name,
       details: String(error),
-      hint: isProgramNotRecognized ? 'Metaplex programs not registered. Ensure mplCandyMachine, mplCandyGuard, and mplTokenMetadata plugins are added to Umi.' : undefined,
+      hint: 'Ensure Metaplex programs (mplCandyMachine and mplTokenMetadata) are registered in Umi.',
     };
 
     return new Response(
