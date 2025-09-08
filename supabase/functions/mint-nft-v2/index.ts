@@ -3,18 +3,20 @@ import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaul
 import { 
   generateSigner, 
   publicKey, 
-  transactionBuilder, 
-  some,
+  transactionBuilder,
   createNoopSigner,
   signerIdentity,
-  keypairIdentity
+  keypairIdentity,
+  some,
+  none
 } from 'https://esm.sh/@metaplex-foundation/umi@0.9.2?target=deno';
 import {
   fetchCandyMachine,
   fetchCandyGuard,
   mintV2,
   mplCandyMachine,
-  safeFetchCandyGuard
+  route,
+  guardRoute
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { 
   setComputeUnitLimit 
@@ -37,7 +39,9 @@ Deno.serve(async (req) => {
   try {
     const { walletAddress, quantity = 1 } = await req.json();
     
-    console.log('Mint request:', { walletAddress, quantity });
+    console.log('=== MINT REQUEST START ===');
+    console.log('Wallet:', walletAddress);
+    console.log('Quantity:', quantity);
     
     if (!walletAddress) {
       return new Response(
@@ -58,12 +62,17 @@ Deno.serve(async (req) => {
       throw new Error('CANDY_MACHINE_ID not configured');
     }
 
-    // Initialize Umi following official pattern
+    console.log('Config:', {
+      candyMachine: candyMachineIdStr,
+      candyGuard: candyGuardIdStr || 'none'
+    });
+
+    // Initialize Umi
     const umi = createUmi(rpcUrl)
       .use(mplTokenMetadata())
       .use(mplCandyMachine());
 
-    // Setup wallet as noop signer (will be signed client-side)
+    // Setup wallet as noop signer
     const userWallet = createNoopSigner(publicKey(walletAddress));
     umi.use(signerIdentity(userWallet));
     
@@ -71,10 +80,11 @@ Deno.serve(async (req) => {
     const candyMachinePublicKey = publicKey(candyMachineIdStr);
     const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey);
     
-    console.log('Candy Machine:', {
+    console.log('Candy Machine loaded:', {
       itemsAvailable: Number(candyMachine.itemsLoaded),
       itemsRedeemed: Number(candyMachine.itemsRedeemed),
-      authority: candyMachine.authority
+      mintAuthority: candyMachine.mintAuthority,
+      tokenStandard: candyMachine.tokenStandard
     });
 
     // Check availability
@@ -86,88 +96,114 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Prepare mint arguments based on guards
-    let mintArgs = {};
-    let group = undefined;
-    
-    // Fetch Candy Guard if configured
-    if (candyGuardIdStr) {
-      try {
-        const candyGuardPublicKey = publicKey(candyGuardIdStr);
-        const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
-        
-        console.log('Candy Guard found');
-        
-        // Check for solPayment guard
-        if (candyGuard.guards.solPayment && candyGuard.guards.solPayment.__option === 'Some') {
-          const destination = candyGuard.guards.solPayment.value.destination;
-          mintArgs = {
-            ...mintArgs,
-            solPayment: some({ destination })
-          };
-          console.log('Added solPayment guard');
-        }
-        
-        // Check for groups with solPayment
-        if (!mintArgs.solPayment && candyGuard.groups && candyGuard.groups.length > 0) {
-          for (const grp of candyGuard.groups) {
-            if (grp.guards.solPayment && grp.guards.solPayment.__option === 'Some') {
-              group = some(grp.label);
-              mintArgs = {
-                ...mintArgs,
-                solPayment: some({ destination: grp.guards.solPayment.value.destination })
-              };
-              console.log('Using group:', grp.label);
-              break;
-            }
-          }
-        }
-      } catch (e) {
-        console.log('No candy guard or error fetching:', e.message);
-      }
-    }
-
     // Generate mint keypair
     const nftMint = generateSigner(umi);
     console.log('NFT mint address:', nftMint.publicKey);
 
-    // Build transaction following official pattern
-    let tx = transactionBuilder();
+    // Build transaction
+    let builder = transactionBuilder();
     
-    // Add compute unit limit for safety
-    tx = tx.add(setComputeUnitLimit(umi, { units: 800_000 }));
-    
-    // Add mint instruction
-    const mintInstruction = mintV2(umi, {
-      candyMachine: candyMachine.publicKey,
-      candyGuard: candyGuardIdStr ? publicKey(candyGuardIdStr) : undefined,
-      nftMint,
-      collectionMint: candyMachine.collectionMint,
-      collectionUpdateAuthority: candyMachine.authority,
-      group,
-      mintArgs,
-      tokenStandard: candyMachine.tokenStandard
-    });
-    
-    tx = tx.add(mintInstruction);
-    
-    // CRITICAL: Set the user's wallet as fee payer
-    tx = tx.setFeePayer(userWallet);
+    // Add compute unit limit
+    builder = builder.add(setComputeUnitLimit(umi, { units: 800_000 }));
+
+    // Handle with or without Candy Guard
+    if (candyGuardIdStr) {
+      console.log('Using Candy Guard flow');
+      const candyGuardPublicKey = publicKey(candyGuardIdStr);
+      
+      try {
+        const candyGuard = await fetchCandyGuard(umi, candyGuardPublicKey);
+        console.log('Candy Guard fetched');
+        
+        // Build mint args based on guards
+        let mintArgs: any = {};
+        let guardGroup = none();
+        
+        // Check for solPayment
+        if (candyGuard.guards.solPayment && candyGuard.guards.solPayment.__option === 'Some') {
+          mintArgs.solPayment = some({ 
+            destination: candyGuard.guards.solPayment.value.destination 
+          });
+          console.log('Added solPayment guard');
+        }
+        
+        // Check groups
+        if (candyGuard.groups && candyGuard.groups.length > 0) {
+          for (const group of candyGuard.groups) {
+            if (group.guards.solPayment && group.guards.solPayment.__option === 'Some') {
+              guardGroup = some(group.label);
+              mintArgs.solPayment = some({ 
+                destination: group.guards.solPayment.value.destination 
+              });
+              console.log('Using group:', group.label);
+              break;
+            }
+          }
+        }
+        
+        // Use the route instruction for guard minting
+        builder = builder.add(
+          route(umi, {
+            candyMachine: candyMachine.publicKey,
+            candyGuard: candyGuardPublicKey,
+            group: guardGroup,
+            guard: 'mintV2',
+            routeArgs: {
+              nftMint,
+              minter: userWallet,
+              mintArgs
+            }
+          })
+        );
+        
+      } catch (e) {
+        console.log('Guard fetch failed, using direct mint');
+        // Fallback to direct mint
+        builder = builder.add(
+          mintV2(umi, {
+            candyMachine: candyMachine.publicKey,
+            nftMint,
+            collectionMint: candyMachine.collectionMint,
+            collectionUpdateAuthority: candyMachine.authority,
+            tokenStandard: candyMachine.tokenStandard
+          })
+        );
+      }
+    } else {
+      console.log('Using direct mint (no guard)');
+      // Direct mint without guard
+      builder = builder.add(
+        mintV2(umi, {
+          candyMachine: candyMachine.publicKey,
+          nftMint,
+          collectionMint: candyMachine.collectionMint,
+          collectionUpdateAuthority: candyMachine.authority,
+          tokenStandard: candyMachine.tokenStandard
+        })
+      );
+    }
+
+    // Set fee payer
+    builder = builder.setFeePayer(userWallet);
 
     // Set blockhash
     const blockhash = await umi.rpc.getLatestBlockhash();
-    tx = tx.setBlockhash(blockhash);
+    builder = builder.setBlockhash(blockhash);
     
-    // Sign with nftMint only (user will sign as fee payer on client)
+    // Sign with nftMint keypair
+    console.log('Signing transaction...');
     const nftMintSigner = umi.use(keypairIdentity(nftMint));
-    const signedTx = await tx.buildAndSign(nftMintSigner);
+    const signedTx = await nftMintSigner.transactions.build(builder);
     
-    // Serialize for client
-    const serialized = umi.transactions.serialize(signedTx);
-    // Use Deno's native base64 encoding instead of Buffer
+    // Add nftMint signature
+    const builtAndSigned = await builder.buildAndSign(nftMintSigner);
+    
+    // Serialize
+    console.log('Serializing transaction...');
+    const serialized = umi.transactions.serialize(builtAndSigned);
     const base64Tx = btoa(String.fromCharCode(...serialized));
     
-    console.log('Transaction prepared successfully');
+    console.log('=== MINT REQUEST SUCCESS ===');
     
     return new Response(
       JSON.stringify({
@@ -186,7 +222,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('Mint error:', error);
+    console.error('=== MINT ERROR ===');
+    console.error('Name:', error?.name);
+    console.error('Message:', error?.message);
+    console.error('Stack:', error?.stack);
     
     return new Response(
       JSON.stringify({
