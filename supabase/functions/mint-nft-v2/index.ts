@@ -34,11 +34,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { walletAddress, quantity = 1 } = await req.json();
+    const { walletAddress } = await req.json();
     
     console.log('Mint request received');
     console.log('Wallet:', walletAddress);
-    console.log('Quantity requested:', quantity);
     
     if (!walletAddress) {
       return new Response(
@@ -82,7 +81,7 @@ Deno.serve(async (req) => {
     console.log('Items available:', Number(candyMachine.itemsLoaded));
     console.log('Items redeemed:', Number(candyMachine.itemsRedeemed));
 
-    // Check if enough items remaining
+    // Check if sold out
     const itemsRemaining = Number(candyMachine.itemsLoaded) - Number(candyMachine.itemsRedeemed);
     if (itemsRemaining <= 0) {
       return new Response(
@@ -93,18 +92,8 @@ Deno.serve(async (req) => {
         }
       );
     }
-    
-    if (quantity > itemsRemaining) {
-      return new Response(
-        JSON.stringify({ error: `Only ${itemsRemaining} NFTs remaining` }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
 
-    // Prepare mint args for guards (fetch once, use for all)
+    // Prepare mint args for guards
     let mintArgs = {};
     let group = undefined;
     
@@ -144,77 +133,67 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get initial blockhash
-    console.log('Getting initial blockhash');
-    const initialBlockhash = await umi.rpc.getLatestBlockhash();
+    // Generate new NFT mint keypair
+    const nftMint = generateSigner(umi);
+    console.log('NFT mint address:', nftMint.publicKey.toString());
 
-    // Create array for transactions
-    const transactions = [];
+    // Get blockhash
+    console.log('Getting blockhash');
+    const blockhash = await umi.rpc.getLatestBlockhash();
     
-    // Create a transaction for each NFT
-    for (let i = 0; i < quantity; i++) {
-      // Generate new NFT mint keypair for each NFT
-      const nftMint = generateSigner(umi);
-      console.log(`NFT ${i + 1}/${quantity} mint address:`, nftMint.publicKey.toString());
-
-      // Get fresh blockhash for each transaction to avoid nonce issues
-      const blockhash = i === 0 ? initialBlockhash : await umi.rpc.getLatestBlockhash();
-      
-      // Start building transaction
-      let builder = transactionBuilder();
-      
-      // Add compute budget
-      builder = builder.add(setComputeUnitLimit(umi, { units: 800_000 }));
-
-      // Add the mint instruction
-      const mintInstruction = mintV2(umi, {
-        candyMachine: candyMachine.publicKey,
-        candyGuard: candyGuardIdStr ? publicKey(candyGuardIdStr) : undefined,
-        nftMint,
-        collectionMint: candyMachine.collectionMint,
-        collectionUpdateAuthority: candyMachine.authority,
-        group,
-        mintArgs,
-        tokenStandard: candyMachine.tokenStandard
-      });
-      
-      builder = builder.add(mintInstruction);
-
-      // Set fee payer to user's wallet
-      builder = builder.setFeePayer(userWallet);
-
-      // Set blockhash
-      builder = builder.setBlockhash(blockhash);
-      
-      // Sign with nftMint keypair
-      const signerUmi = umi.use(keypairIdentity(nftMint));
-      const signedTransaction = await builder.buildAndSign(signerUmi);
-      
-      // Serialize transaction
-      const serializedTransaction = umi.transactions.serialize(signedTransaction);
-      
-      // Convert to base64
-      const base64Transaction = btoa(
-        Array.from(serializedTransaction)
-          .map(byte => String.fromCharCode(byte))
-          .join('')
-      );
-      
-      transactions.push({
-        transaction: base64Transaction,
-        nftMint: nftMint.publicKey.toString(),
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight
-      });
-    }
+    // Build transaction
+    let builder = transactionBuilder();
     
-    console.log(`Prepared ${transactions.length} transactions for ${quantity} NFTs`);
+    // Add compute budget
+    builder = builder.add(setComputeUnitLimit(umi, { units: 800_000 }));
+
+    // Add the mint instruction
+    const mintInstruction = mintV2(umi, {
+      candyMachine: candyMachine.publicKey,
+      candyGuard: candyGuardIdStr ? publicKey(candyGuardIdStr) : undefined,
+      nftMint,
+      collectionMint: candyMachine.collectionMint,
+      collectionUpdateAuthority: candyMachine.authority,
+      group,
+      mintArgs,
+      tokenStandard: candyMachine.tokenStandard
+    });
     
+    builder = builder.add(mintInstruction);
+
+    // Set fee payer to user's wallet
+    builder = builder.setFeePayer(userWallet);
+
+    // Set blockhash
+    builder = builder.setBlockhash(blockhash);
+    
+    // Sign with nftMint keypair
+    const signerUmi = umi.use(keypairIdentity(nftMint));
+    const signedTransaction = await builder.buildAndSign(signerUmi);
+    
+    // Serialize transaction
+    const serializedTransaction = umi.transactions.serialize(signedTransaction);
+    
+    // Convert to base64 - FIXED encoding
+    const base64Transaction = Buffer.from(serializedTransaction).toString('base64');
+    
+    console.log('Transaction prepared successfully');
+    
+    // Return single transaction (maintaining compatibility with frontend)
     return new Response(
       JSON.stringify({
         success: true,
-        transactions: transactions,
-        quantity: quantity
+        transactions: [{
+          transaction: base64Transaction,
+          nftMint: nftMint.publicKey.toString(),
+          blockhash: blockhash.blockhash,
+          lastValidBlockHeight: blockhash.lastValidBlockHeight
+        }],
+        // Also include legacy format for backward compatibility
+        transaction: base64Transaction,
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        nftMint: nftMint.publicKey.toString()
       }),
       { 
         headers: { 
@@ -225,7 +204,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Mint error:', error);
+    console.error('=== MINT ERROR ===');
+    console.error('Error:', error);
+    console.error('Message:', error?.message);
+    console.error('Stack:', error?.stack);
     
     return new Response(
       JSON.stringify({

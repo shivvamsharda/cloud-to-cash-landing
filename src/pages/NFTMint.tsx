@@ -48,15 +48,13 @@ const NFTMint = () => {
     try {
       console.log('Starting mint process...', {
         wallet: publicKey.toString(),
-        quantity: 1,
-        totalCost: collectionStats.price
+        price: collectionStats.price
       });
 
       // Call edge function for single NFT
       const { data, error } = await supabase.functions.invoke('mint-nft-v2', {
         body: {
-          walletAddress: publicKey.toString(),
-          quantity: 1
+          walletAddress: publicKey.toString()
         }
       });
 
@@ -72,114 +70,68 @@ const NFTMint = () => {
 
       console.log('Mint response:', data);
 
-      // Handle single transaction
+      // Handle transaction - support both array and single format
+      let txData;
+      let base64Transaction;
+      
       if (data.transactions && Array.isArray(data.transactions) && data.transactions.length > 0) {
-        const txData = data.transactions[0];
-        console.log('Processing single NFT mint:', txData.nftMint);
-        
-        // Decode base64 transaction
-        const transactionBytes = Uint8Array.from(
-          atob(txData.transaction),
-          c => c.charCodeAt(0)
-        );
-        
-        const transaction = VersionedTransaction.deserialize(transactionBytes);
-        console.log('Transaction deserialized successfully');
-
-        // Sign transaction
-        console.log('Requesting wallet signature...');
-        const signedTransaction = await signTransaction(transaction);
-        console.log('Transaction signed');
-
-        // Send transaction
-        console.log('Sending transaction...');
-        const signature = await connection.sendRawTransaction(
-          signedTransaction.serialize(),
-          {
-            skipPreflight: false,
-            preflightCommitment: 'confirmed',
-            maxRetries: 3
-          }
-        );
-        console.log('Transaction sent:', signature);
-
-        // Wait for confirmation
-        console.log('Waiting for confirmation...');
-        const latestBlockhash = await connection.getLatestBlockhash();
-        const confirmation = await connection.confirmTransaction({
-          signature,
-          blockhash: data.blockhash || latestBlockhash.blockhash,
-          lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
-        }, 'confirmed');
-
-        if (confirmation.value.err) {
-          throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-        }
-
-        console.log('Transaction confirmed!');
-        setLastMintSignature(signature);
-        
-        toast.success('Successfully minted NFT!', {
-          action: {
-            label: 'View Transaction',
-            onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
-          }
-        });
-        
+        // New format with array
+        txData = data.transactions[0];
+        base64Transaction = txData.transaction;
+        console.log('Processing NFT mint:', txData.nftMint);
       } else if (data.transaction) {
-        // Fallback to old single transaction format
-        console.log('Single transaction mode (legacy)');
-        
-        const transactionBytes = Uint8Array.from(
-          atob(data.transaction),
-          c => c.charCodeAt(0)
-        );
-        
-        const transaction = VersionedTransaction.deserialize(transactionBytes);
-        console.log('Transaction deserialized successfully');
-
-        // Sign transaction
-        console.log('Requesting wallet signature...');
-        const signedTransaction = await signTransaction(transaction);
-        console.log('Transaction signed');
-
-        // Send transaction
-        console.log('Sending transaction...');
-        const signature = await connection.sendRawTransaction(
-          signedTransaction.serialize(),
-          {
-            skipPreflight: false,
-            preflightCommitment: 'confirmed',
-            maxRetries: 3
-          }
-        );
-        console.log('Transaction sent:', signature);
-
-        // Wait for confirmation
-        console.log('Waiting for confirmation...');
-        const latestBlockhash = await connection.getLatestBlockhash();
-        const confirmation = await connection.confirmTransaction({
-          signature,
-          blockhash: data.blockhash || latestBlockhash.blockhash,
-          lastValidBlockHeight: data.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
-        }, 'confirmed');
-
-        if (confirmation.value.err) {
-          throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-        }
-
-        console.log('Transaction confirmed!');
-        setLastMintSignature(signature);
-        
-        toast.success('Successfully minted NFT!', {
-          action: {
-            label: 'View Transaction',
-            onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
-          }
-        });
+        // Legacy single transaction format
+        txData = data;
+        base64Transaction = data.transaction;
+        console.log('Processing NFT mint (legacy format):', data.nftMint);
       } else {
         throw new Error('No transaction returned from server');
       }
+      
+      // Decode base64 transaction - FIXED decoding
+      const transactionBuffer = Buffer.from(base64Transaction, 'base64');
+      const transaction = VersionedTransaction.deserialize(transactionBuffer);
+      console.log('Transaction deserialized successfully');
+
+      // Sign transaction
+      console.log('Requesting wallet signature...');
+      const signedTransaction = await signTransaction(transaction);
+      console.log('Transaction signed');
+
+      // Send transaction
+      console.log('Sending transaction...');
+      const signature = await connection.sendRawTransaction(
+        signedTransaction.serialize(),
+        {
+          skipPreflight: false,
+          preflightCommitment: 'confirmed',
+          maxRetries: 3
+        }
+      );
+      console.log('Transaction sent:', signature);
+
+      // Wait for confirmation
+      console.log('Waiting for confirmation...');
+      const latestBlockhash = await connection.getLatestBlockhash();
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash: txData.blockhash || latestBlockhash.blockhash,
+        lastValidBlockHeight: txData.lastValidBlockHeight || latestBlockhash.lastValidBlockHeight
+      }, 'confirmed');
+
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+      }
+
+      console.log('Transaction confirmed!');
+      setLastMintSignature(signature);
+      
+      toast.success('Successfully minted NFT!', {
+        action: {
+          label: 'View Transaction',
+          onClick: () => window.open(getSolanaExplorerUrl(signature), '_blank')
+        }
+      });
       
       // Refresh stats after a delay
       setTimeout(() => {
