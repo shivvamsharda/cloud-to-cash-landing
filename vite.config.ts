@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
-    minify: 'terser',
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         // Chunk splitting for better caching
