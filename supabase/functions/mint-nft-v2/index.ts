@@ -150,8 +150,11 @@ Deno.serve(async (req) => {
     });
     
     tx = tx.add(mintInstruction);
+    
+    // CRITICAL: Set the user's wallet as fee payer
+    tx = tx.setFeePayer(userWallet);
 
-    // Build transaction with nftMint as signer
+    // Set blockhash
     const blockhash = await umi.rpc.getLatestBlockhash();
     tx = tx.setBlockhash(blockhash);
     
