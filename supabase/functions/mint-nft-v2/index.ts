@@ -8,7 +8,6 @@ import {
   mplCandyMachine
 } from 'https://esm.sh/@metaplex-foundation/mpl-candy-machine@6.0.1?target=deno';
 import { mplTokenMetadata } from 'https://esm.sh/@metaplex-foundation/mpl-token-metadata@3.3.0?target=deno';
-import { setComputeUnitLimit, setComputeUnitPrice } from 'https://esm.sh/@metaplex-foundation/umi-web3js-adapters@1.4.1?target=deno';
 
 import { encodeBase64 } from 'jsr:@std/encoding/base64';
 
@@ -132,9 +131,40 @@ Deno.serve(async (req) => {
     let builder = transactionBuilder();
     
     // Add compute unit instructions to handle computational budget
+    // Create raw ComputeBudget instructions since mpl-toolbox import fails
+    const computeBudgetProgram = publicKey('ComputeBudget111111111111111111111111111111');
+    
+    // setComputeUnitPrice instruction (type 3, microlamports as u64 little endian)
+    const priceData = new Uint8Array(9);
+    priceData[0] = 3; // instruction type
+    const priceView = new DataView(priceData.buffer);
+    priceView.setBigUint64(1, BigInt(1000), true); // 1000 microlamports, little endian
+    
+    // setComputeUnitLimit instruction (type 2, units as u32 little endian)  
+    const limitData = new Uint8Array(5);
+    limitData[0] = 2; // instruction type
+    const limitView = new DataView(limitData.buffer);
+    limitView.setUint32(1, 400000, true); // 400000 units, little endian
+    
     builder = builder
-      .add(setComputeUnitPrice(umi, { microLamports: 1000 }))
-      .add(setComputeUnitLimit(umi, { units: 400000 }));
+      .add({
+        instruction: {
+          programId: computeBudgetProgram,
+          accounts: [],
+          data: priceData,
+        },
+        signers: [],
+        bytesCreatedOnChain: 0,
+      })
+      .add({
+        instruction: {
+          programId: computeBudgetProgram, 
+          accounts: [],
+          data: limitData,
+        },
+        signers: [],
+        bytesCreatedOnChain: 0,
+      });
     
     // Add mint instruction
     builder = builder.add(
