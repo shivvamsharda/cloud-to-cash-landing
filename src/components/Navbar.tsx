@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -12,36 +12,17 @@ import { toast } from 'sonner';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { disconnect } = useWallet();
 
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Dashboard", href: "/dashboard" },
-    { name: "How It Works", href: "/#how-it-works" },
     { name: "Track", href: "/track" },
     { name: "Rewards", href: "/rewards" },
     { name: "Contact", href: "/contact" }
   ];
 
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href === "/#how-it-works") {
-      e.preventDefault();
-      if (location.pathname === "/") {
-        // Already on home page, just scroll
-        const element = document.getElementById("how-it-works");
-        element?.scrollIntoView({ behavior: "smooth" });
-      } else {
-        // Navigate to home page first, then scroll after navigation
-        navigate('/', { replace: true });
-        setTimeout(() => {
-          const element = document.getElementById("how-it-works");
-          element?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      }
-    }
-  };
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -68,7 +49,10 @@ const Navbar = () => {
               <img 
                 src="https://paugtcnvqdbjcrrmjxma.supabase.co/storage/v1/object/public/website/VapeFi_Trans.png" 
                 alt="VapeFi Logo" 
-                className="h-8 w-auto" 
+                className="h-8 w-auto"
+                loading="eager"
+                width="32"
+                height="32"
               />
             </Link>
           </div>
@@ -76,26 +60,15 @@ const Navbar = () => {
           {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center justify-center space-x-4">
             {navLinks.map(link => (
-              link.href === "/#how-it-works" ? (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
-                  onClick={(e) => handleSmoothScroll(e, link.href)}
-                  className="text-white hover:text-white/70 transition-colors whitespace-nowrap"
-                >
-                  {link.name}
-                </a>
-              ) : (
-                <Link 
-                  key={link.name} 
-                  to={link.href} 
-                  className={`text-white hover:text-white/70 transition-colors whitespace-nowrap ${
-                    isActive(link.href) ? "font-semibold" : ""
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              )
+              <Link 
+                key={link.name} 
+                to={link.href} 
+                className={`text-white hover:text-white/70 transition-colors whitespace-nowrap ${
+                  isActive(link.href) ? "font-semibold" : ""
+                }`}
+              >
+                {link.name}
+              </Link>
             ))}
           </div>
 
@@ -126,30 +99,16 @@ const Navbar = () => {
               <SheetContent side="right" className="w-[300px] bg-[hsl(var(--pure-black))] border-background/20">
                 <div className="flex flex-col space-y-6 mt-8">
                   {navLinks.map(link => (
-                    link.href === "/#how-it-works" ? (
-                      <a 
-                        key={link.name} 
-                        href={link.href} 
-                        onClick={(e) => {
-                          handleSmoothScroll(e, link.href);
-                          setIsOpen(false);
-                        }}
-                        className="text-white hover:text-white/70 transition-colors text-lg"
-                      >
-                        {link.name}
-                      </a>
-                    ) : (
-                      <Link 
-                        key={link.name} 
-                        to={link.href} 
-                        onClick={() => setIsOpen(false)} 
-                        className={`text-white hover:text-white/70 transition-colors text-lg ${
-                          isActive(link.href) ? "font-semibold" : ""
-                        }`}
-                      >
-                        {link.name}
-                      </Link>
-                    )
+                    <Link 
+                      key={link.name} 
+                      to={link.href} 
+                      onClick={() => setIsOpen(false)} 
+                      className={`text-white hover:text-white/70 transition-colors text-lg ${
+                        isActive(link.href) ? "font-semibold" : ""
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
                   ))}
                   <div className="pt-4">
                     {!user ? (
