@@ -2,49 +2,17 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, Plus } from 'lucide-react';
+import { Star, Zap, Plus, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCollectionStats } from '@/hooks/useCollectionStats';
-
-interface NFT {
-  id: string;
-  name: string;
-  image: string;
-  rarity: 'Common' | 'Rare' | 'Epic' | 'Legendary';
-  multiplier: number;
-  attributes: Array<{ trait_type: string; value: string }>;
-}
+import { useUserNFTs } from '@/hooks/useUserNFTs';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const NFTGallery = () => {
-  const { stats, loading } = useCollectionStats();
+  const { stats, loading: statsLoading } = useCollectionStats();
+  const { nfts, loading: nftsLoading, error, refetch, totalMultiplier, nftCount } = useUserNFTs();
+  const { connected } = useWallet();
 
-  // Mock NFT data - in a real app, this would come from the blockchain/API
-  const mockNFTs: NFT[] = [
-    {
-      id: '1',
-      name: 'Vapor Genesis #001',
-      image: '/api/placeholder/200/200',
-      rarity: 'Legendary',
-      multiplier: 3.0,
-      attributes: [
-        { trait_type: 'Background', value: 'Cosmic' },
-        { trait_type: 'Vape', value: 'Diamond' },
-        { trait_type: 'Effect', value: 'Lightning' },
-      ]
-    },
-    {
-      id: '2', 
-      name: 'Vapor Genesis #042',
-      image: '/api/placeholder/200/200',
-      rarity: 'Rare',
-      multiplier: 1.5,
-      attributes: [
-        { trait_type: 'Background', value: 'Neon' },
-        { trait_type: 'Vape', value: 'Gold' },
-        { trait_type: 'Effect', value: 'Smoke' },
-      ]
-    }
-  ];
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -55,7 +23,27 @@ const NFTGallery = () => {
     }
   };
 
-  const totalMultiplier = mockNFTs.reduce((sum, nft) => sum + nft.multiplier, 0);
+  const loading = statsLoading || nftsLoading;
+
+  if (!connected) {
+    return (
+      <div className="space-y-4">
+        <Card className="bg-card-bg border-card-border border-dashed">
+          <CardContent className="p-8 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-brand-purple/20 to-hero-bg/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Star className="h-8 w-8 text-muted-text" />
+            </div>
+            <h3 className="text-lg font-semibold text-hero-text mb-2">
+              Connect Your Wallet
+            </h3>
+            <p className="text-muted-text text-sm">
+              Connect your wallet to view your VapeFi NFT collection
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -67,12 +55,32 @@ const NFTGallery = () => {
 
   return (
     <div className="space-y-4">
+      {/* Error State */}
+      {error && (
+        <Card className="bg-destructive/10 border-destructive/30">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-destructive text-sm">{error}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refetch}
+              className="ml-4"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* NFT Collection Overview */}
-      {mockNFTs.length > 0 && (
+      {nfts.length > 0 && (
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Card className="bg-gradient-to-r from-button-green/10 to-button-green/20 border-button-green/30">
             <CardContent className="p-4 text-center">
-              <div className="text-lg font-bold text-hero-text">{mockNFTs.length}</div>
+              <div className="text-lg font-bold text-hero-text">{nftCount}</div>
               <div className="text-xs text-muted-text">NFTs Owned</div>
             </CardContent>
           </Card>
@@ -87,12 +95,24 @@ const NFTGallery = () => {
 
       {/* NFT Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {mockNFTs.length > 0 ? (
-          mockNFTs.map((nft) => (
+        {nfts.length > 0 ? (
+          nfts.map((nft) => (
             <Card key={nft.id} className="bg-card-bg border-card-border overflow-hidden group hover:border-button-green/50 transition-all duration-300">
               <div className="aspect-square bg-gradient-to-br from-brand-purple/20 to-hero-bg/20 flex items-center justify-center relative">
-                {/* Placeholder for NFT image */}
-                <div className="w-full h-full bg-gradient-to-br from-brand-purple/30 to-hero-bg/30 flex items-center justify-center">
+                {/* NFT Image */}
+                {nft.image ? (
+                  <img 
+                    src={nft.image} 
+                    alt={nft.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                ) : null}
+                <div className={`w-full h-full bg-gradient-to-br from-brand-purple/30 to-hero-bg/30 flex items-center justify-center ${nft.image ? 'hidden' : ''}`}>
                   <Star className="h-16 w-16 text-brand-yellow" />
                 </div>
                 

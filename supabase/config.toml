@@ -12,5 +12,8 @@ verify_jwt = false
 [functions.get-collection-stats]
 verify_jwt = false
 
+[functions.get-user-nfts]
+verify_jwt = false
+
 [functions.mint-nft-v2]
 verify_jwt = false
