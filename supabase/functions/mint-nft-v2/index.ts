@@ -1,6 +1,6 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { createUmi } from 'https://esm.sh/@metaplex-foundation/umi-bundle-defaults@1.4.1?target=deno';
-import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
+import { generateSigner, publicKey, transactionBuilder, keypairIdentity, createNoopSigner, signerIdentity } from 'https://esm.sh/@metaplex-foundation/umi@1.4.1?target=deno';
 import {
   fetchCandyMachine,
   mintV2,
@@ -62,6 +62,8 @@ Deno.serve(async (req) => {
     const candyMachineId = publicKey(candyMachineIdStr);
     const minterPubkey = publicKey(walletAddress);
     const minter = createNoopSigner(minterPubkey);
+    // Use the user's wallet as fee payer (Noop signer, will be signed client-side)
+    (umi as any).use(signerIdentity(minter));
     
     // Fetch candy machine data
     console.log('Fetching candy machine...');
@@ -124,6 +126,9 @@ Deno.serve(async (req) => {
         })
       })
     );
+
+    // Ensure the fee payer is the user's wallet (they will sign client-side)
+    builder = builder.setFeePayer(minter);
 
     // Create temporary Umi with plugins and nftMint keypair to partially sign
     const tempUmi = createUmi(devnetRpc)
