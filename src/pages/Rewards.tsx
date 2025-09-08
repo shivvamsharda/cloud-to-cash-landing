@@ -84,6 +84,88 @@ const Rewards = () => {
           </p>
         </div>
 
+        {/* Time Slot System */}
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold text-white text-center mb-12">Time Slot System</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            
+            {/* Free Slot */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--button-green))]/30 transition-all duration-300">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-400/20 to-gray-600/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                  <Gift className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Free Daily Slot</h3>
+                <div className="text-4xl font-bold text-gray-400 mb-2">0.5x</div>
+                <p className="text-white/70 mb-4">Multiplier</p>
+                
+                <div className="bg-gray-400/10 rounded-lg p-4 mb-6">
+                  <p className="text-white font-semibold mb-2">✨ 10 Minutes Daily</p>
+                  <p className="text-white/70 text-sm">Available to everyone, no NFT required</p>
+                </div>
+                
+                <ul className="space-y-2 text-left">
+                  <li className="text-white/70 text-sm flex items-center">
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
+                    Perfect for trying VapeFi
+                  </li>
+                  <li className="text-white/70 text-sm flex items-center">
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
+                    Resets daily at midnight
+                  </li>
+                  <li className="text-white/70 text-sm flex items-center">
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
+                    No commitment needed
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* NFT Slots */}
+            <div className="bg-white/5 backdrop-blur-sm border border-[hsl(var(--button-green))]/30 rounded-2xl p-8 hover:bg-white/10 hover:border-[hsl(var(--button-green))]/50 transition-all duration-300 relative">
+              <div className="absolute -top-3 -right-3 bg-[hsl(var(--button-green))] text-black px-3 py-1 rounded-full text-xs font-bold">
+                PREMIUM
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--button-green))]/20 to-[hsl(var(--effect-purple))]/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                  <Crown className="w-8 h-8 text-[hsl(var(--button-green))]" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">NFT Slots</h3>
+                <div className="text-4xl font-bold text-[hsl(var(--button-green))] mb-2">10x</div>
+                <p className="text-white/70 mb-4">Multiplier</p>
+                
+                <div className="bg-[hsl(var(--button-green))]/10 rounded-lg p-4 mb-6">
+                  <p className="text-[hsl(var(--button-green))] font-semibold mb-2">🚀 10 Min per NFT</p>
+                  <p className="text-white/70 text-sm">Own 3 NFTs = 30 extra minutes daily</p>
+                </div>
+                
+                <ul className="space-y-2 text-left">
+                  <li className="text-white/70 text-sm flex items-center">
+                    <div className="w-1.5 h-1.5 bg-[hsl(var(--button-green))] rounded-full mr-2"></div>
+                    20x more rewards than free
+                  </li>
+                  <li className="text-white/70 text-sm flex items-center">
+                    <div className="w-1.5 h-1.5 bg-[hsl(var(--button-green))] rounded-full mr-2"></div>
+                    Stack multiple NFTs
+                  </li>
+                  <li className="text-white/70 text-sm flex items-center">
+                    <div className="w-1.5 h-1.5 bg-[hsl(var(--button-green))] rounded-full mr-2"></div>
+                    Future rarity bonuses
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+          </div>
+          
+          <div className="text-center mt-8">
+            <p className="text-white/70 text-lg mb-4">
+              🎯 <span className="text-[hsl(var(--button-green))]">Strategy:</span> Use your NFT slots first (10x multiplier), then fall back to free slot (0.5x multiplier)
+            </p>
+          </div>
+        </div>
+
         {/* Reward Tiers */}
         <div className="mb-20">
           <h2 className="text-3xl font-bold text-white text-center mb-12">Tier System</h2>
@@ -96,14 +178,19 @@ const Rewards = () => {
                     <tier.icon className="w-8 h-8 text-[hsl(var(--button-green))]" />
                   </div>
 
-                  {/* Tier Info */}
-                  <h3 className="text-xl font-bold text-white mb-2">{tier.title}</h3>
-                  <p className="text-[hsl(var(--button-green))] font-semibold mb-4">{tier.requirement}</p>
-                  
-                  {/* Token Earning */}
-                  <div className="bg-[hsl(var(--button-green))]/10 rounded-lg p-3 mb-4">
-                    <p className="text-[hsl(var(--button-green))] font-bold">+{tier.tokens} Tokens/Session</p>
-                  </div>
+          {/* Tier Info */}
+          <h3 className="text-xl font-bold text-white mb-2">{tier.title}</h3>
+          <p className="text-[hsl(var(--button-green))] font-semibold mb-4">{tier.requirement}</p>
+          
+          {/* Multiplier Info */}
+          <div className="bg-[hsl(var(--button-green))]/10 rounded-lg p-3 mb-4">
+            <p className="text-[hsl(var(--button-green))] font-bold">
+              {tier.title === "Bronze Vaper" ? "0.5x Multiplier (Free)" : "10x Multiplier (NFT)"}
+            </p>
+            <p className="text-white/70 text-xs mt-1">
+              {tier.title === "Bronze Vaper" ? "Free daily slot" : "Requires Genesis NFT"}
+            </p>
+          </div>
 
                   {/* Rewards List */}
                   <ul className="space-y-2">

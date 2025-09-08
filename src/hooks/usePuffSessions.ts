@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useTimeSlots } from './useTimeSlots';
 
 interface PuffSession {
   id: string;
@@ -13,6 +14,7 @@ interface PuffSession {
 
 export const usePuffSessions = () => {
   const { user } = useAuth();
+  const { useSlot, getAvailableSlotType } = useTimeSlots();
   const [sessions, setSessions] = useState<PuffSession[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -46,7 +48,19 @@ export const usePuffSessions = () => {
   const createSession = async (puffs_count: number, session_duration: number) => {
     if (!user) throw new Error('User not authenticated');
 
-    const rewards_earned = puffs_count * 0.1; // 0.1 tokens per puff
+    // Get current slot type and multiplier
+    const slotInfo = getAvailableSlotType();
+    if (!slotInfo.type) {
+      throw new Error('No available time slots remaining for today');
+    }
+
+    const sessionMinutes = Math.ceil(session_duration / 60);
+    if (sessionMinutes > slotInfo.minutesRemaining) {
+      throw new Error('Session duration exceeds available slot time');
+    }
+
+    // Calculate rewards with the appropriate multiplier
+    const rewards_earned = puffs_count * slotInfo.multiplier;
 
     try {
       const { data, error } = await supabase
@@ -61,6 +75,9 @@ export const usePuffSessions = () => {
         .single();
 
       if (error) throw error;
+      
+      // Update slot usage
+      await useSlot(slotInfo.type, sessionMinutes);
       
       // Trigger instant score update
       try {
@@ -88,10 +105,22 @@ export const usePuffSessions = () => {
     }
   };
 
+  const getCurrentMultiplier = () => {
+    const slotInfo = getAvailableSlotType();
+    return slotInfo.multiplier;
+  };
+
+  const hasAvailableSlots = () => {
+    const slotInfo = getAvailableSlotType();
+    return slotInfo.type !== null;
+  };
+
   return {
     sessions,
     loading,
     createSession,
     refetch: fetchSessions,
+    getCurrentMultiplier,
+    hasAvailableSlots,
   };
 };

@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { Trophy, Target, Zap, Users, Star, TrendingUp, Calendar, Gift, ArrowRight } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useTimeSlots } from '@/hooks/useTimeSlots';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { usePuffSessions } from '@/hooks/usePuffSessions';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const { sessions } = usePuffSessions();
   const { leaderboard } = useLeaderboard();
   const { stats, loading } = useDashboardStats();
+  const { dailySlots, getTotalRemainingTime, getAvailableSlotType } = useTimeSlots();
 
   // Calculate user rank
   const userRank = leaderboard.findIndex(user => user.id === profile?.id) + 1;
@@ -98,22 +100,17 @@ const Dashboard = () => {
           <Card className="bg-card-bg border-card-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-text flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-brand-yellow" />
-                Current Tier
+                <Target className="h-4 w-4 text-button-green" />
+                Time Slots Today
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-hero-text mb-2">
-                {currentTier.name}
+              <div className="text-2xl font-bold text-hero-text">
+                {getTotalRemainingTime()} min
               </div>
-              {currentTier.next && (
-                <div className="space-y-2">
-                  <Progress value={currentTier.progress} className="h-2" />
-                  <p className="text-xs text-muted-text">
-                    Next: {currentTier.next}
-                  </p>
-                </div>
-              )}
+              <p className="text-xs text-muted-text mt-1">
+                {getAvailableSlotType().multiplier}x multiplier active
+              </p>
             </CardContent>
           </Card>
 
@@ -187,7 +184,7 @@ const Dashboard = () => {
 
           {/* Right Column - 1/3 width */}
           <div className="space-y-6">
-            {/* Quick Actions */}
+            {/* Quick Actions & Time Slots */}
             <Card className="bg-card-bg border-card-border">
               <CardHeader>
                 <CardTitle className="text-hero-text flex items-center gap-2">
@@ -197,6 +194,66 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <QuickActions />
+              </CardContent>
+            </Card>
+
+            {/* Time Slots Status */}
+            <Card className="bg-card-bg border-card-border">
+              <CardHeader>
+                <CardTitle className="text-hero-text flex items-center gap-2">
+                  <Target className="h-5 w-5 text-button-green" />
+                  Today's Time Slots
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {dailySlots ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center p-3 bg-pure-black/30 rounded-lg border border-card-border">
+                        <div className="text-sm text-muted-text">Free Slot</div>
+                        <div className="text-lg font-bold text-hero-text">
+                          {dailySlots.free_slot_minutes_remaining}/10
+                        </div>
+                        <div className="text-xs text-muted-text">0.5x multiplier</div>
+                      </div>
+                      <div className="text-center p-3 bg-pure-black/30 rounded-lg border border-card-border">
+                        <div className="text-sm text-muted-text">NFT Slots</div>
+                        <div className="text-lg font-bold text-button-green">
+                          {dailySlots.nft_slot_minutes_remaining}/{dailySlots.total_available_nft_minutes}
+                        </div>
+                        <div className="text-xs text-muted-text">10x multiplier</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-button-green/10 rounded-lg border border-button-green/20">
+                      <span className="text-sm font-medium text-hero-text">Active Multiplier:</span>
+                      <span className="text-lg font-bold text-button-green">
+                        {getAvailableSlotType().multiplier}x
+                      </span>
+                    </div>
+                    
+                    {getTotalRemainingTime() > 0 ? (
+                      <Link to="/track" className="block">
+                        <Button className="w-full bg-button-green hover:bg-button-green/90 text-black">
+                          Start Tracking ({getTotalRemainingTime()} min left)
+                        </Button>
+                      </Link>
+                    ) : (
+                      <div className="text-center p-3 bg-card-bg rounded-lg border border-card-border">
+                        <div className="text-sm text-muted-text">
+                          No slots remaining today
+                        </div>
+                        <div className="text-xs text-muted-text">
+                          Resets at midnight
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-text">
+                    Loading slot information...
+                  </div>
+                )}
               </CardContent>
             </Card>
 

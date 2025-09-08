@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { usePuffSessions } from '@/hooks/usePuffSessions';
+import { useTimeSlots } from '@/hooks/useTimeSlots';
 import { WalletConnectionModal } from '@/components/WalletConnectionModal';
 
 
@@ -17,7 +18,8 @@ const Track = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { profile, loading: profileLoading, forceRefresh } = useUserProfile();
-  const { createSession, loading: sessionLoading } = usePuffSessions();
+  const { createSession, loading: sessionLoading, getCurrentMultiplier, hasAvailableSlots } = usePuffSessions();
+  const { dailySlots, getAvailableSlotType, getTotalRemainingTime } = useTimeSlots();
   
   const [isTracking, setIsTracking] = useState(false);
   const [currentSession, setCurrentSession] = useState({
@@ -34,6 +36,14 @@ const Track = () => {
   }, [user]);
 
   const startTracking = () => {
+    if (!hasAvailableSlots()) {
+      toast({
+        title: "No time slots remaining",
+        description: "Come back tomorrow for fresh slots!",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsTracking(true);
     setCurrentSession({ puffs: 0, duration: 0 });
   };
@@ -58,7 +68,7 @@ const Track = () => {
         // Force refresh profile to get updated totals immediately
         await forceRefresh();
         
-        const tokensEarned = currentSession.puffs * 0.1;
+        const tokensEarned = currentSession.puffs * getCurrentMultiplier();
         
         toast({
           title: "Session saved!",
@@ -154,6 +164,53 @@ const Track = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Time Slots & Multiplier Info */}
+          <Card className="!bg-neutral-900 !border-neutral-800 text-white md:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-center text-white">Daily Time Slots</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[hsl(var(--button-green))] mb-2">
+                    {getTotalRemainingTime()}
+                  </div>
+                  <div className="text-white/70">Minutes Remaining</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-[hsl(195,100%,50%)] mb-2">
+                    {getCurrentMultiplier()}x
+                  </div>
+                  <div className="text-white/70">Current Multiplier</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-medium text-white mb-2">
+                    {getAvailableSlotType().type === 'nft' ? 'NFT Slot Active' : 
+                     getAvailableSlotType().type === 'free' ? 'Free Slot Active' : 'No Slots'}
+                  </div>
+                  <div className="text-white/70">Active Slot Type</div>
+                </div>
+              </div>
+              
+              {dailySlots && (
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="bg-neutral-800 p-4 rounded-lg text-center">
+                    <div className="text-sm font-medium text-white mb-1">Free Daily Slot</div>
+                    <div className="text-xl font-bold text-white">{dailySlots.free_slot_minutes_remaining}/10</div>
+                    <div className="text-xs text-white/70">minutes • 0.5x multiplier</div>
+                  </div>
+                  <div className="bg-neutral-800 p-4 rounded-lg text-center">
+                    <div className="text-sm font-medium text-white mb-1">NFT Slots</div>
+                    <div className="text-xl font-bold text-[hsl(var(--button-green))]">
+                      {dailySlots.nft_slot_minutes_remaining}/{dailySlots.total_available_nft_minutes}
+                    </div>
+                    <div className="text-xs text-white/70">minutes • 10x multiplier</div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Current Session */}
           <Card className="!bg-neutral-900 !border-neutral-800 text-white">
             <CardHeader>
@@ -187,9 +244,10 @@ const Track = () => {
                     onClick={startTracking} 
                     className="w-full rounded-full bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] hover:bg-[hsl(var(--button-green))]/90" 
                     size="lg"
+                    disabled={!hasAvailableSlots()}
                   >
                     <Play className="w-4 h-4 mr-2" />
-                    Start Tracking
+                    {hasAvailableSlots() ? 'Start Tracking' : 'No Slots Available'}
                   </Button>
                 ) : (
                   <Button 
@@ -232,6 +290,12 @@ const Track = () => {
               <div className="text-center text-sm text-white/70">
                 Progress to Bronze Vaper (100 puffs)
               </div>
+              
+              {getCurrentMultiplier() > 0.5 && (
+                <div className="text-center text-xs text-[hsl(var(--button-green))]">
+                  🚀 NFT Boost Active: {getCurrentMultiplier()}x multiplier!
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

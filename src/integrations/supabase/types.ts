@@ -41,8 +41,10 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          daily_free_slot_used: number | null
           id: string
           last_score_update: string | null
+          last_slot_reset: string | null
           name: string | null
           profile_picture_url: string | null
           total_puffs: number | null
@@ -55,8 +57,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          daily_free_slot_used?: number | null
           id: string
           last_score_update?: string | null
+          last_slot_reset?: string | null
           name?: string | null
           profile_picture_url?: string | null
           total_puffs?: number | null
@@ -69,8 +73,10 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          daily_free_slot_used?: number | null
           id?: string
           last_score_update?: string | null
+          last_slot_reset?: string | null
           name?: string | null
           profile_picture_url?: string | null
           total_puffs?: number | null
@@ -113,6 +119,42 @@ export type Database = {
         }
         Relationships: []
       }
+      time_slots: {
+        Row: {
+          created_at: string
+          id: string
+          minutes_used: number
+          multiplier: number
+          nft_mint: string | null
+          slot_date: string
+          slot_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          minutes_used?: number
+          multiplier?: number
+          nft_mint?: string | null
+          slot_date?: string
+          slot_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          minutes_used?: number
+          multiplier?: number
+          nft_mint?: string | null
+          slot_date?: string
+          slot_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -121,6 +163,10 @@ export type Database = {
       calculate_user_scores: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_user_daily_slots: {
+        Args: { target_user_id: string }
+        Returns: Json
       }
       update_user_scores_instant: {
         Args: { target_user_id: string }
