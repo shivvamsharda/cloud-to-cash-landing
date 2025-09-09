@@ -197,7 +197,7 @@ const NFTMint = () => {
                       {collectionStats.minted.toLocaleString()} / 5,000 minted
                     </p>
                     <p className="text-sm text-muted-text mb-4">
-                      Scarce by design - only 5,000 genesis rigs ever minted at 0.15 SOL each
+                      Scarce by design - only 5,000 genesis rigs ever minted at 0.02 SOL each
                     </p>
                     <Progress value={progressPercentage} className="h-3 mb-2" />
                     <p className="text-sm text-muted-text">
