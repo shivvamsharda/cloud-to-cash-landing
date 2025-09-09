@@ -52,7 +52,7 @@ const HeroSection = () => {
           {/* Green Pill Notification - Now Clickable */}
           <Link to="/mint">
             <div className="bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] px-4 py-2 rounded-full text-sm font-semibold inline-block hover:scale-105 transition-transform duration-200 cursor-pointer">
-              Mint your genesisVapeFi NFT
+              Mint Your Genesis VapeFi NFT
             </div>
           </Link>
         </div>
