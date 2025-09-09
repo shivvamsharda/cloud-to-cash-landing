@@ -192,9 +192,12 @@ const NFTMint = () => {
                   
                   {/* Collection Info */}
                   <div className="text-center md:text-left">
-                    <h3 className="text-2xl font-bold text-hero-text mb-2">VapeFi Genesis</h3>
-                    <p className="text-muted-text mb-4">
-                      {collectionStats.minted.toLocaleString()} / {collectionStats.totalSupply.toLocaleString()} minted
+                    <h3 className="text-2xl font-bold text-hero-text mb-2">VapeFi Genesis Rigs</h3>
+                    <p className="text-muted-text mb-2">
+                      {collectionStats.minted.toLocaleString()} / 5,000 minted
+                    </p>
+                    <p className="text-sm text-muted-text mb-4">
+                      Scarce by design - only 5,000 genesis rigs ever minted at 0.15 SOL each
                     </p>
                     <Progress value={progressPercentage} className="h-3 mb-2" />
                     <p className="text-sm text-muted-text">
@@ -280,23 +283,24 @@ const NFTMint = () => {
       <section className="py-20 bg-card-bg relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-hero-text mb-4">NFT Utilities</h2>
-            <p className="text-xl text-muted-text max-w-3xl mx-auto">
-              Each VapeFi Genesis NFT comes with exclusive benefits and utilities within our ecosystem
+            <h2 className="text-4xl font-bold text-hero-text mb-4">Rig Mechanics & Utilities</h2>
+            <p className="text-xl text-muted-text max-w-4xl mx-auto">
+              VapeFi Rigs aren't just JPEGs to flip - they're playable assets with stats, durability, and soul. 
+              Your weapon in the cloud wars.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
                   <Zap className="w-8 h-8 text-button-green" />
                 </div>
-                <CardTitle className="text-hero-text">Exclusive Access</CardTitle>
+                <CardTitle className="text-hero-text">Main Rig Power</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-text">
-                  Get priority access to new features, beta testing, and VapeFi ecosystem launches
+                  Designate one rig as your earning machine. Its stats determine your $PUFF output per puff.
                 </p>
               </CardContent>
             </Card>
@@ -306,11 +310,11 @@ const NFTMint = () => {
                 <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
                   <Shield className="w-8 h-8 text-button-green" />
                 </div>
-                <CardTitle className="text-hero-text">Governance Rights</CardTitle>
+                <CardTitle className="text-hero-text">Energy Extension</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-text">
-                  Participate in DAO governance and help shape the future direction of VapeFi
+                  Side rigs act as batteries, each adding +2 Energy (~10 minutes) to your daily grind capacity.
                 </p>
               </CardContent>
             </Card>
@@ -320,14 +324,80 @@ const NFTMint = () => {
                 <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
                   <Star className="w-8 h-8 text-button-green" />
                 </div>
-                <CardTitle className="text-hero-text">Rewards & Benefits</CardTitle>
+                <CardTitle className="text-hero-text">4-Stat System</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-text">
-                  Earn exclusive rewards, airdrops, and special benefits as a Genesis holder
+                  Drift (farming), Juice (RNG), Flow (endurance), Burn (efficiency). Choose your playstyle.
                 </p>
               </CardContent>
             </Card>
+
+            <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
+                  <Zap className="w-8 h-8 text-button-green" />
+                </div>
+                <CardTitle className="text-hero-text">Level Progression</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-text">
+                  Level up with $PUFF investment. Hit L10/L20/L30 milestones for multiplier boosts and VAPE access.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
+                  <Star className="w-8 h-8 text-button-green" />
+                </div>
+                <CardTitle className="text-hero-text">Fusion Mechanics</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-text">
+                  Fuse 5 rigs into higher-tier monsters. Chase the legendary Rainbow Rigs for ultimate flex.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-background border-card-border hover:border-button-green/50 transition-all duration-300">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-button-green/20 rounded-full flex items-center justify-center mb-4">
+                  <Shield className="w-8 h-8 text-button-green" />
+                </div>
+                <CardTitle className="text-hero-text">Mystery Crates</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-muted-text">
+                  High Juice rigs trigger RNG crate drops with mods, cosmetics, PUFF packs, and rare shards.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="max-w-4xl mx-auto bg-card-bg/50 border border-card-border rounded-2xl p-8">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-hero-text mb-4">Scarcity & Strategy</h3>
+              <p className="text-muted-text mb-6">
+                With only 5,000 genesis rigs ever minted, each NFT is a strategic asset in the VapeFi ecosystem. 
+                Collectors stack batteries, grinders build monsters, and degens chase Rainbow Rig glory.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div className="bg-background/50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-button-green mb-2">Main + Sides</div>
+                  <div className="text-sm text-muted-text">Strategic rig allocation system</div>
+                </div>
+                <div className="bg-background/50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-button-green mb-2">L30 → VAPE</div>
+                  <div className="text-sm text-muted-text">Governance token unlock</div>
+                </div>
+                <div className="bg-background/50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-button-green mb-2">5→1 Fusion</div>
+                  <div className="text-sm text-muted-text">Path to Rainbow Rigs</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -336,9 +406,9 @@ const NFTMint = () => {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-hero-text mb-4">Collection Roadmap</h2>
-            <p className="text-xl text-muted-text">
-              Our journey to revolutionize the vaping industry with blockchain technology
+            <h2 className="text-4xl font-bold text-hero-text mb-4">The Cloud Prophecy</h2>
+            <p className="text-xl text-muted-text max-w-3xl mx-auto">
+              A story told in puffs, burns, and milestones. The saga of where this movement is headed.
             </p>
           </div>
 
@@ -346,46 +416,73 @@ const NFTMint = () => {
             <div className="space-y-8">
               {[
                 {
-                  phase: "Phase 1",
-                  title: "Genesis Launch",
-                  description: "Launch of 1,000 unique VapeFi Genesis NFTs with exclusive artwork and utilities",
-                  status: "current"
+                  chapter: "Chapter 1",
+                  title: "Genesis (Q4 2025)",
+                  description: "The smoke rises. 5,000 rigs minted into existence. AI puff-verification MVP goes live. PUFF emissions begin. The great 90-day cloudburst kicks off.",
+                  status: "current",
+                  highlights: ["5,000 Genesis Rigs", "AI Verification Live", "Season 1 Sprint"]
                 },
                 {
-                  phase: "Phase 2", 
-                  title: "Community Building",
-                  description: "Build a strong community of vaping enthusiasts and establish governance framework",
-                  status: "upcoming"
+                  chapter: "Chapter 2", 
+                  title: "The Marketplace Awakens (Q1 2026)",
+                  description: "Trading chaos begins. Mods, cosmetics, and loot circulate. 2% platform fee + 4% royalty burns tokens. Whales start fusing rigs and chasing Rainbow Rigs.",
+                  status: "upcoming",
+                  highlights: ["Full Marketplace", "Fusion System", "Rainbow Rigs"]
                 },
                 {
-                  phase: "Phase 3",
-                  title: "Ecosystem Expansion", 
-                  description: "Launch VapeFi marketplace, staking mechanisms, and partner integrations",
-                  status: "upcoming"
+                  chapter: "Chapter 3",
+                  title: "The Prestige Era (Mid 2026)", 
+                  description: "Strongest grinders hit Level 30, unlock VAPE governance token. The DAO forms. PUFF remains the grind currency, VAPE becomes influence.",
+                  status: "upcoming",
+                  highlights: ["VAPE Token Launch", "DAO Governance", "Level 30 Elite"]
                 },
                 {
-                  phase: "Phase 4",
-                  title: "Global Adoption",
-                  description: "Expand globally with new partnerships and innovative blockchain solutions",
-                  status: "upcoming"
+                  chapter: "Chapter 4",
+                  title: "Expansion into Smoke (2027+)",
+                  description: "Metaverse lounges, avatar systems, multi-chain gameplay. VapeFi becomes a living mythology in Web3, a cultural relic of degeneracy.",
+                  status: "upcoming",
+                  highlights: ["Metaverse Integration", "Multi-chain", "Cultural Legacy"]
                 }
               ].map((item, index) => (
-                <div key={index} className="flex gap-6 items-start">
-                  <div className={`w-4 h-4 rounded-full mt-2 flex-shrink-0 ${
-                    item.status === 'current' ? 'bg-button-green' : 'bg-card-border'
-                  }`} />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-hero-text">{item.phase}</h3>
-                      <Badge variant={item.status === 'current' ? 'default' : 'secondary'}>
-                        {item.status === 'current' ? 'Current' : 'Coming Soon'}
-                      </Badge>
+                <div key={index} className="bg-card-bg/30 border border-card-border rounded-2xl p-6 hover:border-button-green/30 transition-all duration-300">
+                  <div className="flex gap-6 items-start">
+                    <div className={`w-6 h-6 rounded-full mt-1 flex-shrink-0 flex items-center justify-center ${
+                      item.status === 'current' ? 'bg-button-green' : 'bg-card-border'
+                    }`}>
+                      {item.status === 'current' && <div className="w-2 h-2 bg-background rounded-full" />}
                     </div>
-                    <h4 className="text-lg font-semibold text-hero-text mb-2">{item.title}</h4>
-                    <p className="text-muted-text">{item.description}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-xl font-bold text-hero-text">{item.chapter}</h3>
+                        <Badge variant={item.status === 'current' ? 'default' : 'secondary'}>
+                          {item.status === 'current' ? 'Active' : 'Prophecy'}
+                        </Badge>
+                      </div>
+                      <h4 className="text-lg font-semibold text-hero-text mb-3">{item.title}</h4>
+                      <p className="text-muted-text mb-4">{item.description}</p>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {item.highlights.map((highlight, idx) => (
+                          <span key={idx} className="text-xs bg-button-green/10 text-button-green px-2 py-1 rounded-full">
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
+            </div>
+            
+            <div className="mt-12 text-center">
+              <div className="bg-gradient-to-r from-button-green/10 to-card-bg/50 border border-button-green/20 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-hero-text mb-2">The Vibe</h3>
+                <p className="text-muted-text text-sm">
+                  Short term → Chaos, emissions, degen rush<br/>
+                  Mid term → PUFF burns, Marketplace dynamics, VAPE prestige<br/>
+                  Long term → VapeFi as lifestyle brand, metaverse flex, Web3 cultural mythology
+                </p>
+              </div>
             </div>
           </div>
         </div>

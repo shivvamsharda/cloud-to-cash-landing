@@ -101,7 +101,7 @@ const Dashboard = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-text flex items-center gap-2">
                 <Target className="h-4 w-4 text-button-green" />
-                Time Slots Today
+                Energy Today
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -109,7 +109,7 @@ const Dashboard = () => {
                 {getTotalRemainingTime()} min
               </div>
               <p className="text-xs text-muted-text mt-1">
-                {getAvailableSlotType().multiplier}x multiplier active
+                {getAvailableSlotType().multiplier}x rig multiplier active
               </p>
             </CardContent>
           </Card>
@@ -202,7 +202,7 @@ const Dashboard = () => {
               <CardHeader>
                 <CardTitle className="text-hero-text flex items-center gap-2">
                   <Target className="h-5 w-5 text-button-green" />
-                  Today's Time Slots
+                  Today's Energy
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -210,23 +210,23 @@ const Dashboard = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="text-center p-3 bg-pure-black/30 rounded-lg border border-card-border">
-                        <div className="text-sm text-muted-text">Free Slot</div>
+                        <div className="text-sm text-muted-text">Base Energy</div>
                         <div className="text-lg font-bold text-hero-text">
                           {dailySlots.free_slot_minutes_remaining}/10
                         </div>
-                        <div className="text-xs text-muted-text">0.5x multiplier</div>
+                        <div className="text-xs text-muted-text">Everyone gets 2 Energy</div>
                       </div>
                       <div className="text-center p-3 bg-pure-black/30 rounded-lg border border-card-border">
-                        <div className="text-sm text-muted-text">NFT Slots</div>
+                        <div className="text-sm text-muted-text">Rig Energy</div>
                         <div className="text-lg font-bold text-button-green">
                           {dailySlots.nft_slot_minutes_remaining}/{dailySlots.total_available_nft_minutes}
                         </div>
-                        <div className="text-xs text-muted-text">10x multiplier (any NFT)</div>
+                        <div className="text-xs text-muted-text">+2 per side rig owned</div>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between p-3 bg-button-green/10 rounded-lg border border-button-green/20">
-                      <span className="text-sm font-medium text-hero-text">Active Multiplier:</span>
+                      <span className="text-sm font-medium text-hero-text">Main Rig Multiplier:</span>
                       <span className="text-lg font-bold text-button-green">
                         {getAvailableSlotType().multiplier}x
                       </span>
@@ -235,23 +235,23 @@ const Dashboard = () => {
                     {getTotalRemainingTime() > 0 ? (
                       <Link to="/track" className="block">
                         <Button className="w-full bg-button-green hover:bg-button-green/90 text-black">
-                          Start Tracking ({getTotalRemainingTime()} min left)
+                          Start Puffing ({getTotalRemainingTime()} Energy left)
                         </Button>
                       </Link>
                     ) : (
                       <div className="text-center p-3 bg-card-bg rounded-lg border border-card-border">
                         <div className="text-sm text-muted-text">
-                          No slots remaining today
+                          No Energy remaining today
                         </div>
                         <div className="text-xs text-muted-text">
-                          Resets at midnight
+                          Battery resets at midnight
                         </div>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="text-center text-muted-text">
-                    Loading slot information...
+                    Loading Energy status...
                   </div>
                 )}
               </CardContent>
