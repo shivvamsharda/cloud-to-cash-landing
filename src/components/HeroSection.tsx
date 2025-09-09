@@ -47,7 +47,7 @@ const HeroSection = () => {
       />
       
       {/* Mint Notification - First Quadrant */}
-      <div className="absolute top-[25%] left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 px-6">
+      <div className="absolute top-[23%] left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 px-6">
         <div className="text-center">
           {/* Green Pill Notification */}
           <div className="bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] px-4 py-2 rounded-full text-sm font-semibold mb-4 inline-block">
@@ -56,7 +56,7 @@ const HeroSection = () => {
           {/* Mint Button */}
           <div>
             <Link to="/mint">
-              <Button variant="hero-primary" className="px-6 py-2 text-sm font-semibold">
+              <Button className="bg-white text-black hover:bg-white/90 px-6 py-2 text-sm font-semibold rounded-full">
                 Mint NFT
               </Button>
             </Link>
