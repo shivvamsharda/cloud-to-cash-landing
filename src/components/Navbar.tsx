@@ -19,7 +19,7 @@ const Navbar = () => {
     { name: "Dashboard", href: "/dashboard" },
     { name: "Track", href: "/track" },
     { name: "Rewards", href: "/rewards" },
-    { name: "Contact", href: "/contact" }
+    { name: "Mint", href: "/mint" }
   ];
 
   const isActive = (href: string) => location.pathname === href;

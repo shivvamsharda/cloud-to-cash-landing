@@ -46,6 +46,24 @@ const HeroSection = () => {
         className="block md:hidden absolute inset-0 w-full h-full object-cover z-10"
       />
       
+      {/* Mint Notification - First Quadrant */}
+      <div className="absolute top-[25%] left-[25%] z-30 -translate-x-1/2 -translate-y-1/2 px-6">
+        <div className="text-center">
+          {/* Green Pill Notification */}
+          <div className="bg-[hsl(var(--button-green))] text-[hsl(var(--pure-black))] px-4 py-2 rounded-full text-sm font-semibold mb-4 inline-block">
+            VapeFi NFT Mint Live Now!
+          </div>
+          {/* Mint Button */}
+          <div>
+            <Link to="/mint">
+              <Button variant="hero-primary" className="px-6 py-2 text-sm font-semibold">
+                Mint NFT
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Content Overlay */}
       <div className="absolute left-1/2 top-[74%] z-20 -translate-x-1/2 -translate-y-1/2 px-6">
         <div className="text-center max-w-4xl mx-auto">
