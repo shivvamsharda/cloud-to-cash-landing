@@ -52,7 +52,7 @@ const Navbar = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-white/70 transition-colors whitespace-nowrap"
+                  className="text-white hover:text-white/70 transition-colors whitespace-nowrap cursor-pointer relative z-10"
                 >
                   {link.name}
                 </a>
@@ -104,7 +104,7 @@ const Navbar = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setIsOpen(false)}
-                        className="text-white hover:text-white/70 transition-colors text-lg"
+                        className="text-white hover:text-white/70 transition-colors text-lg cursor-pointer relative z-10"
                       >
                         {link.name}
                       </a>
