@@ -105,7 +105,7 @@ const RecentActivity = ({ sessions }: RecentActivityProps) => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Zap className="h-3 w-3" />
-                        +{session.rewards_earned.toFixed(1)} VFI
+                        +{session.rewards_earned.toFixed(1)} $PUFF
                       </div>
                     </div>
                   </div>

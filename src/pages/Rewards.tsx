@@ -7,7 +7,7 @@ const Rewards = () => {
     {
       title: "Bronze Vaper",
       requirement: "100+ Puffs",
-      rewards: ["5% Token Bonus", "Basic Profile Badge", "Community Access"],
+      rewards: ["5% $PUFF Bonus", "Basic Profile Badge", "Community Access"],
       color: "from-amber-600 to-amber-800",
       icon: Star,
       tokens: "50"
@@ -15,7 +15,7 @@ const Rewards = () => {
     {
       title: "Silver Cloud",
       requirement: "500+ Puffs", 
-      rewards: ["10% Token Bonus", "Silver Profile Badge", "Priority Support", "Exclusive Rewards"],
+      rewards: ["10% $PUFF Bonus", "Silver Profile Badge", "Priority Support", "Exclusive Rewards"],
       color: "from-gray-400 to-gray-600",
       icon: Gift,
       tokens: "150"
@@ -23,7 +23,7 @@ const Rewards = () => {
     {
       title: "Gold Enthusiast",
       requirement: "1,500+ Puffs",
-      rewards: ["20% Token Bonus", "Gold Profile Badge", "VIP Access", "Custom Themes", "Monthly Airdrops"],
+      rewards: ["20% $PUFF Bonus", "Gold Profile Badge", "VIP Access", "Custom Themes", "Monthly Airdrops"],
       color: "from-yellow-400 to-yellow-600", 
       icon: Trophy,
       tokens: "500"
@@ -31,7 +31,7 @@ const Rewards = () => {
     {
       title: "Platinum Legend",
       requirement: "5,000+ Puffs",
-      rewards: ["35% Token Bonus", "Platinum Badge", "Beta Features", "Direct Developer Access", "Exclusive NFTs"],
+      rewards: ["35% $PUFF Bonus", "Platinum Badge", "Beta Features", "Direct Developer Access", "Exclusive NFTs"],
       color: "from-blue-400 to-blue-600",
       icon: Crown,
       tokens: "2000"
@@ -42,25 +42,25 @@ const Rewards = () => {
     {
       title: "Premium Features",
       description: "Unlock advanced tracking, detailed analytics, and custom themes.",
-      cost: "100 Tokens",
+      cost: "100 $PUFF",
       icon: Zap
     },
     {
       title: "Exclusive Merchandise", 
-      description: "Redeem tokens for VapeFi branded merchandise and accessories.",
-      cost: "250 Tokens",
+      description: "Redeem $PUFF for VapeFi branded merchandise and accessories.",
+      cost: "250 $PUFF",
       icon: Gift
     },
     {
       title: "Hardware Discounts",
       description: "Get discounts on partner vaping hardware and accessories.",
-      cost: "500 Tokens", 
+      cost: "500 $PUFF", 
       icon: Star
     },
     {
       title: "Cash Rewards",
-      description: "Convert your tokens to real cash rewards and crypto payments.",
-      cost: "1000 Tokens",
+      description: "Convert your $PUFF to real cash rewards and crypto payments.",
+      cost: "1000 $PUFF",
       icon: Coins
     }
   ];
@@ -80,7 +80,7 @@ const Rewards = () => {
             Rewards & <span className="text-[hsl(var(--button-green))]">Benefits</span>
           </h1>
           <p className="text-white/70 text-xl max-w-3xl mx-auto">
-            Earn VapeFi tokens with every puff and unlock exclusive rewards, premium features, and real-world benefits.
+            Earn $PUFF tokens with every puff and unlock exclusive rewards, premium features, and real-world benefits.
           </p>
         </div>
 
@@ -209,7 +209,7 @@ const Rewards = () => {
 
         {/* Token Uses */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">What You Can Do With Tokens</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-12">What You Can Do With $PUFF</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {tokenUses.map((use, index) => (
               <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-[hsl(var(--button-green))]/30 transition-all duration-300 hover:scale-105">
@@ -228,7 +228,7 @@ const Rewards = () => {
         <div className="bg-gradient-to-r from-[hsl(var(--effect-purple))]/20 to-[hsl(var(--button-green))]/20 backdrop-blur-sm rounded-2xl p-8 border border-white/10 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Start Earning Today</h2>
           <p className="text-white/70 text-lg mb-6">
-            Join the VapeFi community and turn every puff into valuable rewards.
+            Join the VapeFi community and turn every puff into valuable $PUFF rewards.
           </p>
           <Link to="/track">
             <Button className="bg-[hsl(var(--button-green))] text-black px-8 py-3 rounded-xl font-semibold hover:bg-[hsl(var(--button-green))]/90 transition-colors duration-300">

@@ -70,7 +70,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-hero-text">
-                {(profile?.total_rewards || 0).toFixed(1)} VFI
+                {(profile?.total_rewards || 0).toFixed(1)} $PUFF
               </div>
               <p className="text-xs text-muted-text mt-1">
                 +{stats?.weeklyEarnings || 0} this week

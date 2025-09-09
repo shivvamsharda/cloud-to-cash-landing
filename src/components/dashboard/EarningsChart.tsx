@@ -61,7 +61,7 @@ const EarningsChart = () => {
         <div className="bg-card-bg border border-card-border rounded-lg p-3">
           <p className="text-hero-text font-medium">{label}</p>
           <p className="text-button-green">
-            Earnings: {payload[0].value} VFI
+            Earnings: {payload[0].value} $PUFF
           </p>
           {payload[0].payload.puffs && (
             <p className="text-muted-text text-sm">
@@ -129,7 +129,7 @@ const EarningsChart = () => {
           <div className="text-center">
             <div className="text-sm text-muted-text">Total Earnings</div>
             <div className="text-lg font-semibold text-hero-text">
-              {chartData.reduce((sum, day) => sum + day.earnings, 0).toFixed(2)} VFI
+              {chartData.reduce((sum, day) => sum + day.earnings, 0).toFixed(2)} $PUFF
             </div>
           </div>
           <div className="text-center">
