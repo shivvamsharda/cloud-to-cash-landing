@@ -2,7 +2,7 @@ import React, { ReactNode, useMemo, useState, useEffect } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { getRpcEndpoint } from '@/lib/umiClient';
+import { supabase } from '@/integrations/supabase/client';
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -15,15 +15,29 @@ export const WalletContextProvider: React.FC<WalletContextProviderProps> = ({ ch
   const [endpoint, setEndpoint] = useState<string>('https://api.mainnet-beta.solana.com');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch RPC endpoint on mount
+  // Fetch RPC endpoint from edge function
   useEffect(() => {
     const fetchEndpoint = async () => {
       try {
-        const rpcEndpoint = await getRpcEndpoint();
+        const { data, error } = await supabase.functions.invoke('get-rpc-endpoint');
+        
+        if (error) {
+          console.warn('Failed to fetch RPC endpoint from edge function:', error);
+          setIsLoading(false);
+          return;
+        }
+
+        const rpcEndpoint = data?.rpcEndpoint || 'https://api.mainnet-beta.solana.com';
         setEndpoint(rpcEndpoint);
-        console.log('Using Solana RPC host:', new URL(rpcEndpoint).hostname);
+        
+        // Log warning if we're still on public endpoint
+        if (rpcEndpoint.includes('api.mainnet-beta.solana.com')) {
+          console.warn('Using public Solana RPC endpoint - may encounter rate limits');
+        } else {
+          console.log('Using Solana RPC host:', new URL(rpcEndpoint).hostname);
+        }
       } catch (error) {
-        console.warn('Failed to load RPC endpoint, using default');
+        console.warn('Failed to load RPC endpoint, using default:', error);
       } finally {
         setIsLoading(false);
       }
