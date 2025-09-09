@@ -10,11 +10,11 @@ const corsHeaders = {
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
 const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-const devnetRpc = Deno.env.get('DEVNET_RPC');
+const mainnetRpc = Deno.env.get('MAINNET_RPC');
 const collectionMintId = Deno.env.get('COLLECTION_MINT_ID');
 const verifiedCreator = Deno.env.get('VERIFIED_CREATOR'); // Optional fallback
 
-if (!supabaseUrl || !supabaseAnonKey || !devnetRpc || !collectionMintId) {
+if (!supabaseUrl || !supabaseAnonKey || !mainnetRpc || !collectionMintId) {
   console.error('Missing required environment variables');
 }
 
@@ -70,7 +70,7 @@ serve(async (req) => {
     }
 
     // Use searchAssets for more flexible collection detection
-    const searchResponse = await fetch(devnetRpc!, {
+    const searchResponse = await fetch(mainnetRpc!, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ serve(async (req) => {
     if (collectionNFTs.length === 0 && verifiedCreator) {
       console.log(`No NFTs found by collection, trying verified creator: ${verifiedCreator}`);
       
-      const creatorResponse = await fetch(devnetRpc!, {
+      const creatorResponse = await fetch(mainnetRpc!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ serve(async (req) => {
     if (collectionNFTs.length === 0) {
       console.log('No NFTs found with search methods, trying getAssetsByOwner...');
       
-      const ownerResponse = await fetch(devnetRpc!, {
+      const ownerResponse = await fetch(mainnetRpc!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

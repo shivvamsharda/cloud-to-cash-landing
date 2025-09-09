@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
     }
 
     // Get environment variables
-    const rpcUrl = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
+    const rpcUrl = Deno.env.get('MAINNET_RPC') || 'https://api.mainnet-beta.solana.com';
     const candyMachineIdStr = Deno.env.get('CANDY_MACHINE_ID');
     const candyGuardIdStr = Deno.env.get('CANDY_GUARD_ID');
     

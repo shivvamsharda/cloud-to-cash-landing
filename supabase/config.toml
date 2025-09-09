@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.mint-nft-v2]
 verify_jwt = false
+
+[functions.get-rpc-endpoint]
+verify_jwt = false

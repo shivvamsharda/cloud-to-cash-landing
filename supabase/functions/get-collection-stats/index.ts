@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     console.log('Fetching collection stats...');
     
     // Get configuration from Supabase secrets
-    const devnetRpc = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
+    const mainnetRpc = Deno.env.get('MAINNET_RPC') || 'https://api.mainnet-beta.solana.com';
     const candyMachineIdStr = Deno.env.get('CANDY_MACHINE_ID');
     const candyGuardIdStr = Deno.env.get('CANDY_GUARD_ID');
     
@@ -41,12 +41,12 @@ Deno.serve(async (req) => {
       throw new Error('CANDY_GUARD_ID not configured');
     }
     
-    console.log('Using RPC:', devnetRpc);
+    console.log('Using RPC:', mainnetRpc);
     console.log('Candy Machine ID:', candyMachineIdStr);
     console.log('Candy Guard ID:', candyGuardIdStr);
 
     // Initialize Umi with required Metaplex programs
-    const umi = createUmi(devnetRpc)
+    const umi = createUmi(mainnetRpc)
       .use(mplTokenMetadata())
       .use(mplCandyMachine());
     

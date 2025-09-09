@@ -32,10 +32,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const devnetRpc = Deno.env.get('DEVNET_RPC') || 'https://api.devnet.solana.com';
+    const mainnetRpc = Deno.env.get('MAINNET_RPC') || 'https://api.mainnet-beta.solana.com';
     
-    // Initialize Umi with devnet RPC
-    const umi = createUmi(devnetRpc);
+    // Initialize Umi with mainnet RPC
+    const umi = createUmi(mainnetRpc);
     
     const candyMachinePubkey = publicKey(candyMachineId);
     

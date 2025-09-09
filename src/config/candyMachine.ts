@@ -6,7 +6,7 @@ export const CANDY_MACHINE_CONFIG = {
   // Default values - actual values come from Supabase secrets via edge functions
   DEFAULT_MINT_PRICE: 0.15, // SOL
   MAX_MINT_PER_TRANSACTION: 10,
-  NETWORK: 'devnet' as const,
+  NETWORK: 'mainnet' as const,
   
   // Error messages
   ERRORS: {
@@ -28,7 +28,7 @@ export const CANDY_MACHINE_CONFIG = {
 /**
  * Get Solana Explorer URL for a transaction
  */
-export const getSolanaExplorerUrl = (signature: string, network: 'mainnet' | 'devnet' = 'devnet') => {
+export const getSolanaExplorerUrl = (signature: string, network: 'mainnet' | 'devnet' = 'mainnet') => {
   const cluster = network === 'devnet' ? '?cluster=devnet' : '';
   return `https://explorer.solana.com/tx/${signature}${cluster}`;
 };

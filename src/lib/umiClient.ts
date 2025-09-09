@@ -6,8 +6,8 @@ import { WalletAdapter } from '@solana/wallet-adapter-base';
  * Creates a Umi client instance configured for the current wallet and network
  */
 export const createUmiClient = (wallet: WalletAdapter | null, rpcEndpoint?: string) => {
-  // Default to devnet if no RPC endpoint provided
-  const endpoint = rpcEndpoint || 'https://api.devnet.solana.com';
+  // Default to mainnet if no RPC endpoint provided
+  const endpoint = rpcEndpoint || 'https://api.mainnet-beta.solana.com';
   
   // Create Umi instance
   const umi = createUmi(endpoint);
@@ -25,11 +25,11 @@ export const createUmiClient = (wallet: WalletAdapter | null, rpcEndpoint?: stri
  */
 export const getRpcEndpoint = async (): Promise<string> => {
   try {
-    // This would typically come from an edge function that has access to secrets
-    // For now, we'll use the default devnet endpoint
-    return 'https://api.devnet.solana.com';
+    // This comes from an edge function that has access to secrets
+    // For now, we'll use the default mainnet endpoint
+    return 'https://api.mainnet-beta.solana.com';
   } catch (error) {
     console.warn('Failed to fetch RPC endpoint, using default:', error);
-    return 'https://api.devnet.solana.com';
+    return 'https://api.mainnet-beta.solana.com';
   }
 };

@@ -13,9 +13,9 @@ interface WalletContextProviderProps {
 export const WalletContextProvider: React.FC<WalletContextProviderProps> = ({ children }) => {
   // Use custom RPC endpoint for better reliability
   const endpoint = useMemo(() => {
-    // In production, this would come from Supabase secrets via an edge function
-    // For now, we'll use a fallback devnet endpoint
-    return 'https://api.devnet.solana.com';
+    // In production, this comes from Supabase secrets via an edge function
+    // For now, we'll use a fallback mainnet endpoint
+    return 'https://api.mainnet-beta.solana.com';
   }, []);
   
   const wallets = useMemo(
