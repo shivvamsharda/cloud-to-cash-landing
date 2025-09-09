@@ -14,14 +14,6 @@ const NFTGallery = () => {
   const { connected } = useWallet();
 
 
-  const getRarityColor = (rarity: string) => {
-    switch (rarity) {
-      case 'Legendary': return 'bg-gradient-to-r from-yellow-400 to-orange-500';
-      case 'Epic': return 'bg-gradient-to-r from-purple-400 to-pink-500';
-      case 'Rare': return 'bg-gradient-to-r from-blue-400 to-cyan-500';
-      default: return 'bg-gradient-to-r from-gray-400 to-gray-600';
-    }
-  };
 
   const loading = statsLoading || nftsLoading;
 
@@ -115,13 +107,6 @@ const NFTGallery = () => {
                 <div className={`w-full h-full bg-gradient-to-br from-brand-purple/30 to-hero-bg/30 flex items-center justify-center ${nft.image ? 'hidden' : ''}`}>
                   <Star className="h-16 w-16 text-brand-yellow" />
                 </div>
-                
-                {/* Rarity Badge */}
-                <Badge 
-                  className={`absolute top-2 right-2 ${getRarityColor(nft.rarity)} text-white border-0`}
-                >
-                  {nft.rarity}
-                </Badge>
 
                 {/* Multiplier Badge */}
                 <Badge 
