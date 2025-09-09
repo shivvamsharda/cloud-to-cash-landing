@@ -19,7 +19,8 @@ const Navbar = () => {
     { name: "Dashboard", href: "/dashboard" },
     { name: "Track", href: "/track" },
     { name: "Rewards", href: "/rewards" },
-    { name: "Mint", href: "/mint" }
+    { name: "Mint", href: "/mint" },
+    { name: "Docs", href: "https://vapefi.gitbook.io/vapefi-docs/", external: true }
   ];
 
   const isActive = (href: string) => location.pathname === href;
@@ -45,15 +46,27 @@ const Navbar = () => {
           {/* Desktop Navigation - Centered */}
           <div className="hidden md:flex items-center justify-center space-x-4">
             {navLinks.map(link => (
-              <Link 
-                key={link.name} 
-                to={link.href} 
-                className={`text-white hover:text-white/70 transition-colors whitespace-nowrap ${
-                  isActive(link.href) ? "font-semibold" : ""
-                }`}
-              >
-                {link.name}
-              </Link>
+              link.external ? (
+                <a 
+                  key={link.name}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-white/70 transition-colors whitespace-nowrap"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link 
+                  key={link.name} 
+                  to={link.href} 
+                  className={`text-white hover:text-white/70 transition-colors whitespace-nowrap ${
+                    isActive(link.href) ? "font-semibold" : ""
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              )
             ))}
           </div>
 
@@ -84,16 +97,29 @@ const Navbar = () => {
               <SheetContent side="right" className="w-[300px] bg-[hsl(var(--pure-black))] border-background/20">
                 <div className="flex flex-col space-y-6 mt-8">
                   {navLinks.map(link => (
-                    <Link 
-                      key={link.name} 
-                      to={link.href} 
-                      onClick={() => setIsOpen(false)} 
-                      className={`text-white hover:text-white/70 transition-colors text-lg ${
-                        isActive(link.href) ? "font-semibold" : ""
-                      }`}
-                    >
-                      {link.name}
-                    </Link>
+                    link.external ? (
+                      <a 
+                        key={link.name}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsOpen(false)}
+                        className="text-white hover:text-white/70 transition-colors text-lg"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link 
+                        key={link.name} 
+                        to={link.href} 
+                        onClick={() => setIsOpen(false)} 
+                        className={`text-white hover:text-white/70 transition-colors text-lg ${
+                          isActive(link.href) ? "font-semibold" : ""
+                        }`}
+                      >
+                        {link.name}
+                      </Link>
+                    )
                   ))}
                   <div className="pt-4">
                     {!user ? (
