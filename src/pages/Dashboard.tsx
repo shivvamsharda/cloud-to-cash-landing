@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
-import { Trophy, Target, Zap, Users, Star, TrendingUp, Calendar, Gift, ArrowRight } from 'lucide-react';
+import { Trophy, Target, Zap, Users, Star, TrendingUp, Calendar, Gift, ArrowRight, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useTimeSlots } from '@/hooks/useTimeSlots';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -57,6 +58,14 @@ const Dashboard = () => {
             Track your progress and manage your VapeFi journey
           </p>
         </div>
+
+        {/* Beta Notice */}
+        <Alert variant="destructive" className="mb-8">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="font-medium">
+            These stats are in beta mode currently. Real stats will go live post NFT mint or 48 hrs, whichever is sooner.
+          </AlertDescription>
+        </Alert>
 
         {/* Stats Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
