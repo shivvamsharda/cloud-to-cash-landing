@@ -35,7 +35,7 @@ const Dashboard = () => {
     return { name: 'Starter', color: 'bg-gradient-to-r from-green-400 to-green-600', progress: (puffs / 100) * 100, next: 'Bronze (100 puffs)' };
   };
 
-  const currentTier = getCurrentTier(profile?.total_puffs || 0);
+  const currentTier = getCurrentTier(stats?.totalPuffs || 0);
 
   if (loading) {
     return (
@@ -70,7 +70,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-hero-text">
-                {(profile?.total_rewards || 0).toFixed(1)} $PUFF
+                {(stats?.totalEarnings || 0).toFixed(1)} $PUFF
               </div>
               <p className="text-xs text-muted-text mt-1">
                 +{stats?.weeklyEarnings || 0} this week
@@ -88,7 +88,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-hero-text">
-                {profile?.total_puffs || 0}
+                {stats?.totalPuffs || 0}
               </div>
               <p className="text-xs text-muted-text mt-1">
                 +{stats?.weeklyPuffs || 0} this week

@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 interface DashboardStats {
+  totalPuffs: number;
+  totalEarnings: number;
   weeklyPuffs: number;
   weeklyEarnings: number;
   monthlyPuffs: number;
@@ -43,6 +45,10 @@ export const useDashboardStats = () => {
       if (error) throw error;
 
       const sessionsData = sessions || [];
+
+      // Calculate total stats from all sessions
+      const totalPuffs = sessionsData.reduce((sum, session) => sum + (session.puffs_count || 0), 0);
+      const totalEarnings = sessionsData.reduce((sum, session) => sum + (session.rewards_earned || 0), 0);
 
       // Calculate weekly stats
       const weeklySession = sessionsData.filter(
@@ -97,6 +103,8 @@ export const useDashboardStats = () => {
       }
 
       setStats({
+        totalPuffs,
+        totalEarnings,
         weeklyPuffs,
         weeklyEarnings,
         monthlyPuffs,
