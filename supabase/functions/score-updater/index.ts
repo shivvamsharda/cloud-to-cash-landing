@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
           console.error(`❌ Error updating profile for user ${profile.id}:`, updateError)
         } else {
           updatedUsers++
-          console.log(`✅ Updated user ${profile.id}: +${newPuffs} puffs, +${newRewards.toFixed(1)} tokens`)
+          console.log(`✅ Updated user ${profile.id}: +${newPuffs} puffs, +${newRewards.toFixed(1)} $VAPE tokens`)
         }
       } else {
         // Update timestamp even if no new puffs

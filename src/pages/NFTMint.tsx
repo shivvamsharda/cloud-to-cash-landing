@@ -300,7 +300,7 @@ const NFTMint = () => {
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-text">
-                  Designate one rig as your earning machine. Its stats determine your $PUFF output per puff.
+                  Designate one rig as your earning machine. Its stats determine your $VAPE output per puff.
                 </p>
               </CardContent>
             </Card>
@@ -342,7 +342,7 @@ const NFTMint = () => {
               </CardHeader>
               <CardContent className="text-center">
                 <p className="text-muted-text">
-                  Level up with $PUFF investment. Hit L10/L20/L30 milestones for multiplier boosts and VAPE access.
+                  Level up with $VAPE investment. Hit L10/L20/L30 milestones for multiplier boosts and VAPE access.
                 </p>
               </CardContent>
             </Card>

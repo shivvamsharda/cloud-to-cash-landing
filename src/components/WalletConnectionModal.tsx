@@ -91,7 +91,7 @@ export const WalletConnectionModal: React.FC<WalletConnectionModalProps> = ({
             Connect Your Wallet
           </DialogTitle>
           <DialogDescription className="text-center text-white/70 text-base">
-            Connect your Solana wallet to start tracking puffs and earning $PUFF tokens
+            Connect your Solana wallet to start tracking puffs and earning $VAPE tokens
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +102,7 @@ export const WalletConnectionModal: React.FC<WalletConnectionModalProps> = ({
               <div className="w-8 h-8 rounded-full bg-[hsl(var(--button-green))]/20 flex items-center justify-center">
                 <Coins className="w-4 h-4 text-[hsl(var(--button-green))]" />
               </div>
-              <span>Earn 0.1 $PUFF tokens per puff</span>
+              <span>Earn 0.1 $VAPE tokens per puff</span>
             </div>
             <div className="flex items-center gap-3 text-white/80">
               <div className="w-8 h-8 rounded-full bg-[hsl(var(--effect-purple))]/20 flex items-center justify-center">

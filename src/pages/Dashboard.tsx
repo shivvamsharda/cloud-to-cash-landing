@@ -79,7 +79,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-hero-text">
-                {(stats?.totalEarnings || 0).toFixed(1)} $PUFF
+                {(stats?.totalEarnings || 0).toFixed(1)} $VAPE
               </div>
               <p className="text-xs text-muted-text mt-1">
                 +{stats?.weeklyEarnings || 0} this week

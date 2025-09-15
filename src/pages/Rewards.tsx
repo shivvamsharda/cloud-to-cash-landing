@@ -6,7 +6,7 @@ const Rewards = () => {
   const rigStats = [
     {
       name: "Drift",
-      description: "The Farm Stat - Raw PUFF output per puff. High Drift rigs are cash printers that prioritize steady income over everything else.",
+      description: "The Farm Stat - Raw $VAPE output per puff. High Drift rigs are cash printers that prioritize steady income over everything else.",
       icon: Zap,
       color: "from-yellow-400 to-orange-500",
       strategy: "For grinders who want maximum ROI and consistent farming"
@@ -38,25 +38,25 @@ const Rewards = () => {
     {
       title: "Rig Repairs & Maintenance",
       description: "Keep your rigs in fighting condition. Durability matters in the cloud wars.",
-      cost: "Variable $PUFF",
+      cost: "Variable $VAPE",
       icon: Shield
     },
     {
       title: "Level Upgrades (L10/L20/L30)", 
       description: "Hit milestone multipliers and unlock VAPE governance token at Level 30.",
-      cost: "Scaling $PUFF",
+      cost: "Scaling $VAPE",
       icon: Trophy
     },
     {
       title: "Rig Fusion (5→1)",
       description: "Fuse five rigs into one higher-tier monster. Chase those Rainbow Rigs.",
-      cost: "Heavy $PUFF Sink", 
+      cost: "Heavy $VAPE Sink", 
       icon: Layers
     },
     {
       title: "Mystery Crates",
-      description: "RNG dopamine hits. Mods, cosmetics, PUFF packs, and rare shards await.",
-      cost: "Variable $PUFF",
+      description: "RNG dopamine hits. Mods, cosmetics, $VAPE packs, and rare shards await.",
+      cost: "Variable $VAPE",
       icon: Gift
     },
     {
@@ -134,7 +134,7 @@ const Rewards = () => {
                     <Coins className="w-8 h-8 text-[hsl(var(--effect-purple))]" />
                   </div>
                   <h4 className="text-lg font-bold text-white mb-2">2. Earn</h4>
-                  <p className="text-white/60 text-sm">Every verified puff transforms into $PUFF tokens. Your rig stats determine the multiplier.</p>
+                  <p className="text-white/60 text-sm">Every verified puff transforms into $VAPE tokens. Your rig stats determine the multiplier.</p>
                 </div>
                 
                 <div className="text-center">
@@ -142,7 +142,7 @@ const Rewards = () => {
                     <Trophy className="w-8 h-8 text-[hsl(var(--button-green))]" />
                   </div>
                   <h4 className="text-lg font-bold text-white mb-2">3. Upgrade</h4>
-                  <p className="text-white/60 text-sm">Reinvest $PUFF into repairs, levels, fusions. Build your rig into a monster.</p>
+                  <p className="text-white/60 text-sm">Reinvest $VAPE into repairs, levels, fusions. Build your rig into a monster.</p>
                 </div>
                 
                 <div className="text-center">
@@ -245,9 +245,9 @@ const Rewards = () => {
           </div>
         </div>
 
-        {/* $PUFF Tokenomics */}
+        {/* $VAPE Tokenomics */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">$PUFF - The Reward Cloud</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-12">$VAPE - The Reward Cloud</h2>
           
           <div className="max-w-4xl mx-auto mb-12">
             <div className="bg-gradient-to-r from-[hsl(var(--effect-purple))]/10 to-[hsl(var(--button-green))]/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
@@ -255,7 +255,7 @@ const Rewards = () => {
                 <Coins className="w-16 h-16 text-[hsl(var(--button-green))] mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-white mb-4">The Lifeblood of VapeFi</h3>
                 <p className="text-white/70 text-lg mb-6">
-                  PUFF isn't meant to sit idle. It's designed to flow, burn, and circulate at the speed of vapor.
+                  $VAPE isn't meant to sit idle. It's designed to flow, burn, and circulate at the speed of vapor.
                 </p>
               </div>
               
@@ -276,7 +276,7 @@ const Rewards = () => {
               
               <div className="text-center">
                 <p className="text-white/70 text-sm">
-                  ~2.2M $PUFF distributed daily across the grinder ecosystem
+                  ~2.2M $VAPE distributed daily across the grinder ecosystem
                 </p>
               </div>
             </div>
@@ -300,7 +300,7 @@ const Rewards = () => {
             <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 max-w-3xl mx-auto">
               <h4 className="text-xl font-bold text-[hsl(var(--button-green))] mb-2">The Choice</h4>
               <p className="text-white/70">
-                Every $PUFF earned forces a decision: <span className="text-white font-semibold">cash out or reinvest?</span> Short-term profit or long-term dominance? 
+                Every $VAPE earned forces a decision: <span className="text-white font-semibold">cash out or reinvest?</span> Short-term profit or long-term dominance? 
                 That tension is the beating heart of the VapeFi economy.
               </p>
             </div>

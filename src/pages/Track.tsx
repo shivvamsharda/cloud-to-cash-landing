@@ -72,7 +72,7 @@ const Track = () => {
         
         toast({
           title: "Session saved!",
-          description: `Earned ${tokensEarned.toFixed(1)} VapeFi tokens from ${currentSession.puffs} puffs.`,
+          description: `Earned ${tokensEarned.toFixed(1)} $VAPE tokens from ${currentSession.puffs} puffs.`,
         });
       } catch (error) {
         console.error('Error saving session:', error);
@@ -280,7 +280,7 @@ const Track = () => {
                 <div className="text-2xl font-semibold text-[hsl(var(--button-green))] mb-2">
                   {profile?.total_rewards?.toFixed(1) || '0.0'}
                 </div>
-                <div className="text-white/70">Total VapeFi Tokens</div>
+                <div className="text-white/70">Total $VAPE Tokens</div>
               </div>
 
               <Progress 

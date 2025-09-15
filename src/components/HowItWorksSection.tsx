@@ -13,13 +13,13 @@ const HowItWorksSection = () => {
     {
       icon: Trophy,
       title: "Earn Rewards",
-      description: "Get $PUFF tokens for every verified puff. The more you vape, the more you earn.",
+      description: "Get $VAPE tokens for every verified puff. The more you vape, the more you earn.",
       number: "02"  
     },
     {
       icon: Gift,
       title: "Redeem Benefits",
-      description: "Use your earned $PUFF for exclusive rewards, discounts, and premium features.",
+      description: "Use your earned $VAPE for exclusive rewards, discounts, and premium features.",
       number: "03"
     }
   ];

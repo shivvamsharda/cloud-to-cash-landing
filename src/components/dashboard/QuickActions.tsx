@@ -75,7 +75,7 @@ const QuickActions = () => {
               Daily Bonus
             </div>
             <div className="text-xs text-muted-text">
-              Complete 10 puffs for +5 $PUFF
+              Complete 10 puffs for +5 $VAPE
             </div>
           </div>
         </div>
@@ -88,7 +88,7 @@ const QuickActions = () => {
           </div>
           <div className="flex justify-between text-xs text-muted-text mt-1">
             <span>6 / 10 puffs</span>
-            <span>+5 $PUFF</span>
+            <span>+5 $VAPE</span>
           </div>
         </div>
       </div>

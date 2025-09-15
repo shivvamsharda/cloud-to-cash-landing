@@ -12,7 +12,7 @@ const FAQ = () => {
     },
     {
       question: "How do I earn rewards?",
-      answer: "You earn $PUFF tokens by completing verified vaping sessions. Each detected puff contributes to your score, and rewards are automatically calculated and distributed to your connected wallet based on your activity level."
+      answer: "You earn $VAPE tokens by completing verified vaping sessions. Each detected puff contributes to your score, and rewards are automatically calculated and distributed to your connected wallet based on your activity level."
     },
     {
       question: "What wallet do I need?",
